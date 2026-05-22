@@ -113,22 +113,44 @@ sequenceDiagram
 |-------|---------|-------|
 | Task | Overall goal | Cursor Plan title |
 | Feature group | One API/capability | Chat outline only |
-| Sub-step | One layer outcome | **One Cursor Plan todo each** |
+| Sub-step | One layer or cohesive capability | **One Cursor Plan todo each** |
 
 **Critical:** 5 sub-steps in outline → **5 Cursor Plan todos**. Do not nest sub-steps in one todo.
 
 Prefix titles: `[Register] Controller: stub POST /users`
 
+### Todo granularity — do not over-split
+
+Split todos by **layer** or **cohesive function/capability** — not by every type, file, or mechanical step.
+
+| Split todos by (good) | Do not split todos by (bad) |
+|------------------------|-----------------------------|
+| Controller / service / repo / IT layer | DTO, request struct, response struct alone |
+| One capability: `CreateUser`, `GetUser`, `register` handler | `CreateUserRequest` vs `CreateUser` as separate todos |
+| One endpoint + its tests at that layer | Imports, wiring-only, “add file”, rename |
+| Diagram box or sequence participant | Single field, mapper line, private helper unless huge |
+
+**Rule:** Everything needed for **one named outcome** at that layer lives in **one todo**. Types, helpers, and stubs that exist only for that function belong **inside** that todo — not their own Cursor Plan items.
+
+**Example (service layer):**
+
+- **Good (one todo):** `[Register] Service: CreateUser(req CreateUserRequest)` — implement `CreateUser`, `CreateUserRequest`, and service test together; **verify:** service unit test green  
+- **Bad (over-split):** todo 1 `CreateUserRequest` · todo 2 `CreateUser` · todo 3 `CreateUser test`
+
+Same for controller: stub route, handler, and request/response types for that handler = **one controller todo** unless the repo already treats them as separate PRs (rare).
+
 ### 4. Sub-step order (per feature)
+
+Follow the **repo’s real stack**. Typical sequence (skip layers the project doesn’t have):
 
 | Step | Layer | Do | Verify |
 |------|-------|-----|--------|
 | 1 | Controller | Stub route/request + handler | Controller/unit test per repo pattern |
-| 2 | Service | Logic; mock downstream | Service unit test |
-| 3+ | Repo, domain, DB, … | One todo per component | Test at that layer |
+| 2 | Service | Capabilities at this layer (e.g. `CreateUser` + its types); mock downstream | Service unit test for that capability |
+| 3+ | Repo, domain, DB, … | One todo per inner component | Test at that layer |
 | last | IT | Only if repo uses IT/e2e | IT or HTTP test green |
 
-Default **bottom-up** unless the repo usually does otherwise.
+Default **bottom-up** among dependencies unless the repo usually does otherwise — still **one todo per layer**, in the order you put in the plan after asking the user.
 
 **Inside each todo:** failing test → minimal code → verify → complete → next.
 
@@ -141,7 +163,7 @@ Default **bottom-up** unless the repo usually does otherwise.
 | Todo | Verify |
 |------|--------|
 | `[Register] Controller: stub POST /users/register` | Route/handler test per repo |
-| `[Register] Service: register (mock repo)` | Service unit test green |
+| `[Register] Service: CreateUser(req) + types` | Service unit test green |
 | `[Register] Repository: persist user` | Repo test green |
 | `[Register] DB: migration if needed` | Migration/DB check green |
 | `[Register] IT: full flow` | IT green if project has IT |
@@ -195,4 +217,4 @@ Skip formal plan and diagram; verify if cheap.
 
 ---
 
-**Working well if:** diagram confirmed, code matches call flow, each sub-step is its own Cursor todo, tests match the repo.
+**Working well if:** diagram confirmed, code matches call flow, each sub-step is its own capability-sized Cursor todo, tests match the repo.
