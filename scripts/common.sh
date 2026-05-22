@@ -28,12 +28,48 @@ skill_find() {
 skill_name_from_md() {
   local skill_md="$1"
   local name
-  name="$(grep -E '^name:\s*' "$skill_md" 2>/dev/null | head -1 | sed -E 's/^name:\s*//' | tr -d '"' | tr -d "'")"
+  # [[:space:]] — portable; BSD sed does not treat \s as whitespace
+  name="$(grep -E '^name:[[:space:]]*' "$skill_md" 2>/dev/null | head -1 \
+    | sed -E 's/^name:[[:space:]]*//' | tr -d '"' | tr -d "'")"
+  name="${name#"${name%%[![:space:]]*}"}"
+  name="${name%"${name##*[![:space:]]}"}"
   if [ -n "$name" ]; then
     echo "$name"
   else
     basename "$(dirname "$skill_md")"
   fi
+}
+
+# Drop symlinks in dest that point into repo/skills/ but are not in expected_names
+skill_prune_stale_links() {
+  local dest="$1"
+  local repo="$2"
+  shift 2
+  local expected=("$@")
+  local entry base target keep
+
+  [ -d "$dest" ] || return 0
+
+  for entry in "$dest"/*; do
+    [ -L "$entry" ] || continue
+    target="$(readlink "$entry")"
+    case "$target" in
+      "$repo/skills"|"$repo"/skills/*)
+        base="$(basename "$entry")"
+        keep=false
+        for name in "${expected[@]}"; do
+          if [ "$base" = "$name" ]; then
+            keep=true
+            break
+          fi
+        done
+        if ! $keep; then
+          rm "$entry"
+          echo "[prune] removed stale $base (-> $target)"
+        fi
+        ;;
+    esac
+  done
 }
 
 skill_dir_name() {

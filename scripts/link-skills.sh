@@ -23,6 +23,7 @@ link_into() {
   local dest="$1"
   local label="$2"
   local count=0
+  local expected_names=()
 
   if [ -L "$dest" ]; then
     local resolved
@@ -44,6 +45,7 @@ link_into() {
     src="$(dirname "$skill_md")"
     link_name="$(skill_name_from_md "$skill_md")"
     target="$dest/$link_name"
+    expected_names+=("$link_name")
 
     if [ -e "$target" ] && [ ! -L "$target" ]; then
       rm -rf "$target"
@@ -52,6 +54,10 @@ link_into() {
     ln -sfn "$src" "$target"
     echo "[$label] linked $link_name -> $src"
   done < <(skill_find "$REPO" -print0)
+
+  if [ "$count" -gt 0 ]; then
+    skill_prune_stale_links "$dest" "$REPO" "${expected_names[@]}"
+  fi
 
   if [ "$count" -eq 0 ]; then
     echo "[$label] no shippable skills under skills/ (add skills/<name>/SKILL.md)" >&2
@@ -91,8 +97,9 @@ LEGACY_CURSOR="$HOME/.cursor/skills"
 case "$TARGET" in
   cursor)
     link_into "$CURSOR_DEST" "cursor"
-    if [ -d "$LEGACY_CURSOR" ] && [ "$(cursor_skills_dir)" != "$LEGACY_CURSOR" ]; then
-      echo "[cursor] note: skills dir is $CURSOR_DEST (not legacy $LEGACY_CURSOR)" >&2
+    if [ "$CURSOR_DEST" != "$LEGACY_CURSOR" ]; then
+      mkdir -p "$LEGACY_CURSOR"
+      link_into "$LEGACY_CURSOR" "cursor-legacy"
     fi
     ;;
   claude)
@@ -100,6 +107,10 @@ case "$TARGET" in
     ;;
   all)
     link_into "$CURSOR_DEST" "cursor"
+    if [ "$CURSOR_DEST" != "$LEGACY_CURSOR" ]; then
+      mkdir -p "$LEGACY_CURSOR"
+      link_into "$LEGACY_CURSOR" "cursor-legacy"
+    fi
     link_into "$HOME/.claude/skills" "claude"
     ;;
   status)

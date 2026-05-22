@@ -36,7 +36,7 @@ skills/
 
 | Command | Target |
 |---------|--------|
-| `./scripts/link-skills.sh cursor` | `~/.agents/skills/` |
+| `./scripts/link-skills.sh cursor` | `~/.agents/skills/` and `~/.cursor/skills/` (kept in sync) |
 | `./scripts/link-skills.sh claude` | `~/.claude/skills/` |
 | `./scripts/link-skills.sh all` | both |
 | `./scripts/link-skills.sh status` | show what is linked |
