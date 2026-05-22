@@ -1,161 +1,198 @@
 ---
 name: coding
 description: >-
-  Coding workflow — understand, ask whether to split plan todos by architecture
-  layer (controller, service, repo, db), Cursor Plan with small e2e todos per
-  slice, test-first, match project structure and test style. Use when writing,
-  changing, reviewing, debugging, implementing features, or fixing bugs.
+  Coding workflow — implementation outline diagram (components + call flow),
+  feature groups with each sub-step as a separate Cursor Plan todo, test-first,
+  match project structure and test style. Code must follow the agreed diagram.
+  Use when writing, changing, reviewing, debugging, or implementing features.
 ---
 
 # Coding
 
 Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. This skill adds coding-specific rules.
 
-**Core rule: test-first.** For behavior changes, write or extend a **failing test first**, then minimal code to pass, then verify e2e. Do not add production logic for new behavior without a failing test (unless the user explicitly opts out).
+**Core rule: test-first.** For behavior changes, write or extend a **failing test first**, then minimal code to pass, then verify. Do not add production logic for new behavior without a failing test (unless the user opts out).
 
-**Core rule: match the project.** New code and tests must follow the **same structure and conventions** already used in that repo — not a style you prefer or a pattern from another project.
+**Core rule: match the project.** New code and tests follow the **same structure and conventions** as that repo.
+
+**Core rule: follow the diagram.** Implementation must match the agreed **implementation outline diagram**. If the design changes, update the diagram first, then todos and code.
 
 ---
 
 ## Match the project (before you write)
 
-During **Understand**, inspect how this repo is organized. During **Plan**, state which existing patterns you will follow.
+During **Understand**, inspect how this repo is organized. During **Plan**, state which patterns you will follow.
 
 ### Production code
 
-- **Layout:** same folder/module boundaries (e.g. `src/features/x`, `internal/pkg`, layered packages).
-- **Naming:** files, types, functions, exports — consistent with neighbors.
-- **Patterns:** error handling, DI, logging, config, API shapes — copy nearby code, don’t invent a new style.
-- **Dependencies:** use libraries already in the project; don’t add new ones unless asked.
+- Same **layout**, **naming**, **patterns** (errors, DI, logging), and **dependencies** as neighboring code.
+- Do not invent a new style or add libraries unless asked.
 
-### Tests — same structure and level as the project
+### Tests
 
-Discover what the repo already uses, then mirror it:
+Discover what the repo uses, then mirror it:
 
-| Check | Look for |
-|-------|----------|
-| **Test layout** | `*_test.go`, `tests/`, `__tests__/`, `spec/`, co-located vs separate tree |
-| **Unit tests** | fast, isolated, mocks/fixtures used in this repo |
-| **Integration tests** | DB, HTTP, containers, test clients — how they’re named and run |
-| **E2e / acceptance** | Playwright, Cypress, supertest, etc. — only if the project already has them |
-| **Style** | framework (Jest, pytest, Go testing, etc.), assertion style, table-driven tests, snapshots |
-| **Fixtures & helpers** | existing factories, `testutil`, `conftest`, seed data — reuse, don’t duplicate |
-| **How to run** | `package.json` scripts, `Makefile`, `pytest.ini`, CI config — use the same commands in **verify** |
+- **Layout:** co-located `*_test.go`, `__tests__/`, `tests/integration/`, etc.
+- **Levels:** unit, integration, e2e — use what similar features use.
+- **Style:** same framework, mocks, fixtures, and run commands as peers.
 
-**Rules:**
-
-- Put new tests in the **same kind** of place as similar features (unit next to code vs `tests/integration/`, etc.).
-- Use the **right test level** for the change: unit for pure logic, integration when the repo tests DB/API boundaries that way, e2e only when the project already does e2e for that surface.
-- **Do not** introduce a new test framework, folder layout, or naming scheme unless the user asks.
-- **Do not** add integration/e2e tests if the project only uses unit tests for that area (and vice versa) without confirming.
-
-**Not sure** which layout, test level, or helper to use — **ask** after you’ve looked at 1–2 similar existing examples.
+**Not sure** — look at 1–2 similar features, then **ask**.
 
 ---
 
 ## Plan (coding)
 
-Do not write production code until the plan exists (trivial agreed one-liners excepted).
+No production code until the plan is agreed (except trivial one-liners).
 
-### Ask: split by component?
+### 1. Ask: split by feature + layer?
 
-After **Understand**, map how this repo layers features (read a similar flow end-to-end). Example chain:
+Map the stack from the codebase:
 
 ```text
-controller / handler / route  →  service / use-case  →  repository / client  →  db / external API
+controller → service → repository / domain → db
 ```
 
-**Ask the user:**
+Ask:
 
-> Do you want this split into **small plan todos per component** (following the codebase layers), or **one todo** for the full feature end-to-end?
+> Split into **feature groups** with **one Cursor Plan todo per layer sub-step**? Or **one todo** for the full feature?
 
-| User choice | Plan shape |
-|-------------|------------|
-| **Split by component** | One **Cursor Plan todo per layer** (small, bottom-up or repo order) |
-| **One todo** | Single plan todo — full feature verified e2e at the boundary the project uses (HTTP test, CLI, etc.) |
-| **Unsure** | Recommend split when the feature crosses **3+ layers**; one todo when it’s a single-file or localized change |
+| Choice | Plan |
+|--------|------|
+| Split | Feature groups in chat; **each sub-step = separate Cursor Plan todo** |
+| One todo | Single todo; verify at API/IT boundary |
+| Unsure | Recommend split for 3+ layers or multiple endpoints |
 
-Do not assume split — **always ask** for non-trivial features that cross layers.
+### 2. Implementation outline diagram (required)
 
-### Split by component (when user says yes)
+Before todos and code, show diagrams for user confirmation.
+
+**Include:**
+
+1. **Component diagram** — layers/boxes and dependencies  
+2. **Call flow** — sequence of calls, main functions, errors  
+
+Use **Mermaid**. Use real names from the repo when known.
+
+**Example (register user):**
+
+Component:
+
+```mermaid
+flowchart LR
+  Client --> UserController
+  UserController --> UserService
+  UserService --> UserRepository
+  UserRepository --> DB[(DB)]
+```
+
+Call flow:
+
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant Ctrl as UserController
+  participant Svc as UserService
+  participant Repo as UserRepository
+  C->>Ctrl: POST /users/register
+  Ctrl->>Svc: register(dto)
+  Svc->>Repo: save(user)
+  Repo-->>Svc: user
+  Svc-->>Ctrl: result
+  Ctrl-->>C: 201
+```
 
 **Rules:**
 
-- **Follow the repo’s real stack** — don’t invent layers the codebase doesn’t have (e.g. no separate “service” folder if logic lives in handlers).
-- **One plan todo = one component/layer** for this feature — not “write test” vs “write code” as separate todos.
-- **Order:** default **bottom-up** (db/repository → service → controller/API) so each step has a real foundation; match order if the project always builds top-down in similar PRs.
-- **Each todo is still small + e2e** for *that layer* — verify with the test level that layer uses (repo unit test → service test with mocks → API integration test).
-- **Test-first inside each todo** — failing test for that layer → minimal code → verify before the next layer.
+- Required for non-trivial features; one diagram per feature group (or one diagram with sections).
+- Sub-steps and Cursor todos must map to the diagram.
+- Do not add functions or calls not on the diagram without updating it and asking.
 
-**Example — “Create API to get user info”** (stack: controller → service → repository → db):
+### 3. Feature groups and Cursor todos
 
-| # | Plan todo | Verify (e2e for that layer) |
-|---|-----------|-----------------------------|
-| 1 | Repository: load user by id | Repo/data test passes (or migration + query check) |
-| 2 | Service: get user info use-case | Service unit test passes (mock repo) |
-| 3 | Controller: `GET /user/:id` | HTTP/integration test returns 200 + expected body |
+| Level | Meaning | Where |
+|-------|---------|-------|
+| Task | Overall goal | Cursor Plan title |
+| Feature group | One API/capability | Chat outline only |
+| Sub-step | One layer outcome | **One Cursor Plan todo each** |
 
-Plan title: `Add GET user info API`
+**Critical:** 5 sub-steps in outline → **5 Cursor Plan todos**. Do not nest sub-steps in one todo.
 
-**Bad splits:** “Write all tests” · “Implement backend” · “Do controller” without layer-level verify  
-**Good splits:** one outcome per component, test-first within the todo
+Prefix titles: `[Register] Controller: stub POST /users`
 
-### Plan todos (every todo)
+### 4. Sub-step order (per feature)
 
-| Todo | What “good” looks like |
-|------|-------------------------|
-| **Simple** | One component **or** one full feature (if not splitting); no drive-by refactors |
-| **E2e** | Observable when done — **tests are the default verify** at that layer or boundary |
-| **Verifiable** | **verify:** names the test/command for this slice |
+| Step | Layer | Do | Verify |
+|------|-------|-----|--------|
+| 1 | Controller | Stub route/request + handler | Controller/unit test per repo pattern |
+| 2 | Service | Logic; mock downstream | Service unit test |
+| 3+ | Repo, domain, DB, … | One todo per component | Test at that layer |
+| last | IT | Only if repo uses IT/e2e | IT or HTTP test green |
 
-**Bad plan todo:** “Implement auth” (whole feature, no verify) · “Add failing test” (micro-step — lives inside a component todo)
+Default **bottom-up** unless the repo usually does otherwise.
 
-**Good plan todo (no split):** “GET user info works end-to-end — **verify:** API integration test green”
+**Inside each todo:** failing test → minimal code → verify → complete → next.
 
-### Cursor Plan
+### 5. Example: user APIs
 
-1. **Plan** mode for non-trivial coding work.
-2. After user chooses split or not → create todos accordingly (per layer **or** one e2e todo).
-3. Test-first steps live **inside** each todo — not as separate plan items.
-4. Canonical plan lives in **Cursor Plan**, not a fenced code block in chat.
+**Plan title:** `User APIs — register + get info`
 
-### Not in Cursor
+**Register** — each row is one Cursor Plan todo:
 
-Same todo rules as a numbered list in the reply, with **verify** inline.
+| Todo | Verify |
+|------|--------|
+| `[Register] Controller: stub POST /users/register` | Route/handler test per repo |
+| `[Register] Service: register (mock repo)` | Service unit test green |
+| `[Register] Repository: persist user` | Repo test green |
+| `[Register] DB: migration if needed` | Migration/DB check green |
+| `[Register] IT: full flow` | IT green if project has IT |
 
-### Ask during planning
+**Get user info** — separate todos:
 
-Not sure about scope, API shape, **layer map**, test strategy, or acceptance criteria — **ask** before coding. Update the plan after the answer.
+| Todo | Verify |
+|------|--------|
+| `[GetUser] Controller: stub GET /users/:id` | Controller test per repo |
+| `[GetUser] Service: get user (mock repo)` | Service test green |
+| `[GetUser] Repository: load by id` | Repo test green |
+| `[GetUser] IT: 200 + body` | IT if project uses it |
+
+### 6. Cursor Plan checklist
+
+1. Plan mode  
+2. **Diagram** (component + call flow) — confirm  
+3. Feature groups aligned with diagram  
+4. **One Cursor todo per sub-step**  
+5. Implement only what the diagram shows  
+6. Verify each todo before the next  
+
+### 7. Ask during planning
+
+Ask if unclear: scope, API contract, layer map, mocks, IT in repo, acceptance criteria.
 
 ---
 
 ## Work a plan todo (test-first)
 
-Inside **one** plan todo, default order:
+Match the **diagram** for that feature.
 
 ```
-1. Failing test (or extend test) — same file/type/level as peers — verify: fails for the right reason
-2. Minimal production change — same structure as peers — verify: test passes
-3. Regression check — verify: run project’s usual test command; related tests still pass
+1. Failing test (repo style) — verify fails correctly
+2. Minimal code — verify passes
+3. Regression — related tests still pass
 ```
 
-- **Minimum** code for the current todo only.
-- Production + tests **match existing project structure** (see above).
-- Do not mark the plan todo **completed** until **verify** passes.
-- If scope grows — **stop**, ask, split into another plan todo (or add a layer todo if splitting).
+- One layer per todo; mark complete only after verify.
+- Scope grows → stop, ask, update diagram and todos.
 
-**Bug fix:** repro as failing test first when possible, then fix.
+**Bug fix:** failing test repro when possible. **Refactor:** tests green before and after.
 
-**Refactor:** tests green before and after; no behavior change unless asked.
-
-**Explicit escape hatch:** user says “no test” / “skip TDD” — note it and proceed; still verify e2e another way if cheap.
+**Opt out:** user says skip tests — note it; verify another way if cheap.
 
 ---
 
 ## Trivial work
 
-Obvious one-liner, user already agreed — skip formal plan; add a test first only if it’s quick and valuable.
+Skip formal plan and diagram; verify if cheap.
 
 ---
 
-**Working well if:** you asked about component split, todos match the repo’s layers when split, each slice verifies with tests at the right level, and new code looks like it belonged in the repo already.
+**Working well if:** diagram confirmed, code matches call flow, each sub-step is its own Cursor todo, tests match the repo.

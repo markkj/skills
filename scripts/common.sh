@@ -40,35 +40,70 @@ skill_name_from_md() {
   fi
 }
 
-# Drop symlinks in dest that point into repo/skills/ but are not in expected_names
-skill_prune_stale_links() {
+MARKKJ_SKILLS_MARKER=".markkj-skills-installed"
+
+# Copy skill dir into dest (replaces symlinks and prior installs from this repo)
+skill_sync_into() {
+  local src="$1"
+  local target="$2"
+  local repo="$3"
+
+  if [ -L "$target" ]; then
+    rm "$target"
+  elif [ -e "$target" ]; then
+    if [ -f "$target/$MARKKJ_SKILLS_MARKER" ] \
+      && [ "$(cat "$target/$MARKKJ_SKILLS_MARKER")" = "$repo" ]; then
+      rm -rf "$target"
+    else
+      echo "error: $target exists and is not managed by link-skills.sh" >&2
+      echo "Move it aside or remove it, then re-run." >&2
+      return 1
+    fi
+  fi
+
+  mkdir -p "$target"
+  rsync -a --delete "$src/" "$target/"
+  echo "$repo" > "$target/$MARKKJ_SKILLS_MARKER"
+}
+
+# Remove installs from this repo that are no longer in expected_names
+skill_prune_stale_installs() {
   local dest="$1"
   local repo="$2"
   shift 2
   local expected=("$@")
-  local entry base target keep
+  local entry base keep
 
   [ -d "$dest" ] || return 0
 
   for entry in "$dest"/*; do
-    [ -L "$entry" ] || continue
-    target="$(readlink "$entry")"
-    case "$target" in
-      "$repo/skills"|"$repo"/skills/*)
-        base="$(basename "$entry")"
-        keep=false
-        for name in "${expected[@]}"; do
-          if [ "$base" = "$name" ]; then
-            keep=true
-            break
-          fi
-        done
-        if ! $keep; then
+    [ -e "$entry" ] || continue
+    if [ -L "$entry" ]; then
+      base="$(basename "$entry")"
+      case "$(readlink "$entry")" in
+        "$repo/skills"|"$repo"/skills/*)
           rm "$entry"
-          echo "[prune] removed stale $base (-> $target)"
-        fi
-        ;;
-    esac
+          echo "[prune] removed stale symlink $base"
+          ;;
+      esac
+      continue
+    fi
+    [ -d "$entry" ] || continue
+    [ -f "$entry/$MARKKJ_SKILLS_MARKER" ] || continue
+    [ "$(cat "$entry/$MARKKJ_SKILLS_MARKER")" = "$repo" ] || continue
+
+    base="$(basename "$entry")"
+    keep=false
+    for name in "${expected[@]}"; do
+      if [ "$base" = "$name" ]; then
+        keep=true
+        break
+      fi
+    done
+    if ! $keep; then
+      rm -rf "$entry"
+      echo "[prune] removed stale $base"
+    fi
   done
 }
 

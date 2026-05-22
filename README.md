@@ -36,9 +36,11 @@ skills/
 
 | Command | Target |
 |---------|--------|
-| `./scripts/link-skills.sh cursor` | `~/.agents/skills/` and `~/.cursor/skills/` (kept in sync) |
+| `./scripts/link-skills.sh cursor` | `~/.agents/skills/` and `~/.cursor/skills/` (rsync copy each run) |
 | `./scripts/link-skills.sh claude` | `~/.claude/skills/` |
 | `./scripts/link-skills.sh all` | both |
 | `./scripts/link-skills.sh status` | show what is linked |
 
-Per-project (optional): `.cursor/skills/<name>` in a repo → symlink `skills/<name>/`.
+Per-project (optional): copy or symlink `skills/<name>/` into `.cursor/skills/<name>/`.
+
+Re-run `./scripts/link-skills.sh cursor` after editing skills in this repo so installed copies update.

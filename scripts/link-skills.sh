@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Links shippable skills from this repo into an agent skills directory.
+# Copies shippable skills from this repo into an agent skills directory (rsync each run).
 #
 # Layout:
 #   skills/<skill-name>/SKILL.md
@@ -47,16 +47,12 @@ link_into() {
     target="$dest/$link_name"
     expected_names+=("$link_name")
 
-    if [ -e "$target" ] && [ ! -L "$target" ]; then
-      rm -rf "$target"
-    fi
-
-    ln -sfn "$src" "$target"
-    echo "[$label] linked $link_name -> $src"
+    skill_sync_into "$src" "$target" "$REPO"
+    echo "[$label] synced $link_name <- $src"
   done < <(skill_find "$REPO" -print0)
 
   if [ "$count" -gt 0 ]; then
-    skill_prune_stale_links "$dest" "$REPO" "${expected_names[@]}"
+    skill_prune_stale_installs "$dest" "$REPO" "${expected_names[@]}"
   fi
 
   if [ "$count" -eq 0 ]; then
@@ -79,12 +75,16 @@ show_status() {
     target="$dest/$link_name"
     rel="${skill_md#"$REPO"/}"
 
-    if [ -L "$target" ]; then
-      echo "  ✓ $link_name  -> $(readlink "$target")  ($rel)"
+    if [ -d "$target" ] && [ -f "$target/$MARKKJ_SKILLS_MARKER" ]; then
+      local bytes
+      bytes="$(wc -c < "$target/SKILL.md" 2>/dev/null | tr -d ' ')"
+      echo "  ✓ $link_name  ($bytes bytes, synced from $rel)"
+    elif [ -L "$target" ]; then
+      echo "  ! $link_name  symlink (re-run link to sync): $(readlink "$target")  ($rel)" >&2
     elif [ -e "$target" ]; then
-      echo "  ! $link_name  exists but is not a symlink ($rel)" >&2
+      echo "  ! $link_name  exists but not installed by this script ($rel)" >&2
     else
-      echo "  · $link_name  not linked ($rel)"
+      echo "  · $link_name  not installed ($rel)"
     fi
   done < <(skill_find "$REPO" -print0)
 
@@ -130,7 +130,7 @@ case "$TARGET" in
     ;;
   *)
     echo "usage: $0 [cursor|claude|all|status]" >&2
-    echo "  cursor|claude|all  — symlink into ~/.agents/skills (cursor) or ~/.claude/skills" >&2
+    echo "  cursor|claude|all  — rsync into ~/.agents/skills (cursor) or ~/.claude/skills" >&2
     echo "  CURSOR_SKILLS_DIR    — override cursor destination (default: ~/.agents/skills)" >&2
     echo "  status [agent]     — show which skills are linked" >&2
     exit 1
