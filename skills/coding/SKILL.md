@@ -1,10 +1,10 @@
 ---
 name: coding
 description: >-
-  Coding workflow — understand, Cursor Plan with simple e2e todos, test-first,
-  match existing project structure and test style (unit, integration, e2e).
-  Use when writing, changing, reviewing, debugging, or testing code,
-  implementing features, or fixing bugs.
+  Coding workflow — understand, ask whether to split plan todos by architecture
+  layer (controller, service, repo, db), Cursor Plan with small e2e todos per
+  slice, test-first, match project structure and test style. Use when writing,
+  changing, reviewing, debugging, implementing features, or fixing bugs.
 ---
 
 # Coding
@@ -57,32 +57,67 @@ Discover what the repo already uses, then mirror it:
 
 Do not write production code until the plan exists (trivial agreed one-liners excepted).
 
-### Plan todos
+### Ask: split by component?
+
+After **Understand**, map how this repo layers features (read a similar flow end-to-end). Example chain:
+
+```text
+controller / handler / route  →  service / use-case  →  repository / client  →  db / external API
+```
+
+**Ask the user:**
+
+> Do you want this split into **small plan todos per component** (following the codebase layers), or **one todo** for the full feature end-to-end?
+
+| User choice | Plan shape |
+|-------------|------------|
+| **Split by component** | One **Cursor Plan todo per layer** (small, bottom-up or repo order) |
+| **One todo** | Single plan todo — full feature verified e2e at the boundary the project uses (HTTP test, CLI, etc.) |
+| **Unsure** | Recommend split when the feature crosses **3+ layers**; one todo when it’s a single-file or localized change |
+
+Do not assume split — **always ask** for non-trivial features that cross layers.
+
+### Split by component (when user says yes)
+
+**Rules:**
+
+- **Follow the repo’s real stack** — don’t invent layers the codebase doesn’t have (e.g. no separate “service” folder if logic lives in handlers).
+- **One plan todo = one component/layer** for this feature — not “write test” vs “write code” as separate todos.
+- **Order:** default **bottom-up** (db/repository → service → controller/API) so each step has a real foundation; match order if the project always builds top-down in similar PRs.
+- **Each todo is still small + e2e** for *that layer* — verify with the test level that layer uses (repo unit test → service test with mocks → API integration test).
+- **Test-first inside each todo** — failing test for that layer → minimal code → verify before the next layer.
+
+**Example — “Create API to get user info”** (stack: controller → service → repository → db):
+
+| # | Plan todo | Verify (e2e for that layer) |
+|---|-----------|-----------------------------|
+| 1 | Repository: load user by id | Repo/data test passes (or migration + query check) |
+| 2 | Service: get user info use-case | Service unit test passes (mock repo) |
+| 3 | Controller: `GET /user/:id` | HTTP/integration test returns 200 + expected body |
+
+Plan title: `Add GET user info API`
+
+**Bad splits:** “Write all tests” · “Implement backend” · “Do controller” without layer-level verify  
+**Good splits:** one outcome per component, test-first within the todo
+
+### Plan todos (every todo)
 
 | Todo | What “good” looks like |
 |------|-------------------------|
-| **Simple** | One e2e outcome; no drive-by refactors |
-| **E2e** | Observable when done — **tests are the default verify** |
-| **Verifiable** | Todo includes **verify:** (usually: failing test → fix → tests green) |
+| **Simple** | One component **or** one full feature (if not splitting); no drive-by refactors |
+| **E2e** | Observable when done — **tests are the default verify** at that layer or boundary |
+| **Verifiable** | **verify:** names the test/command for this slice |
 
-**Bad plan todo:** “Implement auth” · “Add failing test” (micro-step — not its own todo)
+**Bad plan todo:** “Implement auth” (whole feature, no verify) · “Add failing test” (micro-step — lives inside a component todo)
 
-**Good plan todo:** “Invalid login returns 401 with tests green — **verify:** failing test → minimal fix → tests pass; happy path OK”
+**Good plan todo (no split):** “GET user info works end-to-end — **verify:** API integration test green”
 
 ### Cursor Plan
 
 1. **Plan** mode for non-trivial coding work.
-2. **One plan todo per e2e slice** — not separate todos for “write test”, “write code”, “smoke”.
-3. Test-first steps live in that todo’s work and **verify** line, not as extra plan items.
+2. After user chooses split or not → create todos accordingly (per layer **or** one e2e todo).
+3. Test-first steps live **inside** each todo — not as separate plan items.
 4. Canonical plan lives in **Cursor Plan**, not a fenced code block in chat.
-
-**Example — one todo:**
-
-| Plan title | Single plan todo |
-|------------|------------------|
-| `Fix wrong-password login` | Wrong password returns 401, tests green — **verify:** failing test first → minimal fix → all relevant tests pass |
-
-More plan todos only for **multiple independent e2e outcomes** (e.g. fix bug + add separate feature).
 
 ### Not in Cursor
 
@@ -90,7 +125,7 @@ Same todo rules as a numbered list in the reply, with **verify** inline.
 
 ### Ask during planning
 
-Not sure about scope, API shape, test strategy, or acceptance criteria — **ask** before coding. Update the plan after the answer.
+Not sure about scope, API shape, **layer map**, test strategy, or acceptance criteria — **ask** before coding. Update the plan after the answer.
 
 ---
 
@@ -107,7 +142,7 @@ Inside **one** plan todo, default order:
 - **Minimum** code for the current todo only.
 - Production + tests **match existing project structure** (see above).
 - Do not mark the plan todo **completed** until **verify** passes.
-- If scope grows — **stop**, ask, split into another plan todo.
+- If scope grows — **stop**, ask, split into another plan todo (or add a layer todo if splitting).
 
 **Bug fix:** repro as failing test first when possible, then fix.
 
@@ -123,4 +158,4 @@ Obvious one-liner, user already agreed — skip formal plan; add a test first on
 
 ---
 
-**Working well if:** plans use one e2e todo per slice, behavior changes start with a failing test in the **project’s** test style, and new code looks like it belonged in the repo already.
+**Working well if:** you asked about component split, todos match the repo’s layers when split, each slice verifies with tests at the right level, and new code looks like it belonged in the repo already.
