@@ -4,14 +4,14 @@ This skill turns a work request into an Obsidian task folder:
 
 ```text
 Projects/<PROJECT_NAME>/<WORK_ID>/
-└── task.md
+└── {{task-generate-name}}.md
 ```
 
 `Projects/` is the Obsidian folder where all project task folders should be created.
 
 The project folder is inferred automatically from the opened project. The user should not need to type it in normal use.
 
-`task.md` records the future paths for `plan.md` and `discussion/`; those files are created later by the user or by the `plan-intake-automation` skill.
+`{{task-generate-name}}.md` records the future paths for `{{plan-generate-name}}.md` and `discussion/`; those files are created later by the user or by the `plan-intake-automation` skill.
 
 ## Recommended Agent Path: Obsidian MCP
 
@@ -22,7 +22,7 @@ For agent-run task creation, Obsidian MCP is required. If Obsidian MCP cannot co
 Example MCP path:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/task.md
+Projects/<PROJECT_NAME>/<WORK_ID>/{{task-generate-name}}.md
 ```
 
 ## Project Detection
@@ -42,15 +42,15 @@ Projects/client-app/<WORK_ID>/
 
 ## Agent Handoff Pattern
 
-- `task.md` stores source facts, status, acceptance criteria, constraints, agent roles, and the future paths for planning/discussion docs.
-- The user or `plan-intake-automation` creates `plan.md` when ready.
+- `{{task-generate-name}}.md` stores source facts, status, acceptance criteria, constraints, agent roles, and the future paths for planning/discussion docs.
+- The user or `plan-intake-automation` creates `{{plan-generate-name}}.md` when ready.
 - The user or `plan-intake-automation` creates `discussion/` notes or ADRs when needed.
 
 Example flow:
 
 ```text
-Claude Code reads Jira -> writes task.md
-User or plan-intake-automation reads task.md -> writes plan.md when ready
-Cursor reads task.md + plan.md -> executes when asked
+Claude Code reads Jira -> writes {{task-generate-name}}.md
+User or plan-intake-automation reads {{task-generate-name}}.md -> writes {{plan-generate-name}}.md when ready
+Cursor reads {{task-generate-name}}.md + {{plan-generate-name}}.md -> executes when asked
 plan-intake-automation writes discussion notes or ADRs only when asked
 ```
