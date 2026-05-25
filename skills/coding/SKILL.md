@@ -17,6 +17,20 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 
 **Core rule: follow the diagram.** Implementation must match the agreed **implementation outline diagram**. If the design changes, update the diagram first, then todos and code.
 
+## Quality attributes
+
+### Reliability
+
+> The system should continue to work correctly even in the face of adversity (hardware or software faults and even human error.)
+
+### Scalability
+
+> As the user grows (data volume, traffic volume or complexity) there should be reasonable ways of dealing with that growth
+
+### Maintainability
+
+> Over the time many different people will work on the system (engineering and operations, both maintaining current behavior and adapting the system to new use cases) and they should all be able to work on it **productively**
+
 ---
 
 ## Match the project (before you write)

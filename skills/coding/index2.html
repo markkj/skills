@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Mark — Software Engineer / Data Engineer</title>
+    <meta
+      name="description"
+      content="Mark is a Software Engineer / Data Engineer focused on real-time data platforms, backend systems, Apache Flink, Kafka, Kubernetes, and Go."
+    />
+
+    <style>
+      :root {
+        --bg: #0d0d0d;
+        --bg-soft: #151515;
+        --card: #202020;
+        --card-hover: #292929;
+        --text: #f5f5f5;
+        --muted: #a3a3a3;
+        --muted-2: #737373;
+        --border: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.16);
+        --radius-lg: 32px;
+        --radius-md: 20px;
+        --container: 1180px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.45;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button {
+        font-family: inherit;
+      }
+
+      .container {
+        width: min(calc(100% - 48px), var(--container));
+        margin: 0 auto;
+      }
+
+      /* Header */
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(13, 13, 13, 0.78);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      }
+
+      .nav {
+        height: 72px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 24px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+      }
+
+      .brand-icon {
+        width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        border: 2px solid var(--text);
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 900;
+        transform: rotate(-8deg);
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 36px;
+        color: #e5e5e5;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .nav-links a {
+        transition: color 160ms ease;
+      }
+
+      .nav-links a:hover {
+        color: #ffffff;
+      }
+
+      .nav-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .icon-button,
+      .shortcut-button {
+        height: 44px;
+        border: 0;
+        background: #202020;
+        color: var(--text);
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition:
+          background 160ms ease,
+          transform 160ms ease;
+      }
+
+      .icon-button {
+        width: 44px;
+        font-size: 18px;
+      }
+
+      .shortcut-button {
+        gap: 10px;
+        padding: 0 16px;
+        font-weight: 700;
+      }
+
+      .icon-button:hover,
+      .shortcut-button:hover {
+        background: #2a2a2a;
+        transform: translateY(-1px);
+      }
+
+      /* Hero */
+
+      .hero {
+        padding: 88px 0 56px;
+      }
+
+      .hero-top {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: start;
+        gap: 32px;
+        margin-bottom: 36px;
+      }
+
+      .eyebrow {
+        color: #f5f5f5;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+      }
+
+      .mode-toggle-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 16px;
+        font-weight: 800;
+        color: #f5f5f5;
+        white-space: nowrap;
+      }
+
+      .mode-toggle {
+        width: 72px;
+        height: 36px;
+        padding: 4px;
+        border: 0;
+        border-radius: 999px;
+        background: #eeeeee;
+        cursor: pointer;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+      }
+
+      .mode-toggle-dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: #0d0d0d;
+      }
+
+      .hero-title {
+        max-width: 980px;
+        margin: 0;
+        font-size: clamp(56px, 9vw, 112px);
+        line-height: 0.95;
+        letter-spacing: -0.075em;
+        font-weight: 650;
+      }
+
+      .hero-subtitle {
+        margin: 28px 0 0;
+        max-width: 850px;
+        color: #e5e5e5;
+        font-size: clamp(18px, 2vw, 23px);
+        line-height: 1.45;
+        font-weight: 500;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 36px;
+      }
+
+      .btn {
+        min-height: 48px;
+        padding: 0 20px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+          background 160ms ease,
+          color 160ms ease,
+          transform 160ms ease,
+          border-color 160ms ease;
+      }
+
+      .btn-primary {
+        background: #f5f5f5;
+        color: #0d0d0d;
+        border-color: #f5f5f5;
+      }
+
+      .btn-secondary {
+        background: #1f1f1f;
+        color: #f5f5f5;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-secondary:hover {
+        background: #2a2a2a;
+        border-color: var(--border-strong);
+      }
+
+      /* Cards */
+
+      .primary-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 64px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 30px;
+        transition:
+          background 160ms ease,
+          transform 160ms ease,
+          border-color 160ms ease;
+      }
+
+      .card:hover {
+        background: var(--card-hover);
+        transform: translateY(-2px);
+        border-color: var(--border-strong);
+      }
+
+      .card-label {
+        margin-bottom: 18px;
+        color: #f5f5f5;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+      }
+
+      .card-title {
+        margin: 0;
+        color: #f5f5f5;
+        font-size: clamp(28px, 4vw, 39px);
+        line-height: 1.18;
+        letter-spacing: -0.045em;
+        font-weight: 550;
+      }
+
+      .card-text {
+        margin: 16px 0 0;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 22px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: #151515;
+        border: 1px solid var(--border);
+        color: #d4d4d4;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      /* Sections */
+
+      .section {
+        padding: 72px 0;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 32px;
+        margin-bottom: 28px;
+      }
+
+      .section-title-wrap {
+        max-width: 760px;
+      }
+
+      .section-kicker {
+        margin-bottom: 12px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+      }
+
+      .section-title {
+        margin: 0;
+        font-size: clamp(38px, 6vw, 76px);
+        line-height: 0.98;
+        letter-spacing: -0.07em;
+        font-weight: 600;
+      }
+
+      .section-desc {
+        max-width: 420px;
+        color: var(--muted);
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .work-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 18px;
+      }
+
+      .work-card {
+        min-height: 360px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .work-card.large {
+        min-height: 520px;
+      }
+
+      .work-card h3 {
+        margin: 0;
+        max-width: 760px;
+        font-size: clamp(34px, 5vw, 64px);
+        line-height: 1;
+        letter-spacing: -0.065em;
+        font-weight: 600;
+      }
+
+      .work-card.small h3 {
+        font-size: clamp(30px, 4vw, 46px);
+      }
+
+      .work-card p {
+        margin: 20px 0 0;
+        max-width: 620px;
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .card-footer-link {
+        margin-top: 30px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #f5f5f5;
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .notes-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .note-row {
+        display: grid;
+        grid-template-columns: 160px 1fr auto;
+        gap: 24px;
+        align-items: center;
+        padding: 24px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        transition:
+          background 160ms ease,
+          transform 160ms ease,
+          border-color 160ms ease;
+      }
+
+      .note-row:hover {
+        background: var(--card-hover);
+        transform: translateY(-2px);
+        border-color: var(--border-strong);
+      }
+
+      .note-meta {
+        color: var(--muted-2);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .note-title {
+        margin: 0;
+        font-size: clamp(23px, 3vw, 34px);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        font-weight: 600;
+      }
+
+      .note-arrow {
+        color: var(--muted);
+        font-size: 24px;
+      }
+
+      .resume-grid {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 18px;
+      }
+
+      .resume-main {
+        min-height: 420px;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 28px;
+        margin-top: 30px;
+      }
+
+      .timeline-item {
+        padding-left: 20px;
+        border-left: 2px solid #f5f5f5;
+      }
+
+      .timeline-item h3 {
+        margin: 0;
+        font-size: 26px;
+        letter-spacing: -0.04em;
+      }
+
+      .timeline-item p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .skills {
+        display: grid;
+        gap: 22px;
+        margin-top: 30px;
+      }
+
+      .skill-group h3 {
+        margin: 0 0 12px;
+        font-size: 16px;
+      }
+
+      /* Footer */
+
+      .footer {
+        padding: 72px 0 40px;
+      }
+
+      .footer-card {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: end;
+        gap: 32px;
+        background: #f5f5f5;
+        color: #0d0d0d;
+        border-radius: var(--radius-lg);
+        padding: 34px;
+      }
+
+      .footer-card h2 {
+        margin: 0;
+        max-width: 800px;
+        font-size: clamp(42px, 7vw, 82px);
+        line-height: 0.96;
+        letter-spacing: -0.07em;
+        font-weight: 650;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .footer-links a {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 16px;
+        background: #0d0d0d;
+        color: #f5f5f5;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .copyright {
+        margin-top: 28px;
+        color: var(--muted-2);
+        font-size: 14px;
+      }
+
+      /* Responsive */
+
+      @media (max-width: 920px) {
+        .nav {
+          grid-template-columns: 1fr auto;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .hero-top {
+          grid-template-columns: 1fr;
+        }
+
+        .mode-toggle-wrap {
+          justify-self: start;
+        }
+
+        .primary-grid,
+        .work-grid,
+        .resume-grid,
+        .footer-card {
+          grid-template-columns: 1fr;
+        }
+
+        .work-card.large {
+          min-height: 380px;
+        }
+
+        .note-row {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .note-arrow {
+          display: none;
+        }
+
+        .section-header {
+          flex-direction: column;
+          align-items: start;
+        }
+
+        .footer-links {
+          justify-content: flex-start;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .container {
+          width: min(calc(100% - 28px), var(--container));
+        }
+
+        .hero {
+          padding-top: 56px;
+        }
+
+        .hero-title {
+          font-size: clamp(48px, 16vw, 72px);
+        }
+
+        .card {
+          padding: 24px;
+          border-radius: 26px;
+        }
+
+        .nav-actions .shortcut-button {
+          display: none;
+        }
+
+        .mode-toggle-wrap {
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="site-header">
+      <div class="container nav">
+        <a class="brand" href="#" aria-label="Mark homepage">
+          <span class="brand-icon">M</span>
+          <span>mark</span>
+        </a>
+
+        <nav class="nav-links" aria-label="Main navigation">
+          <a href="#about">About</a>
+          <a href="#work">Work</a>
+          <a href="#notes">Notes</a>
+          <a href="#resume">Resume</a>
+          <a href="#contact">Contact</a>
+        </nav>
+
+        <div class="nav-actions">
+          <button class="icon-button" type="button" aria-label="Toggle theme">
+            ◐
+          </button>
+
+          <button
+            class="shortcut-button"
+            type="button"
+            onclick="trackEvent('Search Used')"
+            aria-label="Open search"
+          >
+            <span>⌘</span>
+            <span>K</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="hero">
+        <div class="container">
+          <div class="hero-top">
+            <div class="eyebrow">MARK — SOFTWARE / DATA ENGINEER</div>
+
+            <div class="mode-toggle-wrap" aria-label="Profile mode toggle">
+              <span>Engineer</span>
+              <button
+                class="mode-toggle"
+                type="button"
+                onclick="trackEvent('Mode Toggle Click')"
+              >
+                <span class="mode-toggle-dot"></span>
+              </button>
+              <span>Personal</span>
+            </div>
+          </div>
+
+          <h1 class="hero-title">
+            I build real-time data platforms and backend systems teams can
+            actually trust.
+          </h1>
+
+          <p class="hero-subtitle">
+            Focused on Apache Flink, Kafka, Kubernetes, Go, and reliable
+            production engineering — from streaming pipelines to platform
+            workflows and backend systems.
+          </p>
+
+          <div class="hero-actions">
+            <a
+              class="btn btn-primary"
+              href="#resume"
+              onclick="trackEvent('View Resume Click')"
+            >
+              View Resume
+            </a>
+            <a
+              class="btn btn-secondary"
+              href="#work"
+              onclick="trackEvent('Work Click')"
+            >
+              Explore Work
+            </a>
+            <a
+              class="btn btn-secondary"
+              href="#notes"
+              onclick="trackEvent('Notes Click')"
+            >
+              Read Notes
+            </a>
+          </div>
+
+          <div class="primary-grid" id="about">
+            <a
+              class="card"
+              href="#resume"
+              onclick="trackEvent('About Card Click')"
+            >
+              <div class="card-label">About</div>
+              <h2 class="card-title">
+                Software Engineer / Data Engineer focused on real-time data
+                platforms.
+              </h2>
+              <p class="card-text">
+                I care about correctness, reliability, observability, and
+                systems that are easy for teams to operate.
+              </p>
+            </a>
+
+            <a
+              class="card"
+              href="#work"
+              onclick="trackEvent('Work Card Click')"
+            >
+              <div class="card-label">Work</div>
+              <h2 class="card-title">
+                Flink, Kafka, Kubernetes, Go, and production backend systems.
+              </h2>
+              <p class="card-text">
+                Case studies from streaming systems, platform engineering,
+                payment workflows, and financial tooling.
+              </p>
+            </a>
+
+            <a
+              class="card"
+              href="#notes"
+              onclick="trackEvent('Notes Card Click')"
+            >
+              <div class="card-label">Notes</div>
+              <h2 class="card-title">
+                Practical writing about architecture, incidents, and tradeoffs.
+              </h2>
+              <p class="card-text">
+                Engineering notes about Flink, Kafka, Kubernetes, Go, rollout
+                planning, debugging, and reliability.
+              </p>
+            </a>
+
+            <a
+              class="card"
+              href="#contact"
+              onclick="trackEvent('Contact Card Click')"
+            >
+              <div class="card-label">Contact</div>
+              <h2 class="card-title">
+                Open to engineering conversations, systems design, and technical
+                sharing.
+              </h2>
+              <p class="card-text">
+                Connect through GitHub, LinkedIn, or email.
+              </p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- WORK -->
+      <section class="section" id="work">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-kicker">Selected Work</div>
+              <h2 class="section-title">
+                Systems, platforms, and production workflows.
+              </h2>
+            </div>
+
+            <p class="section-desc">
+              I prefer showing projects as case studies: problem, design,
+              tradeoffs, and what made the system reliable.
+            </p>
+          </div>
+
+          <div class="work-grid">
+            <a
+              class="card work-card large"
+              href="#"
+              onclick="
+                trackEvent('Case Study Click', {
+                  project: 'Streaming Platform Gateway',
+                })
+              "
+            >
+              <div>
+                <div class="card-label">Platform Engineering</div>
+                <h3>Streaming Platform Gateway</h3>
+                <p>
+                  A Kubernetes-based platform layer for managing Apache Flink
+                  deployments, session jobs, runtime config visibility, and
+                  safer restart/deploy workflows.
+                </p>
+
+                <div class="tags">
+                  <span class="tag">Go</span>
+                  <span class="tag">Kubernetes</span>
+                  <span class="tag">Flink Operator</span>
+                  <span class="tag">Kafka</span>
+                </div>
+              </div>
+
+              <span class="card-footer-link">Read case study →</span>
+            </a>
+
+            <div class="work-stack">
+              <a
+                class="card work-card small"
+                href="#"
+                onclick="
+                  trackEvent('Case Study Click', {
+                    project: 'Safe Flink Upgrade Rollout',
+                  })
+                "
+              >
+                <div>
+                  <div class="card-label">Streaming Systems</div>
+                  <h3>Safe Flink Upgrade Rollout</h3>
+                  <p>
+                    Shadow runs, validation windows, connector coverage, and
+                    rollout confidence for upgrading production Flink pipelines.
+                  </p>
+
+                  <div class="tags">
+                    <span class="tag">Apache Flink</span>
+                    <span class="tag">Testing</span>
+                    <span class="tag">Reliability</span>
+                  </div>
+                </div>
+
+                <span class="card-footer-link">Read case study →</span>
+              </a>
+
+              <div style="height: 18px"></div>
+
+              <a
+                class="card work-card small"
+                href="#"
+                onclick="
+                  trackEvent('Case Study Click', {
+                    project: 'Slip Verification',
+                  })
+                "
+              >
+                <div>
+                  <div class="card-label">Backend Systems</div>
+                  <h3>Slip Verification & Auto Top-up</h3>
+                  <p>
+                    A Go service for verifying payment slips, storing
+                    verification history, and automatically topping up user
+                    balances.
+                  </p>
+
+                  <div class="tags">
+                    <span class="tag">Go</span>
+                    <span class="tag">Firestore</span>
+                    <span class="tag">HTTP APIs</span>
+                  </div>
+                </div>
+
+                <span class="card-footer-link">Read case study →</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOTES -->
+      <section class="section" id="notes">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-kicker">Engineering Notes</div>
+              <h2 class="section-title">
+                Writing to clarify how systems behave.
+              </h2>
+            </div>
+
+            <p class="section-desc">
+              Notes about streaming, backend, platform reliability, debugging,
+              and engineering growth.
+            </p>
+          </div>
+
+          <div class="notes-list">
+            <a
+              class="note-row"
+              href="#"
+              onclick="
+                trackEvent('Note Click', { slug: 'safe-flink-upgrade-rollout' })
+              "
+            >
+              <div class="note-meta">Flink · 2026</div>
+              <h3 class="note-title">Safe Apache Flink Upgrade Rollout</h3>
+              <div class="note-arrow">→</div>
+            </a>
+
+            <a
+              class="note-row"
+              href="#"
+              onclick="
+                trackEvent('Note Click', {
+                  slug: 'debugging-kafka-consumer-lag',
+                })
+              "
+            >
+              <div class="note-meta">Kafka · 2026</div>
+              <h3 class="note-title">Debugging Kafka Consumer Lag</h3>
+              <div class="note-arrow">→</div>
+            </a>
+
+            <a
+              class="note-row"
+              href="#"
+              onclick="
+                trackEvent('Note Click', {
+                  slug: 'streaming-platform-kubernetes',
+                })
+              "
+            >
+              <div class="note-meta">K8s · 2026</div>
+              <h3 class="note-title">
+                Designing a Streaming Platform on Kubernetes
+              </h3>
+              <div class="note-arrow">→</div>
+            </a>
+
+            <a
+              class="note-row"
+              href="#"
+              onclick="
+                trackEvent('Note Click', { slug: 'go-integration-testing' })
+              "
+            >
+              <div class="note-meta">Go · 2026</div>
+              <h3 class="note-title">
+                Go Integration Testing with Stub HTTP Servers
+              </h3>
+              <div class="note-arrow">→</div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESUME -->
+      <section class="section" id="resume">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-kicker">Resume Snapshot</div>
+              <h2 class="section-title">
+                Backend depth with data platform direction.
+              </h2>
+            </div>
+
+            <a
+              class="btn btn-primary"
+              href="/resume.pdf"
+              download
+              onclick="trackEvent('Resume Download')"
+            >
+              Download Resume
+            </a>
+          </div>
+
+          <div class="resume-grid">
+            <div class="card resume-main">
+              <div class="card-label">Experience</div>
+
+              <div class="timeline">
+                <div class="timeline-item">
+                  <h3>Data Engineer</h3>
+                  <p>
+                    Working on real-time data processing, Apache Flink, Kafka,
+                    Kubernetes-based operations, pipeline reliability, and
+                    platform workflows.
+                  </p>
+                </div>
+
+                <div class="timeline-item">
+                  <h3>Software Engineer</h3>
+                  <p>
+                    Built backend services, payment workflows, financial tools,
+                    integration-tested systems, and production APIs using Go and
+                    related tools.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">Core Stack</div>
+
+              <div class="skills">
+                <div class="skill-group">
+                  <h3>Backend</h3>
+                  <div class="tags">
+                    <span class="tag">Go</span>
+                    <span class="tag">Java</span>
+                    <span class="tag">Python</span>
+                  </div>
+                </div>
+
+                <div class="skill-group">
+                  <h3>Streaming</h3>
+                  <div class="tags">
+                    <span class="tag">Flink</span>
+                    <span class="tag">Kafka</span>
+                    <span class="tag">Iceberg</span>
+                  </div>
+                </div>
+
+                <div class="skill-group">
+                  <h3>Infrastructure</h3>
+                  <div class="tags">
+                    <span class="tag">Kubernetes</span>
+                    <span class="tag">Docker</span>
+                    <span class="tag">Helm</span>
+                  </div>
+                </div>
+
+                <div class="skill-group">
+                  <h3>Data / Frontend</h3>
+                  <div class="tags">
+                    <span class="tag">PostgreSQL</span>
+                    <span class="tag">MongoDB</span>
+                    <span class="tag">React</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- CONTACT -->
+    <footer class="footer" id="contact">
+      <div class="container">
+        <div class="footer-card">
+          <h2>Let’s talk about systems, data, and engineering.</h2>
+
+          <div class="footer-links">
+            <a
+              href="https://github.com/yourname"
+              onclick="trackEvent('GitHub Click')"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://linkedin.com/in/yourname"
+              onclick="trackEvent('LinkedIn Click')"
+            >
+              LinkedIn
+            </a>
+            <a
+              href="mailto:you@example.com"
+              onclick="trackEvent('Email Click')"
+            >
+              Email
+            </a>
+          </div>
+        </div>
+
+        <div class="copyright">
+          © 2026 Mark. Built for writing, work, and technical credibility.
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      function trackEvent(name, props = {}) {
+        if (typeof window === "undefined") return;
+
+        console.log("[track]", name, props);
+
+        if (typeof window.plausible === "function") {
+          window.plausible(name, { props });
+        }
+      }
+    </script>
+  </body>
+</html>
