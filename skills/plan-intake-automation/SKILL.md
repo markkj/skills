@@ -16,6 +16,28 @@ Use this skill only after a task record exists. The input is `{{task-generate-na
 
 If `{{task-generate-name}}.md` does not exist, use `work-intake-automation` first.
 
+## Filename Generation
+
+`{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders from `work-intake-automation`. Resolve them to the concrete filenames recorded in the task file.
+
+Rules:
+
+- Prefer the exact task and plan paths already recorded under `## Planning and Discussion Paths`.
+- If the task file still contains placeholders, generate real filenames before writing the plan:
+  - task file: `task-<short-slug>.md`
+  - plan file: `plan-<short-slug>.md`
+- Use the same short slug for the matching task and plan files.
+- Include an issue key only when it helps uniqueness.
+- Do not use source names like `manual` or `jira`.
+- Never write literal placeholder filenames like `{{plan-generate-name}}.md`.
+- Never fall back to generic names like `task.md` or `plan.md`.
+
+Example:
+
+```text
+Task: Projects/client-app/add-export-button/task-add-export-button.md
+```
+
 ## Planning Workflow
 
 1. Read `{{task-generate-name}}.md` and restate:

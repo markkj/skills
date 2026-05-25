@@ -19,6 +19,27 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 
 Use `{{task-generate-name}}.md` as the intake contract. It records the source facts and the paths where the user or a later planning agent should store `{{plan-generate-name}}.md` and `discussion/` docs. Use `plan-intake-automation` when the user is ready to create those planning artifacts.
 
+## Filename Generation
+
+`{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders. Replace them with real generated basenames before writing files.
+
+Rules:
+
+- Generate a short kebab-case slug from the work title or issue summary.
+- Prefix the slug with the artifact type:
+  - task file: `task-<short-slug>.md`
+  - plan file: `plan-<short-slug>.md`
+- Include an issue key only when it helps uniqueness.
+- Do not use source names like `manual` or `jira`.
+- Never write literal placeholder filenames like `{{task-generate-name}}.md`.
+- Never fall back to generic names like `task.md` or `plan.md`.
+
+Example:
+
+```text
+Task: Projects/client-app/add-export-button/task-add-export-button.md
+```
+
 ## Intake Workflow
 
 1. Identify the source:
@@ -36,8 +57,9 @@ Use `{{task-generate-name}}.md` as the intake contract. It records the source fa
    - Manual input: use `YYYYMMDD-short-slug`.
    - Other systems: use their native id if stable, else `YYYYMMDD-short-slug`.
    - Do not include source names like `manual` or `jira` in generated folder/file names; keep source in `{{task-generate-name}}.md` frontmatter.
-5. Create the folder under the user's Obsidian `Projects/` root, defaulting to `Projects/<PROJECT_NAME>/<WORK_ID>/`. Infer `<PROJECT_NAME>` from, in order: `--project`, `TASK_PROJECT`, current git repo root name, then current directory name.
-6. Write `{{task-generate-name}}.md` only. Do not create `{{plan-generate-name}}.md`, `.cursor/plans/*.plan.md`, `discussion/`, notes, or ADRs during intake. Instead, record the intended paths in `{{task-generate-name}}.md` so the user can plan later.
+5. Generate the concrete task and future plan filenames using the filename rules above.
+6. Create the folder under the user's Obsidian `Projects/` root, defaulting to `Projects/<PROJECT_NAME>/<WORK_ID>/`. Infer `<PROJECT_NAME>` from, in order: `--project`, `TASK_PROJECT`, current git repo root name, then current directory name.
+7. Write the generated task file only. Do not create the generated plan file, `.cursor/plans/*.plan.md`, `discussion/`, notes, or ADRs during intake. Instead, record the intended paths in the task file so the user can plan later.
 
 ## Obsidian Writes
 
@@ -123,4 +145,3 @@ This skill only records where future planning artifacts should go. The user writ
 - Do not create or edit `{{plan-generate-name}}.md`, `.cursor/plans/*.plan.md`, `discussion/`, notes, or ADR files during intake. If the user asks for planning, switch to `plan-intake-automation`.
 - Update `{{task-generate-name}}.md` whenever status changes, a blocker appears, task facts change, or completion evidence should be logged.
 - Keep Obsidian docs concise: facts, decisions, status, path pointers, and verification evidence.
-

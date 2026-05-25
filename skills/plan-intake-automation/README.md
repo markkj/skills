@@ -9,6 +9,14 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 
 It reads `{{task-generate-name}}.md` and creates planning artifacts at the paths recorded there.
 
+`{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders. Use real generated filenames. Example:
+
+```text
+Task: Projects/client-app/add-export-button/task-add-export-button.md
+```
+
+Do not use literal placeholder filenames, `task.md`, or `plan.md`.
+
 ## Responsibilities
 
 - Create `{{plan-generate-name}}.md` when the user wants an Obsidian task-folder plan.

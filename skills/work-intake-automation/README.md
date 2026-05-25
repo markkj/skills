@@ -13,6 +13,14 @@ The project folder is inferred automatically from the opened project. The user s
 
 `{{task-generate-name}}.md` records the future paths for `{{plan-generate-name}}.md` and `discussion/`; those files are created later by the user or by the `plan-intake-automation` skill.
 
+`{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders. Replace them with real kebab-case filenames. Example:
+
+```text
+Task: Projects/client-app/add-export-button/task-add-export-button.md
+```
+
+Do not use literal placeholder filenames, `task.md`, or `plan.md`.
+
 ## Recommended Agent Path: Obsidian MCP
 
 When an agent has access to the Obsidian MCP server, use MCP tools to create or update task files in the vault. MCP paths are relative to the vault root.
