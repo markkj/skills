@@ -1,6 +1,8 @@
 # Plan Intake Automation
 
-This skill starts after `work-intake-automation` has created a task record:
+**Opt-in only.** The agent loads this skill when the user explicitly names `plan-intake-automation` or asks to plan from an existing task record — not automatically because a `{{task-generate-name}}.md` file exists.
+
+This skill starts after `work-intake-automation` has created a task record (user must have named that skill for intake):
 
 ```text
 Projects/<PROJECT_NAME>/<WORK_ID>/
@@ -29,9 +31,9 @@ It does not perform original work intake and does not execute implementation cha
 ## Typical Flow
 
 ```text
-work-intake-automation: source request -> {{task-generate-name}}.md
-plan-intake-automation: {{task-generate-name}}.md -> {{plan-generate-name}}.md / Cursor plan / discussion docs
-coding or another execution skill: plan -> implementation
+work-intake-automation (explicit): source request -> {{task-generate-name}}.md
+plan-intake-automation (explicit): {{task-generate-name}}.md -> {{plan-generate-name}}.md / Cursor plan / discussion docs
+coding-plan (explicit) or another execution skill: plan -> implementation
 ```
 
 ## Obsidian Plan Example

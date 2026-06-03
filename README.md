@@ -6,9 +6,9 @@ Your personal **Agent Skills** repo for Cursor and Claude Code.
 |-----------|----------------|
 | [`CLAUDE.md`](CLAUDE.md) | Always-on: understand → plan, **Socratic + refs/examples** |
 | [`skills/socratic/SKILL.md`](skills/socratic/SKILL.md) | Full Socratic method (question types, escalation, synthesis) |
-| [`skills/coding/SKILL.md`](skills/coding/SKILL.md) | Coding: Cursor Plan, test-first, match project |
-| [`skills/work-intake-automation/SKILL.md`](skills/work-intake-automation/SKILL.md) | Intake Jira or typed requests into generated Obsidian task records |
-| [`skills/plan-intake-automation/SKILL.md`](skills/plan-intake-automation/SKILL.md) | Turn an existing generated task record into generated plan files, Cursor plans, or discussion docs |
+| [`skills/coding-plan/SKILL.md`](skills/coding-plan/SKILL.md) | Coding plan (opt-in): quality attributes, diagrams, Cursor todos, test-first |
+| [`skills/work-intake-automation/SKILL.md`](skills/work-intake-automation/SKILL.md) | User names work-intake-automation — Jira/typed request → Obsidian task record (opt-in) |
+| [`skills/plan-intake-automation/SKILL.md`](skills/plan-intake-automation/SKILL.md) | User names plan-intake-automation — task record → plan files, Cursor plans, discussion docs (opt-in) |
 
 ## Quick start
 
@@ -31,11 +31,9 @@ Copy `CLAUDE.md` to any project root for the same always-on behavior.
 CLAUDE.md
 skills/
 ├── socratic/          # question-first, refs/examples (always in CLAUDE.md too)
-├── coding/            # test-first coding workflow
-├── work-intake-automation/
-│                      # Jira/manual request -> generated Obsidian task file
-└── plan-intake-automation/
-                       # task file -> plan file / Cursor plan / discussion docs
+├── coding-plan/       # opt-in diagram + Cursor plan workflow
+├── work-intake-automation/   # opt-in: Jira/manual request -> Obsidian task file
+└── plan-intake-automation/   # opt-in: task file -> plan / Cursor plan / discussion
 ```
 
 ## Install

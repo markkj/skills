@@ -1,16 +1,20 @@
 ---
-name: coding
+name: coding-plan
 description: >-
-  Coding workflow — implementation outline diagram (components + call flow),
-  feature-first planning with each small e2e feedback-loop iteration as a
-  separate Cursor Plan todo, test-first, match project structure and test style.
-  Code must follow the agreed diagram.
-  Use when writing, changing, reviewing, debugging, or implementing features.
+  Coding plan workflow — required quality attributes (reliability, scalability,
+  maintainability), implementation outline diagrams (components + call flow),
+  feature-first Cursor Plan todos as small e2e feedback loops, test-first execution,
+  match project structure and test style. On Go/Java repos, pair with golang-dev or
+  java-dev. Use only when the user explicitly asks for a coding plan, mentions
+  coding-plan, or wants diagram-backed Cursor Plan todos for implementation.
+disable-model-invocation: true
 ---
 
-# Coding
+# Coding Plan
 
-Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. This skill adds coding-specific rules.
+Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. This skill adds **coding-plan-specific** rules for diagram-backed Cursor plans and test-first execution.
+
+**Do not auto-apply.** Load this skill only when the user explicitly requests a coding plan or names `coding-plan`.
 
 **Core rule: test-first.** For behavior changes, write or extend a **failing test first**, then minimal code to pass, then verify. Do not add production logic for new behavior without a failing test (unless the user opts out).
 
@@ -18,19 +22,56 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 
 **Core rule: follow the diagram.** Implementation must match the agreed **implementation outline diagram**. If the design changes, update the diagram first, then todos and code.
 
-## Quality attributes
+## Quality attributes (required in every plan)
+
+**Reference:** Kleppmann, *Designing Data-Intensive Applications* — reliability, scalability, and maintainability as the three core quality attributes for data-intensive systems. Apply them to every non-trivial coding plan.
+
+**Do not skip.** Before diagrams and Cursor todos, state how the planned work affects each attribute. If an attribute is **not** materially affected, say **N/A** and why in one line — do not leave it blank.
 
 ### Reliability
 
 > The system should continue to work correctly even in the face of adversity (hardware or software faults and even human error.)
 
+**Plan must cover:** failure modes, error handling, retries/timeouts, idempotency, data safety, and how tests prove graceful degradation or clear failure.
+
 ### Scalability
 
-> As the user grows (data volume, traffic volume or complexity) there should be reasonable ways of dealing with that growth
+> As the user grows (data volume, traffic volume or complexity) there should be reasonable ways of dealing with that growth.
+
+**Plan must cover:** expected growth axis (traffic, data, complexity), bottlenecks introduced or removed, and whether the design stays reasonable at 10× without premature optimization.
 
 ### Maintainability
 
-> Over the time many different people will work on the system (engineering and operations, both maintaining current behavior and adapting the system to new use cases) and they should all be able to work on it **productively**
+> Over time many different people will work on the system (engineering and operations, both maintaining current behavior and adapting the system to new use cases) and they should all be able to work on it **productively**.
+
+**Plan must cover:** layout and naming fit the repo, testability, observability/logging if peers use it, and whether a new contributor can follow the diagram and todos without tribal knowledge.
+
+### Quality attributes block (required in plan output)
+
+Include this table in the plan (chat and Cursor Plan body) before the implementation outline diagram:
+
+| Attribute | Impact on this work | Plan choices |
+|-----------|---------------------|--------------|
+| Reliability | … | … |
+| Scalability | … | … |
+| Maintainability | … | … |
+
+Diagrams, feature groups, and todos must reflect material impacts — e.g. reliability → error-path tests in todos; maintainability → match repo layout in diagram labels.
+
+---
+
+## Language stack (pair with dev skill)
+
+During **Understand**, detect the repo’s primary language from signals such as `go.mod` / `*.go`, or `pom.xml` / `build.gradle*` / `*.java`.
+
+| Repo stack | Also follow |
+|------------|-------------|
+| Go | [`golang-dev`](../golang-dev/SKILL.md) — layout, idioms, errors, concurrency, tests, commands |
+| Java | [`java-dev`](../java-dev/SKILL.md) — modules, Spring/plain Java, JUnit, layering, commands |
+
+When `coding-plan` is active on a Go or Java repo, **both skills apply** — even if the user only named `coding-plan`. Use coding-plan for diagrams, quality attributes, Cursor todos, and test-first slices; use the dev skill for conventions, test style, and verify commands.
+
+**Not sure** — inspect the repo, then ask.
 
 ---
 
@@ -55,7 +96,7 @@ Discover what the repo uses, then mirror it:
 
 ---
 
-## Plan (coding)
+## Plan (coding-plan)
 
 No production code until the plan is agreed (except trivial one-liners).
 
@@ -216,12 +257,14 @@ Default to the **smallest vertical slice** that proves useful behavior, unless t
 ### 7. Cursor Plan checklist
 
 1. Plan mode  
-2. Feature groups by user-visible behavior  
-3. **Diagram** (component + call flow) — confirm  
-4. Feature groups aligned with diagram  
-5. **One Cursor todo per small e2e feedback-loop iteration**  
-6. Implement only what the diagram shows  
-7. Verify each todo before the next  
+2. **Quality attributes table** (Reliability, Scalability, Maintainability) — confirm or N/A with reason  
+3. **Language dev skill** — load `golang-dev` or `java-dev` when repo is Go or Java  
+4. Feature groups by user-visible behavior  
+5. **Diagram** (component + call flow) — confirm  
+6. Feature groups aligned with diagram and quality attributes  
+7. **One Cursor todo per small e2e feedback-loop iteration**  
+8. Implement only what the diagram shows (using dev-skill conventions on Go/Java repos)  
+9. Verify each todo before the next (dev-skill test commands on Go/Java repos)  
 
 ### 8. Ask during planning
 
@@ -254,4 +297,4 @@ Skip formal plan and diagram; verify if cheap.
 
 ---
 
-**Working well if:** diagram confirmed, code matches call flow, each small e2e feedback-loop iteration is its own Cursor todo, tests match the repo.
+**Working well if:** quality attributes table is filled, diagram confirmed, code matches call flow, each small e2e feedback-loop iteration is its own Cursor todo, tests match the repo, and Go/Java work follows the paired dev skill.

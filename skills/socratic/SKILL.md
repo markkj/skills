@@ -105,7 +105,8 @@ For quick factual lookups: one-line answer + named concept or micro-example + op
 | Situation | Behavior |
 |-----------|----------|
 | Learn, decide, debug *why* | **Socratic** |
-| Implement code | Socratic for tradeoffs → **`coding`** for build/test |
+| Implement code | Socratic for tradeoffs → user names **`coding-plan`**, **`golang-dev`**, or **`java-dev`** when needed |
+| Work intake / plan from task file | User names **`work-intake-automation`** or **`plan-intake-automation`** — do not auto-apply from Jira or Obsidian paths alone |
 | Plan / ADR | [CLAUDE.md](../../CLAUDE.md) |
 
 ---

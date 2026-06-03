@@ -1,10 +1,13 @@
 ---
 name: work-intake-automation
 description: >-
-  Automates AI-assisted work intake from Jira issues, typed user requests, pasted specs, or other task sources into an Obsidian {{task-generate-name}}.md with pointers for where the user can later store {{plan-generate-name}}.md and discussion docs. Use when the user wants Jira-to-task capture, user-request intake, Obsidian task tracking, or handoff notes before planning.
+  Automates AI-assisted work intake from Jira issues, typed user requests, pasted specs, or other task sources into an Obsidian {{task-generate-name}}.md with pointers for where the user can later store {{plan-generate-name}}.md and discussion docs. Use only when the user explicitly names work-intake-automation, asks for work intake, Jira-to-task capture, or Obsidian task handoff before planning.
+disable-model-invocation: true
 ---
 
 # Work Intake Automation
+
+**Do not auto-apply.** Load this skill only when the user explicitly names `work-intake-automation`, asks for work intake, Jira-to-task capture, or Obsidian task tracking before planning.
 
 Use this skill when work starts outside the agent and must become a durable task record before the user plans it. The source may be Jira, a typed request, a pasted spec, Slack/email notes, or a verbal summary.
 
@@ -17,7 +20,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 └── {{task-generate-name}}.md
 ```
 
-Use `{{task-generate-name}}.md` as the intake contract. It records the source facts and the paths where the user or a later planning agent should store `{{plan-generate-name}}.md` and `discussion/` docs. Use `plan-intake-automation` when the user is ready to create those planning artifacts.
+Use `{{task-generate-name}}.md` as the intake contract. It records the source facts and the paths where the user or a later planning agent should store `{{plan-generate-name}}.md` and `discussion/` docs. When the user is ready to plan, they must explicitly request [`plan-intake-automation`](../plan-intake-automation/SKILL.md) — do not auto-switch.
 
 ## Filename Generation
 
@@ -131,7 +134,7 @@ owner: <person or agent>
 
 ## Future Plan and Discussion Paths
 
-This skill only records where future planning artifacts should go. The user writes them later or asks an agent to use `plan-intake-automation`.
+This skill only records where future planning artifacts should go. The user creates them later or explicitly asks an agent to use [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
 
 - `{{plan-generate-name}}.md` path: `Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md`
 - `discussion/` path: `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
@@ -142,6 +145,6 @@ This skill only records where future planning artifacts should go. The user writ
 - Before writing `{{task-generate-name}}.md`, restate the current goal, assumptions, and unknowns.
 - Treat `{{task-generate-name}}.md` as the task brief/status ledger and path index.
 - Do not put checkboxes or implementation todos in `{{task-generate-name}}.md`; acceptance criteria there are descriptive criteria, not progress tracking.
-- Do not create or edit `{{plan-generate-name}}.md`, `.cursor/plans/*.plan.md`, `discussion/`, notes, or ADR files during intake. If the user asks for planning, switch to `plan-intake-automation`.
+- Do not create or edit `{{plan-generate-name}}.md`, `.cursor/plans/*.plan.md`, `discussion/`, notes, or ADR files during intake. If the user asks for planning, tell them to name [`plan-intake-automation`](../plan-intake-automation/SKILL.md) — do not apply that skill unless they do.
 - Update `{{task-generate-name}}.md` whenever status changes, a blocker appears, task facts change, or completion evidence should be logged.
 - Keep Obsidian docs concise: facts, decisions, status, path pointers, and verification evidence.

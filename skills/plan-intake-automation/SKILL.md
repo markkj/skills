@@ -1,20 +1,23 @@
 ---
 name: plan-intake-automation
 description: >-
-  Turns an existing Obsidian {{task-generate-name}}.md from work-intake-automation into planning artifacts such as {{plan-generate-name}}.md, Cursor .cursor/plans/*.plan.md files, and discussion docs. Use when the user wants to plan from a saved task record, convert task facts into executable todos, create Cursor plan files, or prepare multi-agent handoff docs after intake is complete.
+  Turns an existing Obsidian {{task-generate-name}}.md from work-intake-automation into planning artifacts such as {{plan-generate-name}}.md, Cursor .cursor/plans/*.plan.md files, and discussion docs. Use only when the user explicitly names plan-intake-automation, asks to plan from a saved task record, convert task facts into executable todos, or create Cursor plan files after intake.
+disable-model-invocation: true
 ---
 
 # Plan Intake Automation
+
+**Do not auto-apply.** Load this skill only when the user explicitly names `plan-intake-automation`, asks to plan from a saved task record, or requests plan files / Cursor plans from an existing `{{task-generate-name}}.md`.
 
 Use this skill only after a task record exists. The input is `{{task-generate-name}}.md`; the output is planning artifacts at the paths recorded in that task file.
 
 ## Boundary
 
-- `work-intake-automation`: source request -> `{{task-generate-name}}.md`.
-- `plan-intake-automation`: `{{task-generate-name}}.md` -> `{{plan-generate-name}}.md`, optional Cursor plan (symlinked to the Obsidian plan path when both are used), optional `discussion/` docs.
+- [`work-intake-automation`](../work-intake-automation/SKILL.md): source request -> `{{task-generate-name}}.md` (explicit opt-in only).
+- `plan-intake-automation` (this skill): `{{task-generate-name}}.md` -> `{{plan-generate-name}}.md`, optional Cursor plan (symlinked to the Obsidian plan path when both are used), optional `discussion/` docs.
 - Execution happens later; do not change product code while planning.
 
-If `{{task-generate-name}}.md` does not exist, use `work-intake-automation` first.
+If `{{task-generate-name}}.md` does not exist, tell the user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first — do not auto-apply intake.
 
 ## Filename Generation
 
@@ -217,7 +220,11 @@ flowchart LR
 Start by reading `{{task-generate-name}}.md`, this Cursor plan, and any relevant `discussion/` docs. Track executable todo progress in the YAML frontmatter.
 ````
 
-For coding plans, also follow the `coding` skill: include implementation diagrams for non-trivial work, use one verifiable todo per layer or cohesive outcome, and include test-first verification.
+## Coding plan (explicit opt-in)
+
+Do **not** auto-apply the `coding-plan` skill. Only when the user **explicitly** asks for a coding plan or names `coding-plan`, follow [`coding-plan`](../coding-plan/SKILL.md): include the **quality attributes table** (reliability, scalability, maintainability), implementation diagrams for non-trivial work, one Cursor todo per small e2e feedback-loop iteration, and test-first verification in todo `verify:` lines. On Go or Java repos, also follow [`golang-dev`](../golang-dev/SKILL.md) or [`java-dev`](../java-dev/SKILL.md).
+
+If the user did not request a coding plan, use the templates above without coding-plan diagrams or slice rules.
 
 ## Discussion Docs
 

@@ -1,5 +1,7 @@
 # Work Intake Automation
 
+**Opt-in only.** The agent loads this skill when the user explicitly names `work-intake-automation` or asks for work intake — not automatically from Jira mentions or task-folder context alone.
+
 This skill turns a work request into an Obsidian task folder:
 
 ```text
@@ -11,7 +13,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 
 The project folder is inferred automatically from the opened project. The user should not need to type it in normal use.
 
-`{{task-generate-name}}.md` records the future paths for `{{plan-generate-name}}.md` and `discussion/`; those files are created later by the user or by the `plan-intake-automation` skill.
+`{{task-generate-name}}.md` records the future paths for `{{plan-generate-name}}.md` and `discussion/`; those files are created later when the user explicitly requests `plan-intake-automation`.
 
 `{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders. Replace them with real kebab-case filenames. Example:
 
@@ -51,14 +53,14 @@ Projects/client-app/<WORK_ID>/
 ## Agent Handoff Pattern
 
 - `{{task-generate-name}}.md` stores source facts, status, acceptance criteria, constraints, agent roles, and the future paths for planning/discussion docs.
-- The user or `plan-intake-automation` creates `{{plan-generate-name}}.md` when ready.
-- The user or `plan-intake-automation` creates `discussion/` notes or ADRs when needed.
+- The user explicitly names `plan-intake-automation` to create `{{plan-generate-name}}.md` when ready.
+- The user explicitly names `plan-intake-automation` to create `discussion/` notes or ADRs when needed.
 
 Example flow:
 
 ```text
-Claude Code reads Jira -> writes {{task-generate-name}}.md
-User or plan-intake-automation reads {{task-generate-name}}.md -> writes {{plan-generate-name}}.md when ready
+User names work-intake-automation -> agent writes {{task-generate-name}}.md
+User names plan-intake-automation -> agent writes {{plan-generate-name}}.md when ready
 Cursor reads {{task-generate-name}}.md + {{plan-generate-name}}.md -> executes when asked
-plan-intake-automation writes discussion notes or ADRs only when asked
+User names plan-intake-automation -> discussion notes or ADRs only when asked
 ```
