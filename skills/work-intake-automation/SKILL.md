@@ -109,7 +109,7 @@ owner: <person or agent>
 - **Task folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/`
 - **Plan file:** `Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md`
 - **Discussion folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
-- **Cursor plan file, if used:** `<repo>/.cursor/plans/<slug>_<short-id>.plan.md` (canonical; Obsidian plan path is usually a symlink to this file — see `plan-intake-automation`)
+- **Cursor plan file, if used:** `~/.cursor/plans/<slug>_<short-id>.plan.md` (canonical; Obsidian plan path is usually a symlink to this file — see `plan-intake-automation`)
 
 ## Goal
 
@@ -138,7 +138,7 @@ This skill only records where future planning artifacts should go. The user crea
 
 - `{{plan-generate-name}}.md` path: `Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md`
 - `discussion/` path: `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
-- Cursor plan path, if the user chooses Cursor: `<repo>/.cursor/plans/<slug>_<short-id>.plan.md` (canonical; `{{plan-generate-name}}.md` in the task folder should symlink here when planned with `plan-intake-automation`)
+- Cursor plan path, if the user chooses Cursor: `~/.cursor/plans/<slug>_<short-id>.plan.md` (canonical; `{{plan-generate-name}}.md` in the task folder should symlink here when planned with `plan-intake-automation`)
 
 ## Intake Rules
 

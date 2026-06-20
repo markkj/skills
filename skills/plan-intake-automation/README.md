@@ -60,7 +60,7 @@ When Cursor is the execution owner:
 1. Write the canonical Cursor plan to:
 
 ```text
-<repo>/.cursor/plans/<slug>_<short-id>.plan.md
+~/.cursor/plans/<slug>_<short-id>.plan.md
 ```
 
 2. Symlink the Obsidian plan path to that file (do not copy the content):

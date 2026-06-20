@@ -51,7 +51,7 @@ Task: Projects/client-app/add-export-button/task-add-export-button.md
    - recorded paths for `{{plan-generate-name}}.md`, `discussion/`, and optional Cursor plan
 2. If acceptance criteria or scope are unclear, ask 1-3 focused questions before writing a plan.
 3. Choose the planning artifact:
-   - **Obsidian-only plan:** write `{{plan-generate-name}}.md` at the path recorded in `{{task-generate-name}}.md` (markdown template below; no `.cursor/plans/` file).
+   - **Obsidian-only plan:** write `{{plan-generate-name}}.md` at the path recorded in `{{task-generate-name}}.md` (markdown template below; no `~/.cursor/plans/` file).
    - **Cursor plan:** one canonical file plus a symlink in Obsidian — see [Cursor plan with Obsidian symlink](#cursor-plan-with-obsidian-symlink).
    - **Discussion doc:** write `discussion/<topic>.md` or `discussion/adr-0001-<decision>.md` only for decisions, research, or context that would make `{{plan-generate-name}}.md` noisy.
 4. After writing a plan, update `{{task-generate-name}}.md` only for:
@@ -63,9 +63,9 @@ Task: Projects/client-app/add-export-button/task-add-export-button.md
 
 When an Obsidian MCP server is available, prefer it for **Obsidian-only** `{{plan-generate-name}}.md` and `discussion/` files in the vault. Use vault-relative paths. If MCP cannot verify the write, report the blocker rather than silently creating a local copy.
 
-Obsidian MCP cannot create symlinks. For **Cursor plans**, write the canonical file under `.cursor/plans/`, then create the vault symlink with shell `ln -s` (see below). Verify both paths resolve to the same file.
+Obsidian MCP cannot create symlinks. For **Cursor plans**, write the canonical file under `~/.cursor/plans/`, then create the vault symlink with shell `ln -s` (see below). Verify both paths resolve to the same file.
 
-Use shell writes for `.cursor/plans/*.plan.md`, symlinks, and manual terminal workflows.
+Use shell writes for `~/.cursor/plans/*.plan.md`, symlinks, and manual terminal workflows.
 
 ## Cursor plan with Obsidian symlink
 
@@ -74,7 +74,7 @@ When the user asks for a Cursor plan or the execution owner is Cursor, use **one
 ### Canonical file (write content here)
 
 ```text
-<repo>/.cursor/plans/<slug>_<short-id>.plan.md
+~/.cursor/plans/<slug>_<short-id>.plan.md
 ```
 
 Use the [Cursor Plan Template](#cursor-plan-template) below. This path is what Cursor Plan UI reads.
@@ -85,18 +85,18 @@ Use the [Cursor Plan Template](#cursor-plan-template) below. This path is what C
 <vault>/Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md
 ```
 
-Create this path as a **symlink** to the canonical `.cursor/plans/*.plan.md` file — not a separate markdown document.
+Create this path as a **symlink** to the canonical `~/.cursor/plans/*.plan.md` file — not a separate markdown document.
 
 ### Symlink rules
 
-1. Write the canonical plan first under `<repo>/.cursor/plans/`.
+1. Write the canonical plan first under `~/.cursor/plans/`.
 2. Ensure the task folder exists in the vault (create parents if needed).
 3. Create the Obsidian plan path with `ln -s`:
-   - Prefer a **relative** target from the task folder to `.cursor/plans/` when the vault contains or overlaps the repo (fewer breaks if the repo moves within the vault).
+   - Prefer a **relative** target from the task folder to `~/.cursor/plans/` when the vault contains or overlaps the repo (fewer breaks if the repo moves within the vault).
    - Use an **absolute** target when the vault and repo are on different trees or relative paths would cross too many `..` segments unreliably.
 4. If `{{plan-generate-name}}.md` already exists, ask before overwriting. Replace a regular file or stale symlink only after confirmation.
 5. **Verify:** `readlink` (or `ls -l`) on the Obsidian path and `realpath` (or equivalent) on both paths show the same inode/file.
-6. Record both paths in `{{task-generate-name}}.md`. Note on the Obsidian plan line that it is a symlink to the Cursor plan (example: `plan-add-export.md` → symlink → `.cursor/plans/add-export_a1b2.plan.md`).
+6. Record both paths in `{{task-generate-name}}.md`. Note on the Obsidian plan line that it is a symlink to the Cursor plan (example: `plan-add-export.md` → symlink → `~/.cursor/plans/add-export_a1b2.plan.md`).
 
 ### Layout examples
 
@@ -120,7 +120,7 @@ vault/Projects/my-app/WORK-123/plan-add-export.md
 
 ### When Obsidian-only is enough
 
-If the execution owner is not Cursor and the user does not want a Cursor plan file, write `{{plan-generate-name}}.md` as normal markdown in the vault only (no `.cursor/plans/` file, no symlink).
+If the execution owner is not Cursor and the user does not want a Cursor plan file, write `{{plan-generate-name}}.md` as normal markdown in the vault only (no `~/.cursor/plans/` file, no symlink).
 
 ## `{{plan-generate-name}}.md` Template
 
@@ -165,12 +165,12 @@ Start by reading `{{task-generate-name}}.md`, this `{{plan-generate-name}}.md`, 
 
 ## Cursor Plan Template
 
-Use this when the user asks for a Cursor plan or when the execution owner is Cursor. Write content only to the canonical path under `.cursor/plans/`; link the Obsidian `{{plan-generate-name}}.md` path with a symlink ([Cursor plan with Obsidian symlink](#cursor-plan-with-obsidian-symlink)).
+Use this when the user asks for a Cursor plan or when the execution owner is Cursor. Write content only to the canonical path under `~/.cursor/plans/`; link the Obsidian `{{plan-generate-name}}.md` path with a symlink ([Cursor plan with Obsidian symlink](#cursor-plan-with-obsidian-symlink)).
 
 Canonical file path:
 
 ```text
-<repo>/.cursor/plans/<slug>_<short-id>.plan.md
+~/.cursor/plans/<slug>_<short-id>.plan.md
 ```
 
 Template:
@@ -263,6 +263,6 @@ ADR template:
 - Do not create a new `{{task-generate-name}}.md`; this skill starts from an existing one.
 - Do not execute implementation work while planning.
 - Keep `{{task-generate-name}}.md` as status/source/path ledger; keep executable todos in the active plan file (Obsidian markdown or Cursor plan YAML frontmatter).
-- For Cursor plans: one canonical file under `.cursor/plans/`; Obsidian `{{plan-generate-name}}.md` must be a symlink to it — never duplicate plan content in both places.
+- For Cursor plans: one canonical file under `~/.cursor/plans/`; Obsidian `{{plan-generate-name}}.md` must be a symlink to it — never duplicate plan content in both places.
 - Ask before overwriting an existing plan file or symlink.
 - Update `{{task-generate-name}}.md` after planning so future sessions can find the active plan and symlink target.
