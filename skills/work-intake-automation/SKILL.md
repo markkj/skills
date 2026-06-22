@@ -11,6 +11,38 @@ disable-model-invocation: true
 
 Use this skill when work starts outside the agent and must become a durable task record before the user plans it. The source may be Jira, a typed request, a pasted spec, Slack/email notes, or a verbal summary.
 
+**Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent shell fallbacks when Obsidian MCP is required.
+
+## Harness phases
+
+| Phase | Do | Verify | STOP if |
+|-------|-----|--------|---------|
+| **0 — Preconditions** | User named this skill; identify source type (Jira, typed request, other) | Source type and raw input captured | User did not name skill → do not run intake |
+| **1 — Restate** | Restate goal, assumptions, unknowns in chat | Matches user intent; unknowns listed | — |
+| **2 — Clarify** | If facts insufficient for a useful task record, ask **1–3** focused questions | User answered or said proceed with stated assumptions | Critical gap unresolved → STOP; do not write task file |
+| **3 — Paths** | Choose `work-id`, `PROJECT_NAME`, generate `task-<slug>.md` and future `plan-<slug>.md` paths | No literal `{{…}}` in filenames; paths follow [filename rules](#filename-generation) | Cannot infer project and user did not specify → ask |
+| **4 — Roles** | Record intake, planning, execution, discussion owners in task template | Roles filled or marked TBD | — |
+| **5 — Write** | Create task folder; write **only** `{{task-generate-name}}.md` via Obsidian MCP | MCP read-back shows file at vault-relative path | MCP unavailable or write unverified → **STOP**; do not shell-write to vault |
+| **6 — Handoff** | Emit [completion report](#completion-report) | User can find task file and future plan paths | — |
+
+**Forbidden during any phase:** create plan files, `~/.cursor/plans/*.plan.md`, `discussion/`, notes, ADRs, or product code. If user asks for planning → tell them to name [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
+
+## Completion report
+
+After phase 6, output this block in chat:
+
+```markdown
+## Work intake complete
+
+- **Task:** `<vault-relative path to task file>`
+- **Work ID:** `<WORK_ID>`
+- **Status:** Intake
+- **Future plan path:** `<vault-relative plan path>`
+- **Future discussion:** `<vault-relative discussion folder>`
+- **Blockers:** <none | list>
+- **Next:** Name `plan-intake-automation` when ready to plan.
+```
+
 ## Goal
 
 Normalize every work request into:
@@ -45,24 +77,28 @@ Task: Projects/client-app/add-export-button/task-add-export-button.md
 
 ## Intake Workflow
 
-1. Identify the source:
+Follow [Harness phases](#harness-phases). Details per phase:
+
+**Phase 0 — Source** — identify:
    - **Jira:** issue key, title, link, description, comments, acceptance criteria, labels, assignee, priority.
    - **Typed request:** user goal, context, constraints, acceptance criteria, examples, deadline.
    - **Other source:** capture source name, link/path if available, and raw notes.
-2. Identify agent roles for the task record. This skill only performs intake; planning and execution happen later:
+
+**Phase 4 — Roles** — record in task file (intake only; planning and execution happen later):
    - **Intake agent:** reads the source and writes `{{task-generate-name}}.md`, e.g. Claude Code reads Jira.
    - **Planning owner:** user | Cursor | Claude Code | Codex | Other | TBD.
    - **Execution owner:** user | Cursor | Claude Code | Codex | Other | TBD.
    - **Discussion owner:** user | Claude Code | Cursor | Other | TBD.
-3. If the request lacks enough facts for a useful task record, ask 1-3 focused questions before writing `{{task-generate-name}}.md`.
-4. Choose a stable `work-id`:
-   - Jira: use the issue key, e.g. `PROJ-123`.
-   - Manual input: use `YYYYMMDD-short-slug`.
-   - Other systems: use their native id if stable, else `YYYYMMDD-short-slug`.
-   - Do not include source names like `manual` or `jira` in generated folder/file names; keep source in `{{task-generate-name}}.md` frontmatter.
-5. Generate the concrete task and future plan filenames using the filename rules above.
-6. Create the folder under the user's Obsidian `Projects/` root, defaulting to `Projects/<PROJECT_NAME>/<WORK_ID>/`. Infer `<PROJECT_NAME>` from, in order: `--project`, `TASK_PROJECT`, current git repo root name, then current directory name.
-7. Write the generated task file only. Do not create the generated plan file, `.cursor/plans/*.plan.md`, `discussion/`, notes, or ADRs during intake. Instead, record the intended paths in the task file so the user can plan later.
+
+**Phase 2 — Clarify:** If the request lacks enough facts for a useful task record, ask 1-3 focused questions before writing `{{task-generate-name}}.md`.
+
+**Phase 3 — Paths:**
+
+- **work-id:** Jira → issue key (e.g. `PROJ-123`); manual → `YYYYMMDD-short-slug`; other → native id if stable, else `YYYYMMDD-short-slug`. Do not put source names like `manual` or `jira` in folder names.
+- **Filenames:** generate `task-<slug>.md` and future `plan-<slug>.md` per [filename rules](#filename-generation).
+- **Folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/` — infer `<PROJECT_NAME>` from, in order: `--project`, `TASK_PROJECT`, git repo root name, current directory name.
+
+**Phase 5 — Write:** create folder and task file only. Record future plan and discussion paths in the task file. Do not create plan, `~/.cursor/plans/*.plan.md`, `discussion/`, notes, or ADRs.
 
 ## Obsidian Writes
 
@@ -145,6 +181,6 @@ This skill only records where future planning artifacts should go. The user crea
 - Before writing `{{task-generate-name}}.md`, restate the current goal, assumptions, and unknowns.
 - Treat `{{task-generate-name}}.md` as the task brief/status ledger and path index.
 - Do not put checkboxes or implementation todos in `{{task-generate-name}}.md`; acceptance criteria there are descriptive criteria, not progress tracking.
-- Do not create or edit `{{plan-generate-name}}.md`, `.cursor/plans/*.plan.md`, `discussion/`, notes, or ADR files during intake. If the user asks for planning, tell them to name [`plan-intake-automation`](../plan-intake-automation/SKILL.md) — do not apply that skill unless they do.
+- Do not create or edit `{{plan-generate-name}}.md`, `~/.cursor/plans/*.plan.md`, `discussion/`, notes, or ADR files during intake. If the user asks for planning, tell them to name [`plan-intake-automation`](../plan-intake-automation/SKILL.md) — do not apply that skill unless they do.
 - Update `{{task-generate-name}}.md` whenever status changes, a blocker appears, task facts change, or completion evidence should be logged.
 - Keep Obsidian docs concise: facts, decisions, status, path pointers, and verification evidence.

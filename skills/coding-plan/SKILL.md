@@ -4,9 +4,9 @@ description: >-
   Coding plan workflow — required quality attributes (reliability, scalability,
   maintainability), implementation outline diagrams (components + call flow),
   feature-first Cursor Plan todos as small e2e feedback loops, test-first execution,
-  match project structure and test style. On Go/Java repos, pair with golang-dev or
-  java-dev. Use only when the user explicitly asks for a coding plan, mentions
-  coding-plan, or wants diagram-backed Cursor Plan todos for implementation.
+  match project structure and test style. Use only when the user explicitly asks for
+  a coding plan, mentions coding-plan, or wants diagram-backed Cursor Plan todos
+  for implementation.
 disable-model-invocation: true
 ---
 
@@ -21,6 +21,21 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 **Core rule: match the project.** New code and tests follow the **same structure and conventions** as that repo.
 
 **Core rule: follow the diagram.** Implementation must match the agreed **implementation outline diagram**. If the design changes, update the diagram first, then todos and code.
+
+**Harness rule:** Run plan phases **in order**; run each todo with the [execution harness](#execution-harness-per-todo). Do not skip gates. On **STOP**, report and wait.
+
+## Plan harness (before code)
+
+| Phase | Do | Verify | STOP if |
+|-------|-----|--------|---------|
+| **0 — Preconditions** | User named `coding-plan`; read repo layout and 1–2 similar features | Stack and test style identified | Repo unreadable or scope unknown → ask |
+| **1 — Quality attributes** | Fill [quality attributes table](#quality-attributes-block-required-in-plan-output) | All three rows filled or N/A with reason | Blank row → STOP; no diagram yet |
+| **2 — Feature map** | Name user-visible behaviors; group features | Behaviors trace to acceptance criteria | — |
+| **3 — Diagram** | Mermaid component + call flow per feature group | User confirms diagram | User objects or diagram incomplete → revise; STOP before todos |
+| **4 — Todos** | One Cursor Plan todo per small e2e iteration; each has `verify:` | Todo count matches iteration outline | Layer-only or file-only todos → fix before implement |
+| **5 — Cursor Plan** | Write `~/.cursor/plans/<slug>_<short-id>.plan.md` | Plan file exists with YAML todos | — |
+
+**Forbidden before phase 5 complete:** production code for new behavior (except trivial one-liners user agreed to skip).
 
 ## Quality attributes (required in every plan)
 
@@ -57,21 +72,6 @@ Include this table in the plan (chat and Cursor Plan body) before the implementa
 | Maintainability | … | … |
 
 Diagrams, feature groups, and todos must reflect material impacts — e.g. reliability → error-path tests in todos; maintainability → match repo layout in diagram labels.
-
----
-
-## Language stack (pair with dev skill)
-
-During **Understand**, detect the repo’s primary language from signals such as `go.mod` / `*.go`, or `pom.xml` / `build.gradle*` / `*.java`.
-
-| Repo stack | Also follow |
-|------------|-------------|
-| Go | [`golang-dev`](../golang-dev/SKILL.md) — layout, idioms, errors, concurrency, tests, commands |
-| Java | [`java-dev`](../java-dev/SKILL.md) — modules, Spring/plain Java, JUnit, layering, commands |
-
-When `coding-plan` is active on a Go or Java repo, **both skills apply** — even if the user only named `coding-plan`. Use coding-plan for diagrams, quality attributes, Cursor todos, and test-first slices; use the dev skill for conventions, test style, and verify commands.
-
-**Not sure** — inspect the repo, then ask.
 
 ---
 
@@ -256,19 +256,36 @@ Default to the **smallest vertical slice** that proves useful behavior, unless t
 
 ### 7. Cursor Plan checklist
 
+Follow [Plan harness](#plan-harness-before-code) phases 0–5. Quick list:
+
 1. Plan mode  
-2. **Quality attributes table** (Reliability, Scalability, Maintainability) — confirm or N/A with reason  
-3. **Language dev skill** — load `golang-dev` or `java-dev` when repo is Go or Java  
-4. Feature groups by user-visible behavior  
-5. **Diagram** (component + call flow) — confirm  
-6. Feature groups aligned with diagram and quality attributes  
-7. **One Cursor todo per small e2e feedback-loop iteration**  
-8. Implement only what the diagram shows (using dev-skill conventions on Go/Java repos)  
-9. Verify each todo before the next (dev-skill test commands on Go/Java repos)  
+2. **Quality attributes table** — confirm or N/A with reason  
+3. Feature groups by user-visible behavior  
+4. **Diagram** (component + call flow) — user confirms  
+5. Feature groups aligned with diagram and quality attributes  
+6. **One Cursor todo per small e2e feedback-loop iteration** with `verify:`  
+7. Write `~/.cursor/plans/*.plan.md`  
+8. Implement only what the diagram shows — [execution harness](#execution-harness-per-todo) per todo  
 
 ### 8. Ask during planning
 
 Ask if unclear: scope, API contract, layer map, mocks, IT in repo, acceptance criteria.
+
+---
+
+## Execution harness (per todo)
+
+For each Cursor Plan todo, in order:
+
+| Step | Do | Verify | STOP if |
+|------|-----|--------|---------|
+| **1 — Scope** | Confirm todo maps to diagram; list files to touch | Matches one behavior milestone | Scope grew → update diagram and plan first |
+| **2 — Red** | Write or extend failing test (repo style) | Test fails for the right reason | No test and user did not opt out → STOP |
+| **3 — Green** | Minimal code across needed layers | Target test passes | — |
+| **4 — Refactor** | Clean up only if needed; keep tests green | Related tests still pass | Regression → fix before next todo |
+| **5 — Complete** | Mark todo done only after verify | `verify:` line satisfied | — |
+
+**Opt out:** user says skip tests — note it in chat; use another verify method if cheap.
 
 ---
 
@@ -287,8 +304,6 @@ Match the **diagram** for that feature.
 
 **Bug fix:** failing test repro when possible. **Refactor:** tests green before and after.
 
-**Opt out:** user says skip tests — note it; verify another way if cheap.
-
 ---
 
 ## Trivial work
@@ -297,4 +312,4 @@ Skip formal plan and diagram; verify if cheap.
 
 ---
 
-**Working well if:** quality attributes table is filled, diagram confirmed, code matches call flow, each small e2e feedback-loop iteration is its own Cursor todo, tests match the repo, and Go/Java work follows the paired dev skill.
+**Working well if:** plan harness phases 0–5 done, quality attributes table filled, diagram confirmed, code matches call flow, each small e2e iteration is its own Cursor todo with verify, execution harness completed per todo.

@@ -2,6 +2,8 @@
 
 Your personal **Agent Skills** repo for Cursor and Claude Code.
 
+Workflow skills use a **harness** pattern: ordered phases, verify-before-continue, explicit STOP conditions, and a completion report — so agents do not skip gates or silently fall back.
+
 | Mechanism | What it does |
 |-----------|----------------|
 | [`CLAUDE.md`](CLAUDE.md) | Always-on: understand → plan, **Socratic + refs/examples** |

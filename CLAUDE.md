@@ -4,7 +4,7 @@
 
 **Always (Socratic):** **Question before telling** — draw out their reasoning, then **ground** conclusions in a **reference** or **example**. Details: [`skills/socratic/SKILL.md`](skills/socratic/SKILL.md).
 
-Cursor and Claude Code read this at the project root. Optional skills (e.g. `coding-plan`, `golang-dev`, `java-dev`, `work-intake-automation`, `plan-intake-automation`) load only when the user names them — install with `./scripts/link-skills.sh cursor`.
+Cursor and Claude Code read this at the project root. Optional skills (e.g. `coding-plan`, `work-intake-automation`, `plan-intake-automation`) load only when the user names them — install with `./scripts/link-skills.sh cursor`.
 
 ---
 
@@ -108,11 +108,9 @@ Details for diagram-backed coding plans (test-first, small e2e todos, match proj
 | Skill | When |
 |-------|------|
 | [`skills/socratic/SKILL.md`](skills/socratic/SKILL.md) | Always — Socratic questions + refs/examples (full method) |
-| [`skills/coding-plan/SKILL.md`](skills/coding-plan/SKILL.md) | User asks for coding plan — quality attributes, diagrams, Cursor todos, test-first; on Go/Java repos also applies `golang-dev` / `java-dev` |
-| [`skills/golang-dev/SKILL.md`](skills/golang-dev/SKILL.md) | User names golang-dev or Go work; auto-pairs with `coding-plan` on Go repos |
-| [`skills/java-dev/SKILL.md`](skills/java-dev/SKILL.md) | User names java-dev or Java work; auto-pairs with `coding-plan` on Java repos |
-| [`skills/work-intake-automation/SKILL.md`](skills/work-intake-automation/SKILL.md) | User names work-intake-automation — source request → Obsidian task record |
-| [`skills/plan-intake-automation/SKILL.md`](skills/plan-intake-automation/SKILL.md) | User names plan-intake-automation — task record → plan / Cursor plan / discussion docs |
+| [`skills/coding-plan/SKILL.md`](skills/coding-plan/SKILL.md) | User asks for coding plan — harnessed plan + execution, quality attributes, diagrams, Cursor todos, test-first |
+| [`skills/work-intake-automation/SKILL.md`](skills/work-intake-automation/SKILL.md) | User names work-intake-automation — harnessed intake → Obsidian task record |
+| [`skills/plan-intake-automation/SKILL.md`](skills/plan-intake-automation/SKILL.md) | User names plan-intake-automation — harnessed plan from task record → plan / Cursor plan / discussion |
 
 Install: `./scripts/link-skills.sh cursor`
 

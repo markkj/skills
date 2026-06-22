@@ -1,7 +1,7 @@
 ---
 name: plan-intake-automation
 description: >-
-  Turns an existing Obsidian {{task-generate-name}}.md from work-intake-automation into planning artifacts such as {{plan-generate-name}}.md, Cursor .cursor/plans/*.plan.md files, and discussion docs. Use only when the user explicitly names plan-intake-automation, asks to plan from a saved task record, convert task facts into executable todos, or create Cursor plan files after intake.
+  Turns an existing Obsidian {{task-generate-name}}.md from work-intake-automation into planning artifacts such as {{plan-generate-name}}.md, Cursor ~/.cursor/plans/*.plan.md files, and discussion docs. Use only when the user explicitly names plan-intake-automation, asks to plan from a saved task record, convert task facts into executable todos, or create Cursor plan files after intake.
 disable-model-invocation: true
 ---
 
@@ -10,6 +10,38 @@ disable-model-invocation: true
 **Do not auto-apply.** Load this skill only when the user explicitly names `plan-intake-automation`, asks to plan from a saved task record, or requests plan files / Cursor plans from an existing `{{task-generate-name}}.md`.
 
 Use this skill only after a task record exists. The input is `{{task-generate-name}}.md`; the output is planning artifacts at the paths recorded in that task file.
+
+**Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks, no product code changes.
+
+## Harness phases
+
+| Phase | Do | Verify | STOP if |
+|-------|-----|--------|---------|
+| **0 — Preconditions** | User named this skill; locate `{{task-generate-name}}.md` (vault path from user or task index) | File exists and is readable | No task file → tell user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first |
+| **1 — Load** | Read task file; restate goal, acceptance criteria, assumptions, unknowns, recorded paths | Restatement matches task file; gaps listed | — |
+| **2 — Clarify** | If scope or acceptance criteria unclear, ask **1–3** focused questions | User answered or explicitly said proceed with stated assumptions | Unresolved blocker → STOP; do not write plan |
+| **3 — Artifact choice** | Pick one primary output: Obsidian-only plan, Cursor plan (+ symlink), or discussion doc only | Choice matches execution owner in task file or user stated preference | Ambiguous and user did not choose → ask; STOP until chosen |
+| **4 — Write** | Create plan / Cursor plan / discussion per templates below | Each artifact exists at recorded path; no literal `{{…}}` placeholders in filenames | MCP/shell write failed or path conflict → STOP; ask before overwrite |
+| **5 — Link** (Cursor only) | Write canonical `~/.cursor/plans/<slug>_<short-id>.plan.md`; symlink Obsidian plan path | `readlink` + `realpath` show same file | Symlink wrong or Obsidian path is a duplicate copy → fix or STOP |
+| **6 — Ledger** | Update `{{task-generate-name}}.md`: `status: Planned`, paths, execution log | Task file reflects new artifacts | Task update failed → STOP and report |
+| **7 — Handoff** | Emit [completion report](#completion-report) | User can resume from task + plan paths alone | — |
+
+**Forbidden during any phase:** create a new task file, change product code, auto-apply [`coding-plan`](../coding-plan/SKILL.md) unless user names it.
+
+## Completion report
+
+After phase 7, output this block in chat:
+
+```markdown
+## Plan intake complete
+
+- **Task:** `<vault-relative path to task file>`
+- **Plan:** `<path>` (Obsidian markdown | Cursor canonical | symlink → canonical)
+- **Discussion:** `<path or none>`
+- **Status:** Planned
+- **Next:** Name `coding-plan` for diagram-backed implementation, or execute from the plan directly.
+- **Blockers:** <none | list>
+```
 
 ## Boundary
 
@@ -43,18 +75,23 @@ Task: Projects/client-app/add-export-button/task-add-export-button.md
 
 ## Planning Workflow
 
-1. Read `{{task-generate-name}}.md` and restate:
+Follow [Harness phases](#harness-phases). The steps below are phase details — not a separate optional list.
+
+**Phase 1 — Load** fields:
    - goal
    - acceptance criteria
    - assumptions
    - unknowns/blockers
    - recorded paths for `{{plan-generate-name}}.md`, `discussion/`, and optional Cursor plan
-2. If acceptance criteria or scope are unclear, ask 1-3 focused questions before writing a plan.
-3. Choose the planning artifact:
+
+**Phase 2 — Clarify:** If acceptance criteria or scope are unclear, ask 1-3 focused questions before writing a plan.
+
+**Phase 3 — Artifact choice:**
    - **Obsidian-only plan:** write `{{plan-generate-name}}.md` at the path recorded in `{{task-generate-name}}.md` (markdown template below; no `~/.cursor/plans/` file).
    - **Cursor plan:** one canonical file plus a symlink in Obsidian — see [Cursor plan with Obsidian symlink](#cursor-plan-with-obsidian-symlink).
    - **Discussion doc:** write `discussion/<topic>.md` or `discussion/adr-0001-<decision>.md` only for decisions, research, or context that would make `{{plan-generate-name}}.md` noisy.
-4. After writing a plan, update `{{task-generate-name}}.md` only for:
+
+**Phase 6 — Ledger** updates to `{{task-generate-name}}.md` only:
    - `status: Planned`
    - changed planning/discussion paths
    - execution log entry with the created artifact path
@@ -92,30 +129,19 @@ Create this path as a **symlink** to the canonical `~/.cursor/plans/*.plan.md` f
 1. Write the canonical plan first under `~/.cursor/plans/`.
 2. Ensure the task folder exists in the vault (create parents if needed).
 3. Create the Obsidian plan path with `ln -s`:
-   - Prefer a **relative** target from the task folder to `~/.cursor/plans/` when the vault contains or overlaps the repo (fewer breaks if the repo moves within the vault).
-   - Use an **absolute** target when the vault and repo are on different trees or relative paths would cross too many `..` segments unreliably.
+   - Use an **absolute** target to `~/.cursor/plans/<slug>_<short-id>.plan.md` (canonical lives outside the vault).
+   - Expand `~` when writing the symlink if the shell requires it.
 4. If `{{plan-generate-name}}.md` already exists, ask before overwriting. Replace a regular file or stale symlink only after confirmation.
 5. **Verify:** `readlink` (or `ls -l`) on the Obsidian path and `realpath` (or equivalent) on both paths show the same inode/file.
 6. Record both paths in `{{task-generate-name}}.md`. Note on the Obsidian plan line that it is a symlink to the Cursor plan (example: `plan-add-export.md` → symlink → `~/.cursor/plans/add-export_a1b2.plan.md`).
 
-### Layout examples
-
-Vault contains the repo:
+### Layout example
 
 ```text
-vault/
-└── Projects/my-app/WORK-123/
-    └── plan-add-export.md  ->  ../../../../repos/my-app/.cursor/plans/add-export_a1b2.plan.md
+<vault>/Projects/my-app/WORK-123/plan-add-export.md
+  -> /Users/me/.cursor/plans/add-export_a1b2.plan.md
 
-repos/my-app/
-└── .cursor/plans/add-export_a1b2.plan.md   # canonical content
-```
-
-Vault and repo are siblings (absolute symlink):
-
-```text
-vault/Projects/my-app/WORK-123/plan-add-export.md
-  -> /Users/me/repos/my-app/.cursor/plans/add-export_a1b2.plan.md
+~/.cursor/plans/add-export_a1b2.plan.md   # canonical content (Cursor Plan UI)
 ```
 
 ### When Obsidian-only is enough
@@ -222,7 +248,7 @@ Start by reading `{{task-generate-name}}.md`, this Cursor plan, and any relevant
 
 ## Coding plan (explicit opt-in)
 
-Do **not** auto-apply the `coding-plan` skill. Only when the user **explicitly** asks for a coding plan or names `coding-plan`, follow [`coding-plan`](../coding-plan/SKILL.md): include the **quality attributes table** (reliability, scalability, maintainability), implementation diagrams for non-trivial work, one Cursor todo per small e2e feedback-loop iteration, and test-first verification in todo `verify:` lines. On Go or Java repos, also follow [`golang-dev`](../golang-dev/SKILL.md) or [`java-dev`](../java-dev/SKILL.md).
+Do **not** auto-apply the `coding-plan` skill. Only when the user **explicitly** asks for a coding plan or names `coding-plan`, follow [`coding-plan`](../coding-plan/SKILL.md): include the **quality attributes table** (reliability, scalability, maintainability), implementation diagrams for non-trivial work, one Cursor todo per small e2e feedback-loop iteration, and test-first verification in todo `verify:` lines.
 
 If the user did not request a coding plan, use the templates above without coding-plan diagrams or slice rules.
 

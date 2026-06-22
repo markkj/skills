@@ -1,6 +1,8 @@
 # Work Intake Automation
 
-**Opt-in only.** The agent loads this skill when the user explicitly names `work-intake-automation` or asks for work intake — not automatically from Jira mentions or task-folder context alone.
+**Opt-in only.** The agent loads this skill when the user explicitly names `work-intake-automation` or asks for work intake.
+
+**Harness:** Phases 0–6 in `SKILL.md` — preconditions → restate → clarify → paths → roles → write (Obsidian MCP) → completion report. STOP on MCP failure; no silent shell fallback.
 
 This skill turns a work request into an Obsidian task folder:
 
