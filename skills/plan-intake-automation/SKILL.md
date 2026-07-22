@@ -9,7 +9,7 @@ disable-model-invocation: true
 
 **Do not auto-apply.** Load this skill only when the user explicitly names `plan-intake-automation`, asks to plan from a saved task record, or requests plan files / Cursor plans from an existing `{{task-generate-name}}.md`.
 
-Use this skill only after a task record exists. The input is `{{task-generate-name}}.md`; the output is planning artifacts at the paths recorded in that task file.
+Use this skill only after a task record exists. The input is `{{task-generate-name}}.md`; the output is **one new** planning artifact appended to that task (a task may already have other plans).
 
 **Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks, no product code changes.
 
@@ -18,13 +18,13 @@ Use this skill only after a task record exists. The input is `{{task-generate-na
 | Phase | Do | Verify | STOP if |
 |-------|-----|--------|---------|
 | **0 — Preconditions** | User named this skill; locate `{{task-generate-name}}.md` (vault path from user or task index) | File exists and is readable | No task file → tell user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first |
-| **1 — Load** | Read task file; restate goal, acceptance criteria, assumptions, unknowns, recorded paths | Restatement matches task file; gaps listed | — |
-| **2 — Clarify** | If scope or acceptance criteria unclear, ask **1–3** focused questions | User answered or explicitly said proceed with stated assumptions | Unresolved blocker → STOP; do not write plan |
+| **1 — Load** | Read task file; restate goal, acceptance criteria, assumptions, unknowns; list existing **Plans** + **Active plan** | Restatement matches task file; gaps listed | — |
+| **2 — Clarify** | If scope unclear, ask **1–3** questions. If plans already exist, confirm: **add another plan** vs revise guidance only (never overwrite) | User answered or explicitly said proceed | Unresolved blocker → STOP; do not write plan |
 | **3 — Artifact choice** | Pick one primary output: Obsidian-only plan, Cursor plan (+ symlink), or discussion doc only | Choice matches execution owner in task file or user stated preference | Ambiguous and user did not choose → ask; STOP until chosen |
-| **4 — Write** | Create plan / Cursor plan / discussion per templates below | Each artifact exists at recorded path; no literal `{{…}}` placeholders in filenames | MCP/shell write failed or path conflict → STOP; ask before overwrite |
-| **5 — Link** (Cursor only) | Write canonical `~/.cursor/plans/<slug>_<short-id>.plan.md`; symlink Obsidian plan path | `readlink` + `realpath` show same file | Symlink wrong or Obsidian path is a duplicate copy → fix or STOP |
-| **6 — Ledger** | Update `{{task-generate-name}}.md`: `status: Planned`, paths, execution log | Task file reflects new artifacts | Task update failed → STOP and report |
-| **7 — Handoff** | Emit [completion report](#completion-report) | User can resume from task + plan paths alone | — |
+| **4 — Write** | Create a **new** plan at vault origin; on name collision use [unique plan names](#unique-plan-names-never-overwrite) | New artifact exists; prior plans untouched; no literal `{{…}}` in filenames | MCP/shell write failed → STOP |
+| **5 — Link** (Cursor only) | Symlink a **new** `~/.cursor/plans/<slug>_<short-id>.plan.md` → this vault origin | `readlink` + `realpath` show same file | Symlink wrong or Cursor path is a duplicate copy → fix or STOP |
+| **6 — Ledger** | **Append** new plan to **Plans**; set **Active plan** to the new file; `status: Planned`; execution log | Task file lists all plans; Active plan = newest | Task update failed → STOP and report |
+| **7 — Handoff** | Emit [completion report](#completion-report) | User can resume from task + active (or chosen) plan | — |
 
 **Forbidden during any phase:** create a new task file, change product code, auto-apply [`coding-plan`](../coding-plan/SKILL.md) unless user names it.
 
@@ -36,17 +36,19 @@ After phase 7, output this block in chat:
 ## Plan intake complete
 
 - **Task:** `<vault-relative path to task file>`
-- **Plan:** `<path>` (Obsidian markdown | Cursor canonical | symlink → canonical)
+- **New plan:** `<vault path>` (origin) | Cursor: `~/.cursor/plans/…` → symlink to origin | Obsidian-only
+- **Active plan:** `<same as new plan unless user chose otherwise>`
+- **All plans:** `<N total for this task>`
 - **Discussion:** `<path or none>`
 - **Status:** Planned
-- **Next:** Name `coding-plan` for diagram-backed implementation, or execute from the plan directly.
+- **Next:** Name `coding-plan` for diagram-backed implementation, or execute from the active plan. Re-run `plan-intake-automation` to add another plan for the same task.
 - **Blockers:** <none | list>
 ```
 
 ## Boundary
 
 - [`work-intake-automation`](../work-intake-automation/SKILL.md): source request -> `{{task-generate-name}}.md` (explicit opt-in only).
-- `plan-intake-automation` (this skill): `{{task-generate-name}}.md` -> `{{plan-generate-name}}.md`, optional Cursor plan (symlinked to the Obsidian plan path when both are used), optional `discussion/` docs.
+- `plan-intake-automation` (this skill): `{{task-generate-name}}.md` -> **another** vault `plan-*.md` (origin), optional Cursor symlink, optional `discussion/` docs. One task → many plans.
 - Execution happens later; do not change product code while planning.
 
 If `{{task-generate-name}}.md` does not exist, tell the user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first — do not auto-apply intake.
@@ -57,21 +59,66 @@ If `{{task-generate-name}}.md` does not exist, tell the user to name [`work-inta
 
 Rules:
 
-- Prefer the exact task and plan paths already recorded under `## Planning and Discussion Paths`.
+- Prefer the exact **task** path already recorded under `## Planning and Discussion Paths`.
+- Prefer a free `plan-*.md` name in that task folder; do not assume a single plan slot.
 - If the task file still contains placeholders, generate real filenames before writing the plan:
   - task file: `task-<short-slug>.md`
-  - plan file: `plan-<short-slug>.md`
-- Use the same short slug for the matching task and plan files.
+  - plan file: `plan-<short-slug>.md` (or `-2`, `-3`, … / purpose suffix when needed)
+- Use the same short slug family for the task and its plans.
 - Include an issue key only when it helps uniqueness.
 - Do not use source names like `manual` or `jira`.
 - Never write literal placeholder filenames like `{{plan-generate-name}}.md`.
 - Never fall back to generic names like `task.md` or `plan.md`.
+- **Never overwrite** an existing plan file — see [Unique plan names](#unique-plan-names-never-overwrite).
 
 Example:
 
 ```text
 Task: Projects/client-app/add-export-button/task-add-export-button.md
 ```
+
+## Unique plan names (never overwrite)
+
+**One task → many plans.** Each run of this skill adds a **new** plan file under the task folder. Prior plans stay on disk and stay listed in the task ledger.
+
+If the intended plan path already exists (regular file or symlink), **do not replace it**. Create a new file with a unique name, **append** it to **Plans**, and set **Active plan** to the new file.
+
+### Vault origin
+
+Preferred base: `plan-<short-slug>.md`. On collision (or when adding another plan for the same task), append `-2`, `-3`, … until free:
+
+```text
+plan-add-export.md      # first plan for the task
+plan-add-export-2.md    # second plan (revision or alternate approach)
+plan-add-export-3.md    # third
+```
+
+Optional: if the user names a purpose, use `plan-<short-slug>-<purpose>.md` when that name is free (e.g. `plan-add-export-backend.md`). Still never overwrite.
+
+### Cursor symlink
+
+Each plan that uses Cursor gets its **own** symlink: `~/.cursor/plans/<slug>_<short-id>.plan.md` → that vault origin. On collision, mint a **new** `<short-id>`.
+
+### Rules
+
+1. Check existence before write (vault MCP/list or shell `test -e`).
+2. Never `rm`, truncate, or overwrite an existing plan or Cursor symlink for a new plan.
+3. Leave prior plans in place; **append** to **Plans**; set **Active plan** to the newest (unless the user names a different active).
+4. Mention the chosen filename in the completion report when it is not the first plan for the task.
+
+## One task, many plans
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/
+├── task-<slug>.md          # ledger: Plans list + Active plan
+├── plan-<slug>.md          # plan 1 (origin)
+├── plan-<slug>-2.md        # plan 2 (origin)
+└── discussion/
+```
+
+- Re-running `plan-intake-automation` on the same task **adds** a plan; it does not replace the only plan.
+- Execution / `coding-plan` uses **Active plan** unless the user picks another from **Plans**.
+- Obsidian-only and Cursor-linked plans can coexist in the same **Plans** list.
 
 ## Planning Workflow
 
@@ -82,66 +129,67 @@ Follow [Harness phases](#harness-phases). The steps below are phase details — 
    - acceptance criteria
    - assumptions
    - unknowns/blockers
-   - recorded paths for `{{plan-generate-name}}.md`, `discussion/`, and optional Cursor plan
+   - existing **Plans** list, **Active plan**, discussion path
 
-**Phase 2 — Clarify:** If acceptance criteria or scope are unclear, ask 1-3 focused questions before writing a plan.
+**Phase 2 — Clarify:** If acceptance criteria or scope are unclear, ask 1-3 focused questions before writing a plan. If **Plans** is non-empty, confirm the user wants an **additional** plan (default) rather than editing an old one in place (editing in place is only when the user explicitly asks to revise that file).
 
 **Phase 3 — Artifact choice:**
-   - **Obsidian-only plan:** write `{{plan-generate-name}}.md` at the path recorded in `{{task-generate-name}}.md` (markdown template below; no `~/.cursor/plans/` file).
-   - **Cursor plan:** one canonical file plus a symlink in Obsidian — see [Cursor plan with Obsidian symlink](#cursor-plan-with-obsidian-symlink).
-   - **Discussion doc:** write `discussion/<topic>.md` or `discussion/adr-0001-<decision>.md` only for decisions, research, or context that would make `{{plan-generate-name}}.md` noisy.
+   - **Obsidian-only plan:** write a **new** `plan-*.md` in the task folder (markdown template below; no `~/.cursor/plans/` file).
+   - **Cursor plan:** write a **new** origin in the vault, then symlink from Cursor — see [Obsidian origin with Cursor symlink](#obsidian-origin-with-cursor-symlink).
+   - **Discussion doc:** write `discussion/<topic>.md` or `discussion/adr-0001-<decision>.md` only for decisions, research, or context that would make a plan file noisy.
 
 **Phase 6 — Ledger** updates to `{{task-generate-name}}.md` only:
    - `status: Planned`
-   - changed planning/discussion paths
+   - **Append** the new vault path (and Cursor symlink if any) under **Plans**
+   - Set **Active plan** to the new plan
    - execution log entry with the created artifact path
 
 ## Obsidian Writes
 
-When an Obsidian MCP server is available, prefer it for **Obsidian-only** `{{plan-generate-name}}.md` and `discussion/` files in the vault. Use vault-relative paths. If MCP cannot verify the write, report the blocker rather than silently creating a local copy.
+When an Obsidian MCP server is available, prefer it for vault origin `{{plan-generate-name}}.md` and `discussion/` files. Use vault-relative paths. If MCP cannot verify the write, report the blocker rather than silently creating a local copy.
 
-Obsidian MCP cannot create symlinks. For **Cursor plans**, write the canonical file under `~/.cursor/plans/`, then create the vault symlink with shell `ln -s` (see below). Verify both paths resolve to the same file.
+Obsidian MCP cannot create symlinks. For **Cursor plans**, write the origin under the vault first, then create `~/.cursor/plans/<slug>_<short-id>.plan.md` as a symlink with shell `ln -s` (see below). Verify both paths resolve to the same file.
 
-Use shell writes for `~/.cursor/plans/*.plan.md`, symlinks, and manual terminal workflows.
+Use shell only for Cursor-side symlinks and manual terminal workflows — not as a silent fallback for vault content writes.
 
-## Cursor plan with Obsidian symlink
+## Obsidian origin with Cursor symlink
 
-When the user asks for a Cursor plan or the execution owner is Cursor, use **one canonical plan file** linked from both locations. Do not maintain two copies of the plan body.
+When the user asks for a Cursor plan or the execution owner is Cursor, use **one origin plan file** in the vault, linked from `~/.cursor/plans/`. Do not maintain two copies of the plan body.
 
-### Canonical file (write content here)
-
-```text
-~/.cursor/plans/<slug>_<short-id>.plan.md
-```
-
-Use the [Cursor Plan Template](#cursor-plan-template) below. This path is what Cursor Plan UI reads.
-
-### Obsidian path (symlink only)
+### Origin file (write content here)
 
 ```text
 <vault>/Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md
 ```
 
-Create this path as a **symlink** to the canonical `~/.cursor/plans/*.plan.md` file — not a separate markdown document.
+Use the [Cursor Plan Template](#cursor-plan-template) below (YAML frontmatter + body) so Cursor Plan UI can read the same file through the symlink.
+
+### Cursor path (symlink only)
+
+```text
+~/.cursor/plans/<slug>_<short-id>.plan.md
+```
+
+Create this path as a **symlink** to the vault origin — not a separate markdown document.
 
 ### Symlink rules
 
-1. Write the canonical plan first under `~/.cursor/plans/`.
-2. Ensure the task folder exists in the vault (create parents if needed).
-3. Create the Obsidian plan path with `ln -s`:
-   - Use an **absolute** target to `~/.cursor/plans/<slug>_<short-id>.plan.md` (canonical lives outside the vault).
-   - Expand `~` when writing the symlink if the shell requires it.
-4. If `{{plan-generate-name}}.md` already exists, ask before overwriting. Replace a regular file or stale symlink only after confirmation.
-5. **Verify:** `readlink` (or `ls -l`) on the Obsidian path and `realpath` (or equivalent) on both paths show the same inode/file.
-6. Record both paths in `{{task-generate-name}}.md`. Note on the Obsidian plan line that it is a symlink to the Cursor plan (example: `plan-add-export.md` → symlink → `~/.cursor/plans/add-export_a1b2.plan.md`).
+1. Resolve a **free** vault origin name first ([Unique plan names](#unique-plan-names-never-overwrite)); write the origin there (prefer Obsidian MCP).
+2. Ensure `~/.cursor/plans/` exists (create if needed).
+3. Pick a free Cursor path (`<slug>_<short-id>.plan.md`); if taken, mint a new `<short-id>` — never overwrite.
+4. Create the Cursor plan path with `ln -s`:
+   - Use an **absolute** target to the vault origin file (origin lives in the vault).
+   - Expand `~` and resolve the vault root when writing the symlink if the shell requires it.
+5. **Verify:** `readlink` on the Cursor path and `realpath` (or equivalent) on both paths show the same inode/file.
+6. **Append** both paths to **Plans** in `{{task-generate-name}}.md` and set **Active plan** to the new vault origin. Example row: `plan-add-export-2.md` → `~/.cursor/plans/add-export_a1b2.plan.md`.
 
 ### Layout example
 
 ```text
-<vault>/Projects/my-app/WORK-123/plan-add-export.md
-  -> /Users/me/.cursor/plans/add-export_a1b2.plan.md
+<vault>/Projects/my-app/WORK-123/plan-add-export.md   # origin (write content here)
 
-~/.cursor/plans/add-export_a1b2.plan.md   # canonical content (Cursor Plan UI)
+~/.cursor/plans/add-export_a1b2.plan.md
+  -> /Users/me/vault/Projects/my-app/WORK-123/plan-add-export.md
 ```
 
 ### When Obsidian-only is enough
@@ -186,14 +234,20 @@ Use this for the Obsidian task folder plan.
 
 ## Resume Instructions
 
-Start by reading `{{task-generate-name}}.md`, this `{{plan-generate-name}}.md`, and any relevant `discussion/` docs. Track implementation todo progress here unless a Cursor plan file is the active execution plan.
+Start by reading `{{task-generate-name}}.md`, this `{{plan-generate-name}}.md`, and any relevant `discussion/` docs. Track implementation todo progress here (when Cursor is linked, this vault file is the origin Cursor reads through the symlink).
 ```
 
 ## Cursor Plan Template
 
-Use this when the user asks for a Cursor plan or when the execution owner is Cursor. Write content only to the canonical path under `~/.cursor/plans/`; link the Obsidian `{{plan-generate-name}}.md` path with a symlink ([Cursor plan with Obsidian symlink](#cursor-plan-with-obsidian-symlink)).
+Use this when the user asks for a Cursor plan or when the execution owner is Cursor. Write content to the vault origin `{{plan-generate-name}}.md`; then symlink `~/.cursor/plans/<slug>_<short-id>.plan.md` to that file ([Obsidian origin with Cursor symlink](#obsidian-origin-with-cursor-symlink)).
 
-Canonical file path:
+Origin file path:
+
+```text
+<vault>/Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md
+```
+
+Cursor symlink path:
 
 ```text
 ~/.cursor/plans/<slug>_<short-id>.plan.md
@@ -288,7 +342,7 @@ ADR template:
 
 - Do not create a new `{{task-generate-name}}.md`; this skill starts from an existing one.
 - Do not execute implementation work while planning.
-- Keep `{{task-generate-name}}.md` as status/source/path ledger; keep executable todos in the active plan file (Obsidian markdown or Cursor plan YAML frontmatter).
-- For Cursor plans: one canonical file under `~/.cursor/plans/`; Obsidian `{{plan-generate-name}}.md` must be a symlink to it — never duplicate plan content in both places.
-- Ask before overwriting an existing plan file or symlink.
-- Update `{{task-generate-name}}.md` after planning so future sessions can find the active plan and symlink target.
+- Keep `{{task-generate-name}}.md` as status/source/path ledger; keep executable todos in plan files. One task may have **many** plans; track them under **Plans** and **Active plan**.
+- For Cursor plans: each plan has one vault origin; its `~/.cursor/plans/<slug>_<short-id>.plan.md` must be a symlink to that origin — never duplicate plan content.
+- Never overwrite an existing plan file or Cursor symlink; mint a unique name and append to **Plans** ([Unique plan names](#unique-plan-names-never-overwrite)).
+- Update `{{task-generate-name}}.md` after each new plan so future sessions see the full list and the active plan.

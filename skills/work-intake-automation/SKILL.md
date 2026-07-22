@@ -37,10 +37,10 @@ After phase 6, output this block in chat:
 - **Task:** `<vault-relative path to task file>`
 - **Work ID:** `<WORK_ID>`
 - **Status:** Intake
-- **Future plan path:** `<vault-relative plan path>`
+- **Task folder (plans live here):** `<vault-relative folder>` — many `plan-*.md` allowed later
 - **Future discussion:** `<vault-relative discussion folder>`
 - **Blockers:** <none | list>
-- **Next:** Name `plan-intake-automation` when ready to plan.
+- **Next:** Name `plan-intake-automation` when ready to plan (may run more than once for the same task).
 ```
 
 ## Goal
@@ -117,7 +117,7 @@ Use the MCP append/create operation for new task files and patch/update operatio
 
 ## `{{task-generate-name}}.md`
 
-`{{task-generate-name}}.md` stores the durable work record and status, not the todo list. Keep task facts current during execution; put executable todos only in the active plan file. Store task properties in Obsidian YAML frontmatter.
+`{{task-generate-name}}.md` stores the durable work record and status, not the todo list. Keep task facts current during execution; put executable todos only in plan files (a task may have many; use **Active plan**). Store task properties in Obsidian YAML frontmatter.
 
 ```markdown
 ---
@@ -143,9 +143,10 @@ owner: <person or agent>
 ## Planning and Discussion Paths
 
 - **Task folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/`
-- **Plan file:** `Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md`
+- **Plans:** (one task may have **many** plans; list grows over time)
+  - *(none yet — created by `plan-intake-automation`)*
+- **Active plan:** *(none)*
 - **Discussion folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
-- **Cursor plan file, if used:** `~/.cursor/plans/<slug>_<short-id>.plan.md` (canonical; Obsidian plan path is usually a symlink to this file — see `plan-intake-automation`)
 
 ## Goal
 
@@ -168,13 +169,29 @@ owner: <person or agent>
 - YYYY-MM-DD HH:MM - Created task folder.
 ```
 
+Intake records the **folder** and that plans will live there. Do not invent a single locked plan filename as the only plan; `plan-intake-automation` appends each new plan to **Plans** and sets **Active plan**.
+
+Example after two plans exist:
+
+```markdown
+## Planning and Discussion Paths
+
+- **Task folder:** `Projects/client-app/add-export-button/`
+- **Plans:**
+  - `plan-add-export-button.md` → Cursor `~/.cursor/plans/add-export_a1b2.plan.md`
+  - `plan-add-export-button-2.md` → Cursor `~/.cursor/plans/add-export_c3d4.plan.md`
+- **Active plan:** `plan-add-export-button-2.md`
+- **Discussion folder:** `Projects/client-app/add-export-button/discussion/`
+```
+
 ## Future Plan and Discussion Paths
 
 This skill only records where future planning artifacts should go. The user creates them later or explicitly asks an agent to use [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
 
-- `{{plan-generate-name}}.md` path: `Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md`
-- `discussion/` path: `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
-- Cursor plan path, if the user chooses Cursor: `~/.cursor/plans/<slug>_<short-id>.plan.md` (canonical; `{{plan-generate-name}}.md` in the task folder should symlink here when planned with `plan-intake-automation`)
+- **Plans folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/` — one task may accumulate many `plan-*.md` files
+- **Default first plan name:** `plan-<short-slug>.md` (later plans use unique names; see `plan-intake-automation`)
+- **Discussion folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
+- **Cursor plan path(s):** each Cursor-linked plan gets its own `~/.cursor/plans/<slug>_<short-id>.plan.md` symlink → that vault origin
 
 ## Intake Rules
 

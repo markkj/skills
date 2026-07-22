@@ -15,7 +15,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 
 The project folder is inferred automatically from the opened project. The user should not need to type it in normal use.
 
-`{{task-generate-name}}.md` records the future paths for `{{plan-generate-name}}.md` and `discussion/`; those files are created later when the user explicitly requests `plan-intake-automation`.
+`{{task-generate-name}}.md` records the task folder and that **many** `plan-*.md` files may live there later; those files are created when the user explicitly requests `plan-intake-automation` (repeatable per task).
 
 `{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders. Replace them with real kebab-case filenames. Example:
 
