@@ -2,7 +2,7 @@
 
 **Opt-in only.** The agent loads this skill when the user explicitly names `work-intake-automation` or asks for work intake.
 
-**Harness:** Phases 0–6 in `SKILL.md` — preconditions → restate → clarify → paths → roles → write (Obsidian MCP) → completion report. STOP on MCP failure; no silent shell fallback.
+**Harness:** Phases 0–6 in `SKILL.md` — preconditions → restate → clarify → paths → roles → write (vault via `$OBSIDIAN_BASE_VAULT_PATH`) → completion report. STOP if env var unset or write unverified.
 
 This skill turns a work request into an Obsidian task folder:
 
@@ -25,13 +25,13 @@ Task: Projects/client-app/add-export-button/task-add-export-button.md
 
 Do not use literal placeholder filenames, `task.md`, or `plan.md`.
 
-## Recommended Agent Path: Obsidian MCP
+## Vault writes
 
-When an agent has access to the Obsidian MCP server, use MCP tools to create or update task files in the vault. MCP paths are relative to the vault root.
+Write directly to the Obsidian vault. Set `$OBSIDIAN_BASE_VAULT_PATH` to the vault root. If unset, abort and report the blocker.
 
-For agent-run task creation, Obsidian MCP is required. If Obsidian MCP cannot connect or cannot verify the created files, abort the operation and report the blocker. Do not fall back to shell writes or create a local folder.
+Absolute path: `$OBSIDIAN_BASE_VAULT_PATH/Projects/<PROJECT_NAME>/<WORK_ID>/{{task-generate-name}}.md`
 
-Example MCP path:
+Vault-relative path (for ledger and handoff):
 
 ```text
 Projects/<PROJECT_NAME>/<WORK_ID>/{{task-generate-name}}.md

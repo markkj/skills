@@ -11,7 +11,7 @@ disable-model-invocation: true
 
 Use this skill when work starts outside the agent and must become a durable task record before the user plans it. The source may be Jira, a typed request, a pasted spec, Slack/email notes, or a verbal summary.
 
-**Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent shell fallbacks when Obsidian MCP is required.
+**Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks when `$OBSIDIAN_BASE_VAULT_PATH` is required.
 
 ## Harness phases
 
@@ -22,7 +22,7 @@ Use this skill when work starts outside the agent and must become a durable task
 | **2 — Clarify** | If facts insufficient for a useful task record, ask **1–3** focused questions | User answered or said proceed with stated assumptions | Critical gap unresolved → STOP; do not write task file |
 | **3 — Paths** | Choose `work-id`, `PROJECT_NAME`, generate `task-<slug>.md` and future `plan-<slug>.md` paths | No literal `{{…}}` in filenames; paths follow [filename rules](#filename-generation) | Cannot infer project and user did not specify → ask |
 | **4 — Roles** | Record intake, planning, execution, discussion owners in task template | Roles filled or marked TBD | — |
-| **5 — Write** | Create task folder; write **only** `{{task-generate-name}}.md` via Obsidian MCP | MCP read-back shows file at vault-relative path | MCP unavailable or write unverified → **STOP**; do not shell-write to vault |
+| **5 — Write** | Create task folder; write **only** `{{task-generate-name}}.md` to vault via `$OBSIDIAN_BASE_VAULT_PATH` | Read-back shows file at vault-relative path | `$OBSIDIAN_BASE_VAULT_PATH` unset or write unverified → **STOP** |
 | **6 — Handoff** | Emit [completion report](#completion-report) | User can find task file and future plan paths | — |
 
 **Forbidden during any phase:** create plan files, `~/.cursor/plans/*.plan.md`, `discussion/`, notes, ADRs, or product code. If user asks for planning → tell them to name [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
@@ -100,11 +100,15 @@ Follow [Harness phases](#harness-phases). Details per phase:
 
 **Phase 5 — Write:** create folder and task file only. Record future plan and discussion paths in the task file. Do not create plan, `~/.cursor/plans/*.plan.md`, `discussion/`, notes, or ADRs.
 
-## Obsidian Writes
+## Obsidian Vault Writes
 
-When an Obsidian MCP server is available, prefer it for creating or updating task files in the vault. Use vault-relative paths, not absolute shell paths.
+Write directly to the Obsidian vault filesystem. Do not use Obsidian MCP for vault content.
 
-For agent-run Obsidian task creation, Obsidian MCP is required. If the MCP server is unavailable, cannot connect, or cannot verify the created files, abort the operation and report the blocker. Do not silently fall back to shell writes or a local folder.
+1. **Vault root:** Read from `$OBSIDIAN_BASE_VAULT_PATH`. If unset or empty → **STOP** and report.
+2. **Absolute path:** `$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>` (vault-relative path has no leading slash).
+3. **Create:** `mkdir -p` parent directories, then write the file.
+4. **Verify:** Read back the file or `test -f` on the absolute path; content must match what was written.
+5. **Updates:** Patch or overwrite existing `{{task-generate-name}}.md` at the same absolute path when status changes.
 
 Example vault-relative task path:
 
@@ -113,7 +117,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 └── {{task-generate-name}}.md
 ```
 
-Use the MCP append/create operation for new task files and patch/update operations for existing `{{task-generate-name}}.md` files. Verify the created file with the MCP list/read operations when practical. Do not create planning or discussion files during intake.
+Do not create planning or discussion files during intake.
 
 ## `{{task-generate-name}}.md`
 

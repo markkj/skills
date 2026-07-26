@@ -17,11 +17,11 @@ Use this skill only after a task record exists. The input is `{{task-generate-na
 
 | Phase | Do | Verify | STOP if |
 |-------|-----|--------|---------|
-| **0 — Preconditions** | User named this skill; locate `{{task-generate-name}}.md` (vault path from user or task index) | File exists and is readable | No task file → tell user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first |
+| **0 — Preconditions** | User named this skill; locate `{{task-generate-name}}.md` via `$OBSIDIAN_BASE_VAULT_PATH` + vault-relative path | File exists and is readable | No task file or env unset → tell user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first |
 | **1 — Load** | Read task file; restate goal, acceptance criteria, assumptions, unknowns; list existing **Plans** + **Active plan** | Restatement matches task file; gaps listed | — |
 | **2 — Clarify** | If scope unclear, ask **1–3** questions. If plans already exist, confirm: **add another plan** vs revise guidance only (never overwrite) | User answered or explicitly said proceed | Unresolved blocker → STOP; do not write plan |
 | **3 — Artifact choice** | Pick one primary output: Obsidian-only plan, Cursor plan (+ symlink), or discussion doc only | Choice matches execution owner in task file or user stated preference | Ambiguous and user did not choose → ask; STOP until chosen |
-| **4 — Write** | Create a **new** plan at vault origin; on name collision use [unique plan names](#unique-plan-names-never-overwrite) | New artifact exists; prior plans untouched; no literal `{{…}}` in filenames | MCP/shell write failed → STOP |
+| **4 — Write** | Create a **new** plan at vault origin via `$OBSIDIAN_BASE_VAULT_PATH`; on name collision use [unique plan names](#unique-plan-names-never-overwrite) | New artifact exists; prior plans untouched; no literal `{{…}}` in filenames | `$OBSIDIAN_BASE_VAULT_PATH` unset or write failed → STOP |
 | **5 — Link** (Cursor only) | Symlink a **new** `~/.cursor/plans/<slug>_<short-id>.plan.md` → this vault origin | `readlink` + `realpath` show same file | Symlink wrong or Cursor path is a duplicate copy → fix or STOP |
 | **6 — Ledger** | **Append** new plan to **Plans**; set **Active plan** to the new file; `status: Planned`; execution log | Task file lists all plans; Active plan = newest | Task update failed → STOP and report |
 | **7 — Handoff** | Emit [completion report](#completion-report) | User can resume from task + active (or chosen) plan | — |
@@ -101,7 +101,7 @@ Each plan that uses Cursor gets its **own** symlink: `~/.cursor/plans/<slug>_<sh
 
 ### Rules
 
-1. Check existence before write (vault MCP/list or shell `test -e`).
+1. Check existence before write: `test -e "$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>"`.
 2. Never `rm`, truncate, or overwrite an existing plan or Cursor symlink for a new plan.
 3. Leave prior plans in place; **append** to **Plans**; set **Active plan** to the newest (unless the user names a different active).
 4. Mention the chosen filename in the completion report when it is not the first plan for the task.
@@ -144,13 +144,17 @@ Follow [Harness phases](#harness-phases). The steps below are phase details — 
    - Set **Active plan** to the new plan
    - execution log entry with the created artifact path
 
-## Obsidian Writes
+## Obsidian Vault Writes
 
-When an Obsidian MCP server is available, prefer it for vault origin `{{plan-generate-name}}.md` and `discussion/` files. Use vault-relative paths. If MCP cannot verify the write, report the blocker rather than silently creating a local copy.
+Write directly to the Obsidian vault filesystem. Do not use Obsidian MCP for vault content.
 
-Obsidian MCP cannot create symlinks. For **Cursor plans**, write the origin under the vault first, then create `~/.cursor/plans/<slug>_<short-id>.plan.md` as a symlink with shell `ln -s` (see below). Verify both paths resolve to the same file.
+1. **Vault root:** Read from `$OBSIDIAN_BASE_VAULT_PATH`. If unset or empty → **STOP** and report.
+2. **Absolute path:** `$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>` (vault-relative path has no leading slash).
+3. **Create:** `mkdir -p` parent directories, then write plan or `discussion/` files.
+4. **Verify:** Read back the file or `test -f` on the absolute path; content must match what was written.
+5. **Reads:** Load `{{task-generate-name}}.md` and existing plans from the same vault root + vault-relative path.
 
-Use shell only for Cursor-side symlinks and manual terminal workflows — not as a silent fallback for vault content writes.
+For **Cursor plans**, write the vault origin first, then create `~/.cursor/plans/<slug>_<short-id>.plan.md` as a symlink with shell `ln -s` (see below). Verify both paths resolve to the same file.
 
 ## Obsidian origin with Cursor symlink
 
@@ -159,7 +163,13 @@ When the user asks for a Cursor plan or the execution owner is Cursor, use **one
 ### Origin file (write content here)
 
 ```text
-<vault>/Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md
+$OBSIDIAN_BASE_VAULT_PATH/Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md
+```
+
+Vault-relative path:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md
 ```
 
 Use the [Cursor Plan Template](#cursor-plan-template) below (YAML frontmatter + body) so Cursor Plan UI can read the same file through the symlink.
@@ -174,7 +184,7 @@ Create this path as a **symlink** to the vault origin — not a separate markdow
 
 ### Symlink rules
 
-1. Resolve a **free** vault origin name first ([Unique plan names](#unique-plan-names-never-overwrite)); write the origin there (prefer Obsidian MCP).
+1. Resolve a **free** vault origin name first ([Unique plan names](#unique-plan-names-never-overwrite)); write the origin there via `$OBSIDIAN_BASE_VAULT_PATH`.
 2. Ensure `~/.cursor/plans/` exists (create if needed).
 3. Pick a free Cursor path (`<slug>_<short-id>.plan.md`); if taken, mint a new `<short-id>` — never overwrite.
 4. Create the Cursor plan path with `ln -s`:
@@ -186,10 +196,10 @@ Create this path as a **symlink** to the vault origin — not a separate markdow
 ### Layout example
 
 ```text
-<vault>/Projects/my-app/WORK-123/plan-add-export.md   # origin (write content here)
+$OBSIDIAN_BASE_VAULT_PATH/Projects/my-app/WORK-123/plan-add-export.md   # origin (write content here)
 
 ~/.cursor/plans/add-export_a1b2.plan.md
-  -> /Users/me/vault/Projects/my-app/WORK-123/plan-add-export.md
+  -> $OBSIDIAN_BASE_VAULT_PATH/Projects/my-app/WORK-123/plan-add-export.md
 ```
 
 ### When Obsidian-only is enough
@@ -244,7 +254,13 @@ Use this when the user asks for a Cursor plan or when the execution owner is Cur
 Origin file path:
 
 ```text
-<vault>/Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md
+$OBSIDIAN_BASE_VAULT_PATH/Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md
+```
+
+Vault-relative path:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/{{plan-generate-name}}.md
 ```
 
 Cursor symlink path:

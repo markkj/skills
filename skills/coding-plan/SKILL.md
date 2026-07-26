@@ -33,7 +33,7 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 | **2 — Feature map** | Name user-visible behaviors; group features | Behaviors trace to acceptance criteria | — |
 | **3 — Diagram** | Mermaid component + call flow per feature group | User confirms diagram | User objects or diagram incomplete → revise; STOP before todos |
 | **4 — Todos** | One Cursor Plan todo per small e2e iteration; each has `verify:` | Todo count matches iteration outline | Layer-only or file-only todos → fix before implement |
-| **5 — Cursor Plan** | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken); symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite | No vault path known → ask; STOP before implement |
+| **5 — Cursor Plan** | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement |
 
 **Forbidden before phase 5 complete:** production code for new behavior (except trivial one-liners user agreed to skip).
 
@@ -42,10 +42,16 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 **Origin (write content here):**
 
 ```text
-<vault>/Projects/<PROJECT_NAME>/<WORK_ID>/plan-<slug>.md
+$OBSIDIAN_BASE_VAULT_PATH/Projects/<PROJECT_NAME>/<WORK_ID>/plan-<slug>.md
 ```
 
-Prefer the task folder from an existing task record ([`plan-intake-automation`](../plan-intake-automation/SKILL.md) / [`work-intake-automation`](../work-intake-automation/SKILL.md)). If none exists, ask for the vault project/work folder before writing.
+Vault-relative path (for task ledger and symlinks):
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/plan-<slug>.md
+```
+
+Prefer the task folder from an existing task record ([`plan-intake-automation`](../plan-intake-automation/SKILL.md) / [`work-intake-automation`](../work-intake-automation/SKILL.md)). If none exists, ask for the vault project/work folder before writing. Read vault root from `$OBSIDIAN_BASE_VAULT_PATH`; if unset → **STOP** and report.
 
 **One task → many plans.** Write a **new** plan file; never overwrite. If `plan-<slug>.md` exists, use `plan-<slug>-2.md`, then `-3`, … until free. **Append** to the task’s **Plans** list and set **Active plan** to the new file. If several plans exist and the user did not say which to execute, ask once — default is **Active plan**.
 
@@ -59,7 +65,7 @@ Use Cursor Plan YAML frontmatter (`name`, `overview`, `todos`, `isProject`) in t
 
 If that Cursor path exists, mint a new `<short-id>` — do not replace the existing symlink/file.
 
-Do not maintain two copies. Obsidian MCP cannot create symlinks — write the origin first, then `ln -s` the Cursor path. Verify with `readlink` + `realpath`.
+Do not maintain two copies. Write the vault origin to `$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>` first, then `ln -s` the Cursor path to the **absolute** vault origin. Verify with `readlink` + `realpath`.
 
 ## Quality attributes (required in every plan)
 
