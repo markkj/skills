@@ -3,7 +3,8 @@ name: coding-plan
 description: >-
   Coding plan workflow — required quality attributes (reliability, scalability,
   maintainability), implementation outline diagrams (components + call flow),
-  feature-first Cursor Plan todos as small e2e feedback loops, test-first execution,
+  feature-first Cursor Plan todos as small e2e feedback loops, git worktree off
+  main/master on branch mark/<task-name>, test-first execution,
   match project structure and test style. Use only when the user explicitly asks for
   a coding plan, mentions coding-plan, or wants diagram-backed Cursor Plan todos
   for implementation.
@@ -22,6 +23,8 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 
 **Core rule: follow the diagram.** Implementation must match the agreed **implementation outline diagram**. If the design changes, update the diagram first, then todos and code.
 
+**Core rule: work in a worktree.** For an existing repo, implement in a git worktree branched off `main`/`master` as `mark/<task-name>` — see [worktree setup](#worktree-setup-phase-6). Never commit implementation work to `main`/`master`.
+
 **Harness rule:** Run plan phases **in order**; run each todo with the [execution harness](#execution-harness-per-todo). Do not skip gates. On **STOP**, report and wait.
 
 ## Plan harness (before code)
@@ -34,8 +37,9 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 | **3 — Diagram** | Mermaid component + call flow per feature group | User confirms diagram | User objects or diagram incomplete → revise; STOP before todos |
 | **4 — Todos** | One Cursor Plan todo per small e2e iteration; each has `verify:` | Todo count matches iteration outline | Layer-only or file-only todos → fix before implement |
 | **5 — Cursor Plan** | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement |
+| **6 — Worktree** | For an existing repo path, add a git worktree from `main`/`master` on branch `mark/<task-name>` — see [worktree setup](#worktree-setup-phase-6) | Worktree path exists; `git branch --show-current` = `mark/<task-name>`; base is `main`/`master` | Dirty base repo, branch/worktree name taken, or not a git repo → ask; STOP before implement |
 
-**Forbidden before phase 5 complete:** production code for new behavior (except trivial one-liners user agreed to skip).
+**Forbidden before phase 6 complete:** production code for new behavior (except trivial one-liners user agreed to skip). All implementation happens **inside the worktree**, never on `main`/`master`.
 
 ### Plan file layout (phase 5)
 
@@ -66,6 +70,37 @@ Use Cursor Plan YAML frontmatter (`name`, `overview`, `todos`, `isProject`) in t
 If that Cursor path exists, mint a new `<short-id>` — do not replace the existing symlink/file.
 
 Do not maintain two copies. Write the vault origin to `$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>` first, then `ln -s` the Cursor path to the **absolute** vault origin. Verify with `readlink` + `realpath`.
+
+### Worktree setup (phase 6)
+
+Implement in a **dedicated git worktree** branched off the base branch, so `main`/`master` and the user's current checkout stay untouched.
+
+**Applies when** the repo path already exists and is a git repo. If it is not a git repo, or the user asked to work in place, say so and skip this phase.
+
+**Branch name:** `mark/<task-name>` — `<task-name>` is the same kebab-case slug used for `plan-<slug>.md` (from the task record when one exists).
+
+**Worktree path:** sibling of the repo — `<repo-parent>/<repo-name>-<task-name>`. Ask if the user prefers another location.
+
+```bash
+REPO_PATH="<existing repo path>"
+TASK_NAME="<kebab-case task slug>"
+
+git -C "$REPO_PATH" fetch origin --quiet
+# Base branch: prefer main, else master
+BASE=$(git -C "$REPO_PATH" show-ref --verify --quiet refs/remotes/origin/main && echo main || echo master)
+WORKTREE="$(dirname "$REPO_PATH")/$(basename "$REPO_PATH")-$TASK_NAME"
+
+git -C "$REPO_PATH" worktree add -b "mark/$TASK_NAME" "$WORKTREE" "origin/$BASE"
+```
+
+**Rules:**
+
+1. Branch from `origin/main` (or `origin/master`) — never from the current feature branch unless the user asks. No `origin` remote → use the local `main`/`master` ref instead.
+2. Never reuse or force an existing branch or worktree path. If `mark/<task-name>` or the path is taken, ask: reuse that worktree, or pick a new suffix (`mark/<task-name>-2`).
+3. Verify before any code: worktree directory exists, and inside it `git branch --show-current` prints `mark/<task-name>`.
+4. Run all todos, tests, and commands from the worktree path — not the original checkout.
+5. Record the worktree path and branch in the plan file so a later session can resume there.
+6. Do not remove the worktree when done; the user decides when to `git worktree remove`.
 
 ## Quality attributes (required in every plan)
 
@@ -286,7 +321,7 @@ Default to the **smallest vertical slice** that proves useful behavior, unless t
 
 ### 7. Cursor Plan checklist
 
-Follow [Plan harness](#plan-harness-before-code) phases 0–5. Quick list:
+Follow [Plan harness](#plan-harness-before-code) phases 0–6. Quick list:
 
 1. Plan mode  
 2. **Quality attributes table** — confirm or N/A with reason  
@@ -295,7 +330,8 @@ Follow [Plan harness](#plan-harness-before-code) phases 0–5. Quick list:
 5. Feature groups aligned with diagram and quality attributes  
 6. **One Cursor todo per small e2e feedback-loop iteration** with `verify:`  
 7. Write vault origin `plan-<slug>.md`; symlink `~/.cursor/plans/*.plan.md` → origin  
-8. Implement only what the diagram shows — [execution harness](#execution-harness-per-todo) per todo  
+8. **Worktree** from `main`/`master` on `mark/<task-name>` — [worktree setup](#worktree-setup-phase-6)  
+9. Implement only what the diagram shows — [execution harness](#execution-harness-per-todo) per todo, inside the worktree  
 
 ### 8. Ask during planning
 
@@ -309,6 +345,7 @@ For each Cursor Plan todo, in order:
 
 | Step | Do | Verify | STOP if |
 |------|-----|--------|---------|
+| **0 — Worktree** | Confirm the working directory is the phase 6 worktree | `git branch --show-current` = `mark/<task-name>` | On `main`/`master` or wrong path → STOP; do not edit code |
 | **1 — Scope** | Confirm todo maps to diagram; list files to touch | Matches one behavior milestone | Scope grew → update diagram and plan first |
 | **2 — Red** | Write or extend failing test (repo style) | Test fails for the right reason | No test and user did not opt out → STOP |
 | **3 — Green** | Minimal code across needed layers | Target test passes | — |
@@ -342,4 +379,4 @@ Skip formal plan and diagram; verify if cheap.
 
 ---
 
-**Working well if:** plan harness phases 0–5 done, quality attributes table filled, diagram confirmed, code matches call flow, each small e2e iteration is its own Cursor todo with verify, execution harness completed per todo.
+**Working well if:** plan harness phases 0–6 done, quality attributes table filled, diagram confirmed, work happens in a `mark/<task-name>` worktree off `main`/`master`, code matches call flow, each small e2e iteration is its own Cursor todo with verify, execution harness completed per todo.
