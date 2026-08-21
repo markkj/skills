@@ -23,7 +23,7 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 
 **Core rule: follow the diagram.** Implementation must match the agreed **implementation outline diagram**. If the design changes, update the diagram first, then todos and code.
 
-**Core rule: work in a worktree.** For an existing repo, implement in a git worktree at `~/workspace/working-place/<task-name>`, branched off `main`/`master` as `mark/<task-name>` — see [worktree setup](#worktree-setup-phase-6). Never commit implementation work to `main`/`master`.
+**Core rule: work in a worktree.** For an existing repo, implement in a git worktree at `~/workspace/working-place/<task-name>/<repo-name>`, branched off `main`/`master` as `mark/<task-name>` — see [worktree setup](#worktree-setup-phase-6). Never commit implementation work to `main`/`master`.
 
 **Harness rule:** Run plan phases **in order**; run each todo with the [execution harness](#execution-harness-per-todo). Do not skip gates. On **STOP**, report and wait.
 
@@ -37,7 +37,7 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 | **3 — Diagram** | Mermaid component + call flow per feature group | User confirms diagram | User objects or diagram incomplete → revise; STOP before todos |
 | **4 — Todos** | One Cursor Plan todo per small e2e iteration; each has `verify:` | Todo count matches iteration outline | Layer-only or file-only todos → fix before implement |
 | **5 — Cursor Plan** | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement |
-| **6 — Worktree** | For an existing repo path, add a git worktree at `~/workspace/working-place/<task-name>` from `main`/`master` on branch `mark/<task-name>` — see [worktree setup](#worktree-setup-phase-6) | Worktree path exists; `git branch --show-current` = `mark/<task-name>`; base is `main`/`master` | Dirty base repo, branch/worktree name taken, or not a git repo → ask; STOP before implement |
+| **6 — Worktree** | For each repo the task touches, add a git worktree at `~/workspace/working-place/<task-name>/<repo-name>` from `main`/`master` on branch `mark/<task-name>` — see [worktree setup](#worktree-setup-phase-6) | Worktree path exists per repo; `git branch --show-current` = `mark/<task-name>`; base is `main`/`master` | Dirty base repo, branch/worktree name taken, or not a git repo → ask; STOP before implement |
 
 **Forbidden before phase 6 complete:** production code for new behavior (except trivial one-liners user agreed to skip). All implementation happens **inside the worktree**, never on `main`/`master`.
 
@@ -79,20 +79,25 @@ Implement in a **dedicated git worktree** branched off the base branch, so `main
 
 **Branch name:** `mark/<task-name>` — `<task-name>` is the same kebab-case slug used for `plan-<slug>.md` (from the task record when one exists).
 
-**Worktree path:** always the shared hub `~/workspace/working-place/<task-name>` — never a sibling of the repo. Every repo puts its worktrees in this one hub, so all active task checkouts sit side by side regardless of where the source repo lives.
+**Worktree path:** `~/workspace/working-place/<task-name>/<repo-name>` — never a sibling of the repo. One folder per task in the shared hub; inside it, one folder per repo the task touches. A task spanning several repos keeps those checkouts side by side under the same task folder.
 
 ```text
 ~/workspace/working-place/
-├── add-export-button/     # worktree of client-app, branch mark/add-export-button
-└── fix-login-timeout/     # worktree of another repo, branch mark/fix-login-timeout
+├── add-export-button/       # one folder per task
+│   ├── client-app/          # worktree of client-app,  branch mark/add-export-button
+│   └── client-api/          # worktree of client-api,  branch mark/add-export-button
+└── fix-login-timeout/
+    └── auth-service/        # worktree of auth-service, branch mark/fix-login-timeout
 ```
 
 ```bash
 REPO_PATH="<existing repo path>"
 TASK_NAME="<kebab-case task slug>"
-WORKTREE="$HOME/workspace/working-place/$TASK_NAME"
+REPO_NAME="$(basename "$REPO_PATH")"
+TASK_DIR="$HOME/workspace/working-place/$TASK_NAME"
+WORKTREE="$TASK_DIR/$REPO_NAME"
 
-mkdir -p "$HOME/workspace/working-place"
+mkdir -p "$TASK_DIR"
 git -C "$REPO_PATH" fetch origin --quiet
 # Base branch: prefer main, else master
 BASE=$(git -C "$REPO_PATH" show-ref --verify --quiet refs/remotes/origin/main && echo main || echo master)
@@ -100,17 +105,17 @@ BASE=$(git -C "$REPO_PATH" show-ref --verify --quiet refs/remotes/origin/main &&
 git -C "$REPO_PATH" worktree add -b "mark/$TASK_NAME" "$WORKTREE" "origin/$BASE"
 ```
 
-`git worktree add` refuses a non-empty target, so create only the hub directory — never `$WORKTREE` itself.
+`git worktree add` refuses a non-empty target, so create only `$TASK_DIR` — never `$WORKTREE` itself.
 
 **Rules:**
 
 1. Branch from `origin/main` (or `origin/master`) — never from the current feature branch unless the user asks. No `origin` remote → use the local `main`/`master` ref instead.
-2. Never reuse or force an existing branch or worktree path. If `~/workspace/working-place/<task-name>` or the branch is taken, ask: reuse that worktree, or pick a new suffix (`<task-name>-2` for both path and branch).
-3. The hub is shared across repos, so a taken path may belong to a **different** repo. Check with `git -C "$WORKTREE" remote get-url origin` before assuming it is yours; on mismatch use `<task-name>-<repo-name>`.
+2. **Multi-repo task:** repeat the command per repo. Each repo gets its own `<repo-name>` folder under the same task folder and the **same** branch name `mark/<task-name>`.
+3. Never reuse or force an existing branch or worktree path. If `<task-name>/<repo-name>` or the branch is taken, ask: reuse that worktree, or pick a new suffix (`<task-name>-2` for both path and branch). An existing task folder is fine — only the `<repo-name>` leaf must be free.
 4. Verify before any code: the worktree directory exists, and inside it `git branch --show-current` prints `mark/<task-name>`.
-5. Run all todos, tests, and commands from `~/workspace/working-place/<task-name>` — not the original checkout.
-6. Record the worktree path and branch in the plan file so a later session can resume there.
-7. Do not remove the worktree when done; the user decides when to `git worktree remove`.
+5. Run all todos, tests, and commands from `~/workspace/working-place/<task-name>/<repo-name>` — not the original checkout. For multi-repo work, `cd` to the right repo folder per todo.
+6. Record each worktree path and branch in the plan file so a later session can resume there.
+7. Do not remove the worktree or task folder when done; the user decides when to `git worktree remove`.
 
 ## Quality attributes (required in every plan)
 
@@ -355,7 +360,7 @@ For each Cursor Plan todo, in order:
 
 | Step | Do | Verify | STOP if |
 |------|-----|--------|---------|
-| **0 — Worktree** | Confirm the working directory is `~/workspace/working-place/<task-name>` from phase 6 | `pwd` matches the worktree; `git branch --show-current` = `mark/<task-name>` | On `main`/`master` or outside the worktree → STOP; do not edit code |
+| **0 — Worktree** | Confirm the working directory is `~/workspace/working-place/<task-name>/<repo-name>` from phase 6 | `pwd` matches the worktree; `git branch --show-current` = `mark/<task-name>` | On `main`/`master` or outside the worktree → STOP; do not edit code |
 | **1 — Scope** | Confirm todo maps to diagram; list files to touch | Matches one behavior milestone | Scope grew → update diagram and plan first |
 | **2 — Red** | Write or extend failing test (repo style) | Test fails for the right reason | No test and user did not opt out → STOP |
 | **3 — Green** | Minimal code across needed layers | Target test passes | — |
