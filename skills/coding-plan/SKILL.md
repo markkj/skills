@@ -23,7 +23,7 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 
 **Core rule: follow the diagram.** Implementation must match the agreed **implementation outline diagram**. If the design changes, update the diagram first, then todos and code.
 
-**Core rule: work in a worktree.** For an existing repo, implement in a git worktree at `~/workspace/working-place/<task-name>/<repo-name>`, branched off `main`/`master` as `mark/<task-name>` — see [worktree setup](#worktree-setup-phase-6). Never commit implementation work to `main`/`master`.
+**Core rule: work in a worktree.** For an existing repo, implement in a git worktree at `~/workspace/working-place/<task-name>/<repo-name>`, branched off local `main`/`master` as `mark/<task-name>` with `--no-track` — see [worktree setup](#worktree-setup-phase-6). Never commit or push to `main`/`master`; the base is a start point, never an upstream.
 
 **Harness rule:** Run plan phases **in order**; run each todo with the [execution harness](#execution-harness-per-todo). Do not skip gates. On **STOP**, report and wait.
 
@@ -37,7 +37,7 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 | **3 — Diagram** | Mermaid component + call flow per feature group | User confirms diagram | User objects or diagram incomplete → revise; STOP before todos |
 | **4 — Todos** | One Cursor Plan todo per small e2e iteration; each has `verify:` | Todo count matches iteration outline | Layer-only or file-only todos → fix before implement |
 | **5 — Cursor Plan** | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement |
-| **6 — Worktree** | For each repo the task touches, add a git worktree at `~/workspace/working-place/<task-name>/<repo-name>` from `main`/`master` on branch `mark/<task-name>` — see [worktree setup](#worktree-setup-phase-6) | Worktree path exists per repo; `git branch --show-current` = `mark/<task-name>`; base is `main`/`master` | Dirty base repo, branch/worktree name taken, or not a git repo → ask; STOP before implement |
+| **6 — Worktree** | For each repo the task touches, add a git worktree at `~/workspace/working-place/<task-name>/<repo-name>` from local `main`/`master` on branch `mark/<task-name>` with `--no-track` — see [worktree setup](#worktree-setup-phase-6) | Worktree path exists per repo; `git branch --show-current` = `mark/<task-name>`; no upstream on the new branch | Dirty base repo, branch/worktree name taken, upstream points at `main`/`master`, or not a git repo → ask; STOP before implement |
 
 **Forbidden before phase 6 complete:** production code for new behavior (except trivial one-liners user agreed to skip). All implementation happens **inside the worktree**, never on `main`/`master`.
 
@@ -98,24 +98,45 @@ TASK_DIR="$HOME/workspace/working-place/$TASK_NAME"
 WORKTREE="$TASK_DIR/$REPO_NAME"
 
 mkdir -p "$TASK_DIR"
-git -C "$REPO_PATH" fetch origin --quiet
-# Base branch: prefer main, else master
-BASE=$(git -C "$REPO_PATH" show-ref --verify --quiet refs/remotes/origin/main && echo main || echo master)
+# Base branch: local main, else local master
+BASE=$(git -C "$REPO_PATH" show-ref --verify --quiet refs/heads/main && echo main || echo master)
 
-git -C "$REPO_PATH" worktree add -b "mark/$TASK_NAME" "$WORKTREE" "origin/$BASE"
+# --no-track: start from $BASE but do NOT make it the upstream
+git -C "$REPO_PATH" worktree add --no-track -b "mark/$TASK_NAME" "$WORKTREE" "$BASE"
+
+# Verify: base is only a start point, not an upstream
+git -C "$WORKTREE" branch --show-current                        # mark/<task-name>
+git -C "$WORKTREE" rev-parse --abbrev-ref '@{upstream}' 2>&1    # expect "no upstream configured"
 ```
 
 `git worktree add` refuses a non-empty target, so create only `$TASK_DIR` — never `$WORKTREE` itself.
 
 **Rules:**
 
-1. Branch from `origin/main` (or `origin/master`) — never from the current feature branch unless the user asks. No `origin` remote → use the local `main`/`master` ref instead.
+1. Branch from the **local** `main` (or `master`) branch — not `origin/main`, and never from the current feature branch unless the user asks. The local ref is used as-is, so it may be behind the remote; if freshness matters, say so and ask before pulling.
 2. **Multi-repo task:** repeat the command per repo. Each repo gets its own `<repo-name>` folder under the same task folder and the **same** branch name `mark/<task-name>`.
 3. Never reuse or force an existing branch or worktree path. If `<task-name>/<repo-name>` or the branch is taken, ask: reuse that worktree, or pick a new suffix (`<task-name>-2` for both path and branch). An existing task folder is fine — only the `<repo-name>` leaf must be free.
-4. Verify before any code: the worktree directory exists, and inside it `git branch --show-current` prints `mark/<task-name>`.
+4. Verify before any code: the worktree directory exists, inside it `git branch --show-current` prints `mark/<task-name>`, and the branch has **no upstream** yet.
 5. Run all todos, tests, and commands from `~/workspace/working-place/<task-name>/<repo-name>` — not the original checkout. For multi-repo work, `cd` to the right repo folder per todo.
 6. Record each worktree path and branch in the plan file so a later session can resume there.
 7. Do not remove the worktree or task folder when done; the user decides when to `git worktree remove`.
+
+### Never track or push to the base branch
+
+`--no-track` is not optional. Per `git worktree add --[no-]track`: *"When creating a new branch, if `<commit-ish>` is a branch, mark it as 'upstream' from the new branch."* Without it, `mark/<task-name>` can be created with `main`/`master` as its upstream — then a bare `git push` targets the **base branch** instead of the new one and commits land on `master`.
+
+Set the upstream explicitly on the **first** push, and only to the matching remote branch:
+
+```bash
+git -C "$WORKTREE" push -u origin "mark/$TASK_NAME"
+```
+
+**Push rules:**
+
+1. Never run a bare `git push` in the worktree before the upstream is set by the command above.
+2. After the first push, `git rev-parse --abbrev-ref '@{upstream}'` must print `origin/mark/<task-name>`. Anything naming `main` or `master` → **STOP**, do not push again, and report.
+3. Never `git push origin HEAD:main`, `HEAD:master`, or any refspec whose target is the base branch. Landing on the base branch happens through a PR, not a push.
+4. Never `git pull`/`git merge` in a way that fast-forwards the base branch, and never commit while `git branch --show-current` prints `main` or `master`.
 
 ## Quality attributes (required in every plan)
 
@@ -360,7 +381,7 @@ For each Cursor Plan todo, in order:
 
 | Step | Do | Verify | STOP if |
 |------|-----|--------|---------|
-| **0 — Worktree** | Confirm the working directory is `~/workspace/working-place/<task-name>/<repo-name>` from phase 6 | `pwd` matches the worktree; `git branch --show-current` = `mark/<task-name>` | On `main`/`master` or outside the worktree → STOP; do not edit code |
+| **0 — Worktree** | Confirm the working directory is `~/workspace/working-place/<task-name>/<repo-name>` from phase 6 | `pwd` matches the worktree; `git branch --show-current` = `mark/<task-name>`; upstream is unset or `origin/mark/<task-name>` | On `main`/`master`, outside the worktree, or upstream names the base branch → STOP; do not edit or push |
 | **1 — Scope** | Confirm todo maps to diagram; list files to touch | Matches one behavior milestone | Scope grew → update diagram and plan first |
 | **2 — Red** | Write or extend failing test (repo style) | Test fails for the right reason | No test and user did not opt out → STOP |
 | **3 — Green** | Minimal code across needed layers | Target test passes | — |
