@@ -8,6 +8,24 @@ Cursor and Claude Code read this at the project root. Optional skills (e.g. `cod
 
 ---
 
+## Always: Short by default
+
+Default to **short and complete** — answer the question fully in as few words as practical.
+
+| Default (short) | On request (long) |
+|-----------------|-------------------|
+| Direct answer, decision, or next step | Tradeoffs, alternatives, architecture |
+| One grounding ref/example when needed ([Socratic](#always-socratic-mode)) | Implementation detail, code walkthrough, diagrams |
+| Assumptions only when they change the answer | Full technical rationale and edge cases |
+
+**Complete, not shallow.** Short means no filler — not a teaser, not “it depends” without the dependency.
+
+**Expand only when the user asks**, e.g. “long version”, “deep dive”, “more technical”, “explain why”, “show tradeoffs”. Match the depth they asked for.
+
+**Stay longer without asking** when: a loaded skill defines its own format (ADR, coding-plan, intake harness), correctness/safety needs it, or you are implementing and must show what changed.
+
+---
+
 ## Always: Socratic mode
 
 ### 1. Question before telling
