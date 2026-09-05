@@ -1,7 +1,7 @@
 ---
 name: plan-intake-automation
 description: >-
-  Turns an existing Obsidian {{task-generate-name}}.md from work-intake-automation into planning artifacts such as {{plan-generate-name}}.md, Cursor ~/.cursor/plans/*.plan.md files, and discussion docs. Use only when the user explicitly names plan-intake-automation, asks to plan from a saved task record, convert task facts into executable todos, or create Cursor plan files after intake.
+  Turns an existing Obsidian task record — plus active spec/design when present — into a new executable planning artifact such as {{plan-generate-name}}.md and an optional Cursor ~/.cursor/plans/*.plan.md symlink. Use only when the user explicitly names plan-intake-automation, asks to plan from a saved task record, convert task facts into executable todos, or create Cursor plan files after intake.
 disable-model-invocation: true
 ---
 
@@ -9,7 +9,7 @@ disable-model-invocation: true
 
 **Do not auto-apply.** Load this skill only when the user explicitly names `plan-intake-automation`, asks to plan from a saved task record, or requests plan files / Cursor plans from an existing `{{task-generate-name}}.md`.
 
-Use this skill only after a task record exists. The input is `{{task-generate-name}}.md`; the output is **one new** planning artifact appended to that task (a task may already have other plans).
+Use this skill only after a task record exists. Inputs are `{{task-generate-name}}.md` plus the task’s **Active spec** / **Active design** when present. The output is **one new** planning artifact appended to that task (a task may already have other plans). This skill is a planning-entry gate; it does not invent missing requirements or architecture.
 
 **Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks, no product code changes.
 
@@ -18,8 +18,8 @@ Use this skill only after a task record exists. The input is `{{task-generate-na
 | Phase | Do | Verify | STOP if |
 |-------|-----|--------|---------|
 | **0 — Preconditions** | User named this skill; locate `{{task-generate-name}}.md` via `$OBSIDIAN_BASE_VAULT_PATH` + vault-relative path | File exists and is readable | No task file or env unset → tell user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first |
-| **1 — Load** | Read task file; restate goal, acceptance criteria, assumptions, unknowns; list existing **Plans** + **Active plan** | Restatement matches task file; gaps listed | — |
-| **2 — Clarify** | If scope unclear, ask **1–3** questions. If plans already exist, confirm: **add another plan** vs revise guidance only (never overwrite) | User answered or explicitly said proceed | Unresolved blocker → STOP; do not write plan |
+| **1 — Load** | Read task file; load **Active spec** and **Active design** when present; restate goal/criteria/constraints; list existing **Plans** + **Active plan** | Inputs are internally consistent and gaps listed | — |
+| **2 — Planning readiness** | Check whether enough decisions exist to create executable todos. If requirements are unclear → hand off to `grill-me` / `spec`; if solution architecture is unresolved and needed → hand off to `design`. If plans already exist, confirm add-new vs explicit revision. | No implementation-critical ambiguity remains | Missing requirement/design decision → STOP; do not bury it inside the plan |
 | **3 — Artifact choice** | Pick one primary output: Obsidian-only plan, Cursor plan (+ symlink), or discussion doc only | Choice matches execution owner in task file or user stated preference | Ambiguous and user did not choose → ask; STOP until chosen |
 | **4 — Write** | Create a **new** plan at vault origin via `$OBSIDIAN_BASE_VAULT_PATH`; on name collision use [unique plan names](#unique-plan-names-never-overwrite) | New artifact exists; prior plans untouched; no literal `{{…}}` in filenames | `$OBSIDIAN_BASE_VAULT_PATH` unset or write failed → STOP |
 | **5 — Link** (Cursor only) | Symlink a **new** `~/.cursor/plans/<slug>_<short-id>.plan.md` → this vault origin | `readlink` + `realpath` show same file | Symlink wrong or Cursor path is a duplicate copy → fix or STOP |
@@ -47,8 +47,12 @@ After phase 7, output this block in chat:
 
 ## Boundary
 
-- [`work-intake-automation`](../work-intake-automation/SKILL.md): source request -> `{{task-generate-name}}.md` (explicit opt-in only).
-- `plan-intake-automation` (this skill): `{{task-generate-name}}.md` -> **another** vault `plan-*.md` (origin), optional Cursor symlink, optional `discussion/` docs. One task → many plans.
+- [`work-intake-automation`](../work-intake-automation/SKILL.md): source request -> durable task record.
+- [`grill-me`](../grill-me/SKILL.md): resolve ambiguity when needed.
+- [`spec`](../spec/SKILL.md): define what should be true when a durable contract is useful.
+- [`design`](../design/SKILL.md): define how to satisfy the spec when solution design is needed.
+- `plan-intake-automation` (this skill): task + active spec/design -> **another** vault `plan-*.md` (origin), optional Cursor symlink. One task → many plans.
+- [`coding-plan`](../coding-plan/SKILL.md): add coding-specific diagrams, test-first e2e todos, and git worktree setup.
 - Execution happens later; do not change product code while planning.
 
 If `{{task-generate-name}}.md` does not exist, tell the user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first — do not auto-apply intake.
@@ -125,13 +129,14 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 Follow [Harness phases](#harness-phases). The steps below are phase details — not a separate optional list.
 
 **Phase 1 — Load** fields:
-   - goal
-   - acceptance criteria
-   - assumptions
+   - goal and acceptance criteria from task/spec
+   - constraints and assumptions
+   - **Active spec** when present
+   - **Active design** when present
    - unknowns/blockers
    - existing **Plans** list, **Active plan**, discussion path
 
-**Phase 2 — Clarify:** If acceptance criteria or scope are unclear, ask 1-3 focused questions before writing a plan. If **Plans** is non-empty, confirm the user wants an **additional** plan (default) rather than editing an old one in place (editing in place is only when the user explicitly asks to revise that file).
+**Phase 2 — Planning readiness:** A plan is not the place to resolve foundational ambiguity. If acceptance criteria/scope are unclear, recommend `grill-me` or `spec`. If architecture/solution decisions are required but unresolved, recommend `design`. Only ask narrow planning-specific questions (execution owner, artifact format, sequencing constraints). If **Plans** is non-empty, confirm the user wants an **additional** plan (default) rather than editing an old one in place.
 
 **Phase 3 — Artifact choice:**
    - **Obsidian-only plan:** write a **new** `plan-*.md` in the task folder (markdown template below; no `~/.cursor/plans/` file).
@@ -362,3 +367,13 @@ ADR template:
 - For Cursor plans: each plan has one vault origin; its `~/.cursor/plans/<slug>_<short-id>.plan.md` must be a symlink to that origin — never duplicate plan content.
 - Never overwrite an existing plan file or Cursor symlink; mint a unique name and append to **Plans** ([Unique plan names](#unique-plan-names-never-overwrite)).
 - Update `{{task-generate-name}}.md` after each new plan so future sessions see the full list and the active plan.
+
+## Context Budget
+
+**Required:** task, `context.md` if present, active spec/design when present, and existing plan ledger metadata.
+
+**Read only when needed:** enough artifact metadata to establish the correct plan origin/symlink and readiness gate.
+
+**Avoid loading:** repository implementation details; `coding-plan` owns codebase-oriented planning.
+
+**Context update:** set the active plan path and current stage in `context.md` when a plan artifact is created/selected. Do not duplicate plan contents. See [`../../CONTEXT.md`](../../CONTEXT.md).

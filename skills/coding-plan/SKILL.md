@@ -442,3 +442,13 @@ Skip formal plan and diagram; verify if cheap.
 ---
 
 **Working well if:** plan harness phases 0–6 done, quality attributes table filled, diagram confirmed, work happens in a `mark/<WORK_NAME>` worktree off `main`/`master`, code matches call flow, each small e2e iteration is its own Cursor todo with verify, execution harness completed per todo.
+
+## Context Budget
+
+**Required first:** task, `context.md`, active spec/design, the chosen Obsidian plan, and repo-local agent instructions.
+
+**Progressive repo loading:** locate task-mentioned symbols/files first → direct callers/callees → 1-2 neighboring implementations/tests → broaden only when a plan assumption cannot be resolved.
+
+**Avoid loading:** entire repository trees, unrelated services, full Jira/chat history already normalized into artifacts, archived plans, broad git history.
+
+**Context update:** after planning, rewrite `context.md` with the active plan, important repo paths/symbols, verified assumptions, remaining blockers, and commands/tests the executor will need. Keep implementation todos in the plan, not in `context.md`. See [`../../CONTEXT.md`](../../CONTEXT.md).

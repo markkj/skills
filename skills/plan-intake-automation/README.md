@@ -11,7 +11,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 └── {{task-generate-name}}.md
 ```
 
-It reads `{{task-generate-name}}.md` and **adds** a planning artifact under that task folder. **One task may have many plans.**
+It reads `{{task-generate-name}}.md` plus the task’s active spec/design when present, checks planning readiness, and **adds** a planning artifact under that task folder. **One task may have many plans.** Missing requirements/design decisions are routed back to `grill-me` / `spec` / `design` rather than hidden inside the plan.
 
 `{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders. Use real generated filenames. Example:
 
@@ -33,9 +33,10 @@ It does not perform original work intake and does not execute implementation cha
 ## Typical Flow
 
 ```text
-work-intake-automation (explicit): source request -> {{task-generate-name}}.md
-plan-intake-automation (explicit): same task -> plan-*.md / Cursor symlink (may run again for more plans)
-coding-plan (explicit): Active plan (or user-chosen plan) -> implementation
+work-intake-automation: source request -> task record
+grill-me / spec / design: optional clarification + definition stages
+plan-intake-automation: task + active spec/design -> plan-*.md / Cursor symlink
+coding-plan: active plan -> coding-specific diagram/todos + worktree -> implementation
 ```
 
 ## Multi-plan example
