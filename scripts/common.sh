@@ -110,3 +110,112 @@ skill_prune_stale_installs() {
 skill_dir_name() {
   basename "$(dirname "$1")"
 }
+
+# Center file (CLAUDE.md) — global install for Claude Code + Cursor
+CENTER_MARKER="markkj-skills-center:"
+cursor_center_rule() {
+  echo "${CURSOR_CENTER_RULE:-$HOME/.cursor/rules/markkj-skills-center.mdc}"
+}
+
+claude_center_file() {
+  echo "${CLAUDE_CENTER_FILE:-$HOME/.claude/CLAUDE.md}"
+}
+
+# Symlink ~/.claude/CLAUDE.md -> repo CLAUDE.md
+install_claude_center() {
+  local repo="$1"
+  local src="$repo/CLAUDE.md"
+  local dest
+  dest="$(claude_center_file)"
+
+  if [ ! -f "$src" ]; then
+    echo "error: missing center file $src" >&2
+    return 1
+  fi
+
+  mkdir -p "$(dirname "$dest")"
+
+  if [ -L "$dest" ]; then
+    local resolved
+    resolved="$(readlink "$dest")"
+    case "$resolved" in
+      "$src"|"$repo/CLAUDE.md") ;;
+      *)
+        echo "error: $dest is a symlink to $resolved (not this repo)." >&2
+        echo "Move it aside, then re-run." >&2
+        return 1
+        ;;
+    esac
+    rm "$dest"
+  elif [ -e "$dest" ]; then
+    echo "error: $dest exists and is not a symlink to this repo's CLAUDE.md" >&2
+    echo "Move it aside, then re-run." >&2
+    return 1
+  fi
+
+  ln -sfn "$src" "$dest"
+  echo "[claude] center CLAUDE.md -> $src"
+}
+
+# Write ~/.cursor/rules/*.mdc with frontmatter + CLAUDE.md body
+install_cursor_center() {
+  local repo="$1"
+  local src="$repo/CLAUDE.md"
+  local dest
+  dest="$(cursor_center_rule)"
+
+  if [ ! -f "$src" ]; then
+    echo "error: missing center file $src" >&2
+    return 1
+  fi
+
+  mkdir -p "$(dirname "$dest")"
+
+  if [ -e "$dest" ] && ! grep -q "$CENTER_MARKER" "$dest" 2>/dev/null; then
+    echo "error: $dest exists and is not managed by link-skills.sh" >&2
+    echo "Move it aside, then re-run." >&2
+    return 1
+  fi
+
+  {
+    cat <<EOF
+---
+description: MarkKJ skills pack center — always-on workflow and default thinking
+alwaysApply: true
+---
+
+<!-- $CENTER_MARKER $repo -->
+
+EOF
+    cat "$src"
+  } > "$dest"
+
+  echo "[cursor] center rule $dest <- $src"
+}
+
+show_center_status() {
+  local repo="$1"
+  local claude_dest cursor_dest
+  claude_dest="$(claude_center_file)"
+  cursor_dest="$(cursor_center_rule)"
+
+  echo "=== center file ($repo/CLAUDE.md) ==="
+
+  if [ -L "$claude_dest" ]; then
+    echo "  ✓ claude  $claude_dest -> $(readlink "$claude_dest")"
+  elif [ -e "$claude_dest" ]; then
+    echo "  ! claude  $claude_dest exists but is not this repo's symlink" >&2
+  else
+    echo "  · claude  $claude_dest not installed"
+  fi
+
+  if [ -f "$cursor_dest" ] && grep -q "$CENTER_MARKER $repo" "$cursor_dest" 2>/dev/null; then
+    echo "  ✓ cursor  $cursor_dest"
+  elif [ -e "$cursor_dest" ]; then
+    echo "  ! cursor  $cursor_dest exists but is not managed by this repo" >&2
+  else
+    echo "  · cursor  $cursor_dest not installed"
+  fi
+
+  echo
+}

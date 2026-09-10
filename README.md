@@ -2,6 +2,8 @@
 
 A generic work workflow with specialized software-engineering stages. The system is **artifact-driven**: each skill has one job, stages are optional, and the durable task record in Obsidian is the handoff point between agents/tools.
 
+**Center file:** [`CLAUDE.md`](CLAUDE.md) — always-on policy. Loaded at this repo’s project root, and globally after `./scripts/link-skills.sh all` (`~/.claude/CLAUDE.md` + Cursor always-apply rule). That script also installs `skills/*/SKILL.md`.
+
 ## Core model
 
 ```text
@@ -211,6 +213,7 @@ raw source/history
 
 | Skill | Question it answers | Must not own |
 |---|---|---|
+| `problem-decompose` | What is the problem, split small, with Soln/Pros/Cons — and what must we ask instead of assuming? (**auto-apply**) | spec/design/plan artifacts; full `grill-me` sessions |
 | `work-intake-automation` | What work exists and where is its durable record? | spec/design/plan/code |
 | `grill-me` | What are we missing or assuming? | solution design / implementation plan |
 | `spec` | What should be true? | architecture / implementation order |

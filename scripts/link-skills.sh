@@ -2,16 +2,19 @@
 set -euo pipefail
 
 # Copies shippable skills from this repo into an agent skills directory (rsync each run).
+# Also installs the pack center file (CLAUDE.md) globally for Cursor and Claude Code.
 #
 # Layout:
 #   skills/<skill-name>/SKILL.md
 #   skills/<bucket>/<skill-name>/SKILL.md   (symlink name = <skill-name>)
+#   CLAUDE.md  →  ~/.claude/CLAUDE.md (symlink)
+#              →  ~/.cursor/rules/markkj-skills-center.mdc (alwaysApply)
 #
 # Skipped: deprecated/, in-progress/, personal/, examples/, _template/
 #
 # Usage:
 #   ./scripts/link-skills.sh [cursor|claude|all]
-#   ./scripts/link-skills.sh status [cursor|claude]
+#   ./scripts/link-skills.sh status [cursor|claude|all]
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck source=common.sh
@@ -101,9 +104,11 @@ case "$TARGET" in
       mkdir -p "$LEGACY_CURSOR"
       link_into "$LEGACY_CURSOR" "cursor-legacy"
     fi
+    install_cursor_center "$REPO"
     ;;
   claude)
     link_into "$HOME/.claude/skills" "claude"
+    install_claude_center "$REPO"
     ;;
   all)
     link_into "$CURSOR_DEST" "cursor"
@@ -111,14 +116,23 @@ case "$TARGET" in
       mkdir -p "$LEGACY_CURSOR"
       link_into "$LEGACY_CURSOR" "cursor-legacy"
     fi
+    install_cursor_center "$REPO"
     link_into "$HOME/.claude/skills" "claude"
+    install_claude_center "$REPO"
     ;;
   status)
     AGENT="${2:-cursor}"
     case "$AGENT" in
-      cursor) show_status "$CURSOR_DEST" "cursor" ;;
-      claude) show_status "$HOME/.claude/skills" "claude" ;;
+      cursor)
+        show_center_status "$REPO"
+        show_status "$CURSOR_DEST" "cursor"
+        ;;
+      claude)
+        show_center_status "$REPO"
+        show_status "$HOME/.claude/skills" "claude"
+        ;;
       all)
+        show_center_status "$REPO"
         show_status "$CURSOR_DEST" "cursor"
         show_status "$HOME/.claude/skills" "claude"
         ;;
@@ -130,9 +144,9 @@ case "$TARGET" in
     ;;
   *)
     echo "usage: $0 [cursor|claude|all|status]" >&2
-    echo "  cursor|claude|all  — rsync into ~/.agents/skills (cursor) or ~/.claude/skills" >&2
+    echo "  cursor|claude|all  — rsync skills + install CLAUDE.md as global center" >&2
     echo "  CURSOR_SKILLS_DIR    — override cursor destination (default: ~/.agents/skills)" >&2
-    echo "  status [agent]     — show which skills are linked" >&2
+    echo "  status [agent]     — show which skills and center file are linked" >&2
     exit 1
     ;;
 esac

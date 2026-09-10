@@ -9,7 +9,6 @@ description: >-
   match project structure and test style. Use only when the user explicitly asks for
   a coding plan, mentions coding-plan, or wants diagram-backed Cursor Plan todos
   for implementation.
-disable-model-invocation: true
 ---
 
 # Coding Plan
@@ -30,15 +29,15 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 
 ## Plan harness (before code)
 
-| Phase | Do | Verify | STOP if |
-|-------|-----|--------|---------|
-| **0 — Preconditions** | User named `coding-plan`; read repo layout and 1–2 similar features | Stack and test style identified | Repo unreadable or scope unknown → ask |
-| **1 — Quality attributes** | Fill [quality attributes table](#quality-attributes-block-required-in-plan-output) | All three rows filled or N/A with reason | Blank row → STOP; no diagram yet |
-| **2 — Feature map** | Name user-visible behaviors; group features | Behaviors trace to acceptance criteria | — |
-| **3 — Diagram** | Mermaid component + call flow per feature group | User confirms diagram | User objects or diagram incomplete → revise; STOP before todos |
-| **4 — Todos** | One Cursor Plan todo per small e2e iteration; each has `verify:` | Todo count matches iteration outline | Layer-only or file-only todos → fix before implement |
-| **5 — Cursor Plan** | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement |
-| **6 — Worktree** | Resolve `WORK_NAME` (`<WORK_ID>_<TASK_SLUG>`, or slug alone with no `WORK_ID`); for each repo the work touches, add a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>` from local `main`/`master` on branch `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-6) | Worktree path exists per repo; `git branch --show-current` = `mark/<WORK_NAME>`; no upstream on the new branch | No `TASK_SLUG`, dirty base repo, branch/worktree name taken, upstream points at `main`/`master`, or not a git repo → ask; STOP before implement |
+| Phase                      | Do                                                                                                                                                                                                                                                                                                                  | Verify                                                                                                         | STOP if                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0 — Preconditions**      | User named `coding-plan`; read repo layout and 1–2 similar features                                                                                                                                                                                                                                                 | Stack and test style identified                                                                                | Repo unreadable or scope unknown → ask                                                                                                          |
+| **1 — Quality attributes** | Fill [quality attributes table](#quality-attributes-block-required-in-plan-output)                                                                                                                                                                                                                                  | All three rows filled or N/A with reason                                                                       | Blank row → STOP; no diagram yet                                                                                                                |
+| **2 — Feature map**        | Name user-visible behaviors; group features                                                                                                                                                                                                                                                                         | Behaviors trace to acceptance criteria                                                                         | —                                                                                                                                               |
+| **3 — Diagram**            | Mermaid component + call flow per feature group                                                                                                                                                                                                                                                                     | User confirms diagram                                                                                          | User objects or diagram incomplete → revise; STOP before todos                                                                                  |
+| **4 — Todos**              | One Cursor Plan todo per small e2e iteration; each has `verify:`                                                                                                                                                                                                                                                    | Todo count matches iteration outline                                                                           | Layer-only or file-only todos → fix before implement                                                                                            |
+| **5 — Cursor Plan**        | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin                                                                                                                                        | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite                                   | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement                                                         |
+| **6 — Worktree**           | Resolve `WORK_NAME` (`<WORK_ID>_<TASK_SLUG>`, or slug alone with no `WORK_ID`); for each repo the work touches, add a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>` from local `main`/`master` on branch `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-6) | Worktree path exists per repo; `git branch --show-current` = `mark/<WORK_NAME>`; no upstream on the new branch | No `TASK_SLUG`, dirty base repo, branch/worktree name taken, upstream points at `main`/`master`, or not a git repo → ask; STOP before implement |
 
 **Forbidden before phase 6 complete:** production code for new behavior (except trivial one-liners user agreed to skip). All implementation happens **inside the worktree**, never on `main`/`master`.
 
@@ -85,10 +84,10 @@ Implement in a **dedicated git worktree** branched off the base branch, so `main
 
 **`WORK_ID` is optional.** Plenty of work arrives with no Jira key and no task record. Never invent one, and never block on it:
 
-| Case | `WORK_NAME` | Example |
-|------|-------------|---------|
-| Both parts known | `<WORK_ID>_<TASK_SLUG>` | `PROJ-123_add-export-button` |
-| No `WORK_ID` | `<TASK_SLUG>` alone | `add-export-button` |
+| Case                                                            | `WORK_NAME`                              | Example                      |
+| --------------------------------------------------------------- | ---------------------------------------- | ---------------------------- |
+| Both parts known                                                | `<WORK_ID>_<TASK_SLUG>`                  | `PROJ-123_add-export-button` |
+| No `WORK_ID`                                                    | `<TASK_SLUG>` alone                      | `add-export-button`          |
 | `WORK_ID` already ends with the slug (manual `YYYYMMDD-<slug>`) | `<WORK_ID>` alone — no duplicated suffix | `20260826-fix-login-timeout` |
 
 `TASK_SLUG` is the only required part. Missing it → ask for a short name for the work; that is the one STOP condition here.
@@ -149,7 +148,7 @@ git -C "$WORKTREE" rev-parse --abbrev-ref '@{upstream}' 2>&1    # expect "no ups
 
 ### Never track or push to the base branch
 
-`--no-track` is not optional. Per `git worktree add --[no-]track`: *"When creating a new branch, if `<commit-ish>` is a branch, mark it as 'upstream' from the new branch."* Without it, `mark/<WORK_NAME>` can be created with `main`/`master` as its upstream — then a bare `git push` targets the **base branch** instead of the new one and commits land on `master`.
+`--no-track` is not optional. Per `git worktree add --[no-]track`: _"When creating a new branch, if `<commit-ish>` is a branch, mark it as 'upstream' from the new branch."_ Without it, `mark/<WORK_NAME>` can be created with `main`/`master` as its upstream — then a bare `git push` targets the **base branch** instead of the new one and commits land on `master`.
 
 Set the upstream explicitly on the **first** push, and only to the matching remote branch:
 
@@ -166,7 +165,7 @@ git -C "$WORKTREE" push -u origin "mark/$WORK_NAME"
 
 ## Quality attributes (required in every plan)
 
-**Reference:** Kleppmann, *Designing Data-Intensive Applications* — reliability, scalability, and maintainability as the three core quality attributes for data-intensive systems. Apply them to every non-trivial coding plan.
+**Reference:** Kleppmann, _Designing Data-Intensive Applications_ — reliability, scalability, and maintainability as the three core quality attributes for data-intensive systems. Apply them to every non-trivial coding plan.
 
 **Do not skip.** Before diagrams and Cursor todos, state how the planned work affects each attribute. If an attribute is **not** materially affected, say **N/A** and why in one line — do not leave it blank.
 
@@ -192,11 +191,11 @@ git -C "$WORKTREE" push -u origin "mark/$WORK_NAME"
 
 Include this table in the plan (chat and Cursor Plan body) before the implementation outline diagram:
 
-| Attribute | Impact on this work | Plan choices |
-|-----------|---------------------|--------------|
-| Reliability | … | … |
-| Scalability | … | … |
-| Maintainability | … | … |
+| Attribute       | Impact on this work | Plan choices |
+| --------------- | ------------------- | ------------ |
+| Reliability     | …                   | …            |
+| Scalability     | …                   | …            |
+| Maintainability | …                   | …            |
 
 Diagrams, feature groups, and todos must reflect material impacts — e.g. reliability → error-path tests in todos; maintainability → match repo layout in diagram labels.
 
@@ -255,11 +254,11 @@ Ask:
 
 > Split into **feature groups** with **one Cursor Plan todo per small e2e feedback-loop iteration**? Or **one todo** for the full feature?
 
-| Choice | Plan |
-|--------|------|
-| Split | Feature groups in chat; **each small e2e iteration = separate Cursor Plan todo** |
-| One todo | Single todo; verify at API/IT boundary |
-| Unsure | Recommend small iterations for 3+ layers or multiple endpoints |
+| Choice   | Plan                                                                             |
+| -------- | -------------------------------------------------------------------------------- |
+| Split    | Feature groups in chat; **each small e2e iteration = separate Cursor Plan todo** |
+| One todo | Single todo; verify at API/IT boundary                                           |
+| Unsure   | Recommend small iterations for 3+ layers or multiple endpoints                   |
 
 ### 3. Implementation outline diagram (required)
 
@@ -267,8 +266,8 @@ Before todos and code, show diagrams for user confirmation.
 
 **Include:**
 
-1. **Component diagram** — layers/boxes and dependencies  
-2. **Call flow** — sequence of calls, main functions, errors  
+1. **Component diagram** — layers/boxes and dependencies
+2. **Call flow** — sequence of calls, main functions, errors
 
 Use **Mermaid**. Use real names from the repo when known.
 
@@ -308,10 +307,10 @@ sequenceDiagram
 
 ### 4. Feature groups and Cursor todos
 
-| Level | Meaning | Where |
-|-------|---------|-------|
-| Task | Overall goal | Cursor Plan title |
-| Feature group | One API/capability | Chat outline only |
+| Level               | Meaning                                                        | Where                         |
+| ------------------- | -------------------------------------------------------------- | ----------------------------- |
+| Task                | Overall goal                                                   | Cursor Plan title             |
+| Feature group       | One API/capability                                             | Chat outline only             |
 | Small e2e iteration | One thin behavior feedback loop that may touch multiple layers | **One Cursor Plan todo each** |
 
 **Critical:** 5 small e2e iterations in outline → **5 Cursor Plan todos**. Do not nest multiple iterations in one todo.
@@ -324,12 +323,12 @@ Prefix titles: `[Register] Slice 1: route through repo stub`
 
 Split todos by **one behavior milestone that can go green**. A todo should touch controller, service, repository, DB, and tests together when those pieces are all needed for that milestone.
 
-| Split todos by (good) | Do not split todos by (bad) |
-|------------------------|-----------------------------|
-| First green API path: controller + service + repo stub/fake | DTO, request struct, response struct alone |
-| Persisting the behavior to the real DB | Controller, service, repo as unrelated layer-only todos |
-| One externally visible rule: validation, duplicate email, auth, etc. | Imports, wiring-only, “add file”, rename |
-| One end-to-end capability milestone | Single field, mapper line, private helper unless huge |
+| Split todos by (good)                                                | Do not split todos by (bad)                             |
+| -------------------------------------------------------------------- | ------------------------------------------------------- |
+| First green API path: controller + service + repo stub/fake          | DTO, request struct, response struct alone              |
+| Persisting the behavior to the real DB                               | Controller, service, repo as unrelated layer-only todos |
+| One externally visible rule: validation, duplicate email, auth, etc. | Imports, wiring-only, “add file”, rename                |
+| One end-to-end capability milestone                                  | Single field, mapper line, private helper unless huge   |
 
 **Rule:** Everything needed for **one named behavior milestone** lives in **one todo**. Types, helpers, wiring, and stubs that exist only for that milestone belong **inside** that todo — not their own Cursor Plan items.
 
@@ -347,12 +346,12 @@ Same for other APIs: start with the thinnest passing path, then add persistence,
 
 Follow the **repo’s real stack**. Typical sequence (skip layers the project doesn’t have):
 
-| Step | Iteration | Do | Verify |
-|------|-----------|-----|--------|
-| 1 | Thin passing path | Controller route/request + service + repo stub/fake; minimal success response | Highest cheap feature/API test green |
-| 2 | Real persistence | Update controller/service/repo/DB together as needed to save the user | Feature/API or integration test proves persistence |
-| 3+ | Business rules | Add validation, duplicate checks, domain rules, errors one rule at a time | Feature/API test proves the rule |
-| last | Full flow | Only if repo uses IT/e2e | IT or HTTP test green |
+| Step | Iteration         | Do                                                                            | Verify                                             |
+| ---- | ----------------- | ----------------------------------------------------------------------------- | -------------------------------------------------- |
+| 1    | Thin passing path | Controller route/request + service + repo stub/fake; minimal success response | Highest cheap feature/API test green               |
+| 2    | Real persistence  | Update controller/service/repo/DB together as needed to save the user         | Feature/API or integration test proves persistence |
+| 3+   | Business rules    | Add validation, duplicate checks, domain rules, errors one rule at a time     | Feature/API test proves the rule                   |
+| last | Full flow         | Only if repo uses IT/e2e                                                      | IT or HTTP test green                              |
 
 Default to the **smallest vertical slice** that proves useful behavior, unless the repo usually does otherwise.
 
@@ -364,36 +363,36 @@ Default to the **smallest vertical slice** that proves useful behavior, unless t
 
 **Register** — each row is one Cursor Plan todo:
 
-| Todo | Verify |
-|------|--------|
-| `[Register] Slice 1: controller -> service -> repo stub returns 201` | First feature/API test green |
-| `[Register] Slice 2: save user to DB` | Feature/API or integration test proves persistence |
-| `[Register] Slice 3: validate request fields` | Feature/API validation tests green |
-| `[Register] Slice 4: reject duplicate email` | Feature/API duplicate-error tests green |
-| `[Register] Slice 5: full registration flow` | IT green if project has IT |
+| Todo                                                                 | Verify                                             |
+| -------------------------------------------------------------------- | -------------------------------------------------- |
+| `[Register] Slice 1: controller -> service -> repo stub returns 201` | First feature/API test green                       |
+| `[Register] Slice 2: save user to DB`                                | Feature/API or integration test proves persistence |
+| `[Register] Slice 3: validate request fields`                        | Feature/API validation tests green                 |
+| `[Register] Slice 4: reject duplicate email`                         | Feature/API duplicate-error tests green            |
+| `[Register] Slice 5: full registration flow`                         | IT green if project has IT                         |
 
 **Get user info** — separate todos:
 
-| Todo | Verify |
-|------|--------|
-| `[GetUser] Slice 1: route -> service -> repo stub returns user` | First feature/API test green |
-| `[GetUser] Slice 2: load user from DB` | Feature/API or integration test proves DB load |
-| `[GetUser] Slice 3: return 404 when missing` | Feature/API not-found tests green |
-| `[GetUser] Slice 4: full get-user flow` | IT if project uses it |
+| Todo                                                            | Verify                                         |
+| --------------------------------------------------------------- | ---------------------------------------------- |
+| `[GetUser] Slice 1: route -> service -> repo stub returns user` | First feature/API test green                   |
+| `[GetUser] Slice 2: load user from DB`                          | Feature/API or integration test proves DB load |
+| `[GetUser] Slice 3: return 404 when missing`                    | Feature/API not-found tests green              |
+| `[GetUser] Slice 4: full get-user flow`                         | IT if project uses it                          |
 
 ### 7. Cursor Plan checklist
 
 Follow [Plan harness](#plan-harness-before-code) phases 0–6. Quick list:
 
-1. Plan mode  
-2. **Quality attributes table** — confirm or N/A with reason  
-3. Feature groups by user-visible behavior  
-4. **Diagram** (component + call flow) — user confirms  
-5. Feature groups aligned with diagram and quality attributes  
-6. **One Cursor todo per small e2e feedback-loop iteration** with `verify:`  
-7. Write vault origin `plan-<slug>.md`; symlink `~/.cursor/plans/*.plan.md` → origin  
-8. **Worktree** from `main`/`master` on `mark/<WORK_NAME>` — [worktree setup](#worktree-setup-phase-6)  
-9. Implement only what the diagram shows — [execution harness](#execution-harness-per-todo) per todo, inside the worktree  
+1. Plan mode
+2. **Quality attributes table** — confirm or N/A with reason
+3. Feature groups by user-visible behavior
+4. **Diagram** (component + call flow) — user confirms
+5. Feature groups aligned with diagram and quality attributes
+6. **One Cursor todo per small e2e feedback-loop iteration** with `verify:`
+7. Write vault origin `plan-<slug>.md`; symlink `~/.cursor/plans/*.plan.md` → origin
+8. **Worktree** from `main`/`master` on `mark/<WORK_NAME>` — [worktree setup](#worktree-setup-phase-6)
+9. Implement only what the diagram shows — [execution harness](#execution-harness-per-todo) per todo, inside the worktree
 
 ### 8. Ask during planning
 
@@ -405,14 +404,14 @@ Ask if unclear: scope, API contract, layer map, mocks, IT in repo, acceptance cr
 
 For each Cursor Plan todo, in order:
 
-| Step | Do | Verify | STOP if |
-|------|-----|--------|---------|
+| Step             | Do                                                                                                | Verify                                                                                                                       | STOP if                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | **0 — Worktree** | Confirm the working directory is `~/workspace/working-place/<WORK_NAME>/<repo-name>` from phase 6 | `pwd` matches the worktree; `git branch --show-current` = `mark/<WORK_NAME>`; upstream is unset or `origin/mark/<WORK_NAME>` | On `main`/`master`, outside the worktree, or upstream names the base branch → STOP; do not edit or push |
-| **1 — Scope** | Confirm todo maps to diagram; list files to touch | Matches one behavior milestone | Scope grew → update diagram and plan first |
-| **2 — Red** | Write or extend failing test (repo style) | Test fails for the right reason | No test and user did not opt out → STOP |
-| **3 — Green** | Minimal code across needed layers | Target test passes | — |
-| **4 — Refactor** | Clean up only if needed; keep tests green | Related tests still pass | Regression → fix before next todo |
-| **5 — Complete** | Mark todo done only after verify | `verify:` line satisfied | — |
+| **1 — Scope**    | Confirm todo maps to diagram; list files to touch                                                 | Matches one behavior milestone                                                                                               | Scope grew → update diagram and plan first                                                              |
+| **2 — Red**      | Write or extend failing test (repo style)                                                         | Test fails for the right reason                                                                                              | No test and user did not opt out → STOP                                                                 |
+| **3 — Green**    | Minimal code across needed layers                                                                 | Target test passes                                                                                                           | —                                                                                                       |
+| **4 — Refactor** | Clean up only if needed; keep tests green                                                         | Related tests still pass                                                                                                     | Regression → fix before next todo                                                                       |
+| **5 — Complete** | Mark todo done only after verify                                                                  | `verify:` line satisfied                                                                                                     | —                                                                                                       |
 
 **Opt out:** user says skip tests — note it in chat; use another verify method if cheap.
 

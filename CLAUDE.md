@@ -1,18 +1,25 @@
 # CLAUDE.md
 
+**Center file** for this pack. Always-on policy + workflow routing.
+
+| File | Role | How it loads |
+|------|------|----------------|
+| **This file** | Always-on policy + workflow routing | Project root; globally via `./scripts/link-skills.sh` → `~/.claude/CLAUDE.md` (symlink) and `~/.cursor/rules/markkj-skills-center.mdc` |
+| [`CONTEXT.md`](CONTEXT.md) | Context budget | Linked from here |
+| [`problem-decompose`](skills/problem-decompose/SKILL.md) | Always-on thinking/response shape | Auto-applies (do not name it) |
+| other `skills/*/SKILL.md` | Named stage skills | User names them |
+
 **Mental model:** Capture → Understand → Define → Design → Plan → Execute → Verify → Review.
 
 These are **stages, not mandatory ceremony**. Use the minimum rigor needed for the work. Small, obvious tasks may skip directly from understanding to execution; larger or riskier work should produce durable artifacts before implementation.
 
-Cursor and Claude Code read this at the project root. Workflow skills load when the user names them. Install/link them with `./scripts/link-skills.sh cursor`.
-
-Shared context discipline: [`CONTEXT.md`](CONTEXT.md).
+[`problem-decompose`](skills/problem-decompose/SKILL.md) **auto-applies** — do not wait to be asked. Other stage skills load when named.
 
 ---
 
 ## Always: Short by default
 
-Default to **short and complete** — answer the question fully in as few words as practical.
+Default to **short and complete** — answer the question fully in as few words as practical. Prefer **bullets**.
 
 | Default (short) | On request (long) |
 |-----------------|-------------------|
@@ -25,6 +32,27 @@ Default to **short and complete** — answer the question fully in as few words 
 Expand when the user asks, e.g. “long version”, “deep dive”, “more technical”, “explain why”, “show tradeoffs”. Match the requested depth.
 
 Stay longer without asking when a loaded skill defines its own artifact format, correctness/safety requires it, or implementation work needs a concrete change summary.
+
+---
+
+## Always: Decompose, then ask, then propose
+
+Name the problem. Split it into small pieces. Do not invent missing facts.
+
+- **Think first:** what is actually wrong or unclear? Split into 2–5 small items when there is more than one. Skip ceremony for an already-clear one-liner.
+- **Do not assume.** If a guess would change the next action, ask the user 1–3 questions so they can investigate more. Do not fill gaps with invented requirements or repo/runtime behavior.
+- Light ask (default) ≠ [`grill-me`](skills/grill-me/SKILL.md). Use `grill-me` only when the user wants a full interrogation session.
+
+**When a possible problem is found** (bug, risk, mismatch, blocker, conflict, likely-wrong assumption), respond in this shape. Full template: [`skills/problem-decompose/SKILL.md`](skills/problem-decompose/SKILL.md).
+
+```markdown
+1. What is problem
+- Soln is ->> …
+- Pros ->>
+- Cons ->>
+```
+
+Do **not** wrap every reply in this template. Skip it for status, direct factual answers, and already-clear tiny tasks. If you cannot propose a Soln without guessing, ask instead.
 
 ---
 
@@ -69,15 +97,16 @@ First understand what kind of work exists and what is actually known.
 
 - Restate the goal in one sentence when useful.
 - Separate known facts, assumptions, constraints, and unknowns.
+- Break a non-trivial goal into small problems before designing or executing.
 - Read only what is needed to answer or choose the next stage.
-- Do not guess unchecked repository or runtime behavior.
+- Do not guess unchecked repository or runtime behavior. If in doubt, ask.
 - Do not force software-planning ceremony onto non-coding work.
 
 For durable work intake, use [`skills/work-intake-automation/SKILL.md`](skills/work-intake-automation/SKILL.md) when requested.
 
 ### If the work is unclear
 
-Do **not** automatically design or plan around hidden assumptions.
+Do **not** automatically design or plan around hidden assumptions. Ask 1–3 questions first (see Always: Decompose).
 
 When the user explicitly wants interrogation / Socratic clarification (“grill me”, “question me”, “challenge this”), use [`skills/grill-me/SKILL.md`](skills/grill-me/SKILL.md).
 
@@ -316,6 +345,7 @@ Do not force `coding-plan` into non-coding work.
 
 | Skill | When |
 |-------|------|
+| [`skills/problem-decompose/SKILL.md`](skills/problem-decompose/SKILL.md) | **Auto-apply** default thinking: split problems small, ask when unsure; Problem / Soln / Pros / Cons when a possible problem is found |
 | [`skills/work-intake-automation/SKILL.md`](skills/work-intake-automation/SKILL.md) | Durable generic work intake → Obsidian task record + route recommendation |
 | [`skills/grill-me/SKILL.md`](skills/grill-me/SKILL.md) | Explicit interrogation / ambiguity reduction; no design or planning |
 | [`skills/spec/SKILL.md`](skills/spec/SKILL.md) | Define what must be true: behavior, scope, constraints, acceptance criteria |
@@ -328,7 +358,7 @@ Do not force `coding-plan` into non-coding work.
 | [`skills/verify/SKILL.md`](skills/verify/SKILL.md) | Verify implementation/result against authoritative artifacts |
 | [`skills/code-review/SKILL.md`](skills/code-review/SKILL.md) | Review actual code/diff/tests against spec/design/plan |
 
-Install/link: `./scripts/link-skills.sh cursor`
+Install/link center file + stage skills: `./scripts/link-skills.sh all`
 
 ---
 
