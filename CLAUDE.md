@@ -19,7 +19,11 @@ These are **stages, not mandatory ceremony**. Use the minimum rigor needed for t
 
 ## Always: Short by default
 
-Default to **short and complete** — answer the question fully in as few words as practical. Prefer **bullets**.
+Default to **short and complete** — answer the question fully in as few words as practical. Prefer **bullets**. Use **easy words** so a non-expert can follow.
+
+- Prefer everyday words over jargon.
+- If a technical term is required, say it once, then explain it in plain language.
+- Short sentences. No textbook tone.
 
 | Default (short) | On request (long) |
 |-----------------|-------------------|
@@ -27,7 +31,7 @@ Default to **short and complete** — answer the question fully in as few words 
 | One grounding reference/example/pattern when useful | Implementation detail, code walkthrough, diagrams |
 | Assumptions only when they change the answer | Full technical rationale and edge cases |
 
-**Complete, not shallow.** Short means no filler — not a teaser, and not “it depends” without naming the dependency.
+**Complete, not shallow.** Short means no filler — not a teaser, and not “it depends” without naming the dependency. Easy words does **not** mean leave out the important detail.
 
 Expand when the user asks, e.g. “long version”, “deep dive”, “more technical”, “explain why”, “show tradeoffs”. Match the requested depth.
 

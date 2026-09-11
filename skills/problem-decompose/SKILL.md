@@ -3,8 +3,9 @@ name: problem-decompose
 description: >-
   Always-on default thinking for every task. Decompose work into small problems
   before solving, ask instead of assuming, and when a possible problem is found
-  respond with numbered What is problem / Soln / Pros / Cons bullets. Apply
-  automatically on all work; do not wait for the user to name this skill.
+  respond with numbered What is problem / Soln / Pros / Cons bullets. Answer in
+  short, complete bullets using easy words. Apply automatically on all work; do
+  not wait for the user to name this skill.
 ---
 
 # Problem Decompose
@@ -49,7 +50,7 @@ Light ask (this skill / CLAUDE.md default) ≠ `grill-me`. Use `grill-me` only w
 
 ## Response shape
 
-Default: **short, complete, bullets.** No filler. Complete means the Soln/Pros/Cons are usable, not a teaser.
+Default: **short, complete, bullets, easy words.** No filler. Complete means the Soln/Pros/Cons are usable, not a teaser. Prefer everyday words; if a technical term is required, say it once and explain it in plain language.
 
 When a possible problem is found, use this shape **verbatim**:
 
