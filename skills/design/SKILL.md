@@ -21,14 +21,14 @@ A design defines **how the spec should be satisfied**. It is not the executable 
 | **2 — Options** | Consider viable approaches and tradeoffs; reject unnecessary complexity | Chosen approach has rationale | Critical decision unresolved |
 | **3 — Design** | Define components, contracts, flows, failures, observability, compatibility, rollout | Design traces to spec/acceptance criteria | Design cannot satisfy a requirement |
 | **4 — Diagram** | Add Mermaid component/call/data-flow diagrams where useful | Diagram matches written design | Diagram contradicts prose |
-| **5 — Persist** | Write new `design-<slug>.md` in task folder; never overwrite by default | Read-back verified | Vault unavailable/write fails |
-| **6 — Handoff** | Recommend `design-review` or planning | Next stage stated | — |
+| **5 — Persist** | Write new `design-<slug>.md` in task folder; never overwrite by default. No `status` on the design | Read-back verified | Vault unavailable/write fails |
+| **6 — Ledger** | Add the design path to the task **Designs** / **Active design** / execution log | Task points to current design; only the task has work status | Task update fails |
+| **7 — Handoff** | Recommend `design-review` or planning | Next stage stated | — |
 
 ## Design template
 
 ```markdown
 ---
-status: Draft | Reviewed | Approved | Superseded
 artifact: design
 date: YYYY-MM-DD
 task: <vault-relative task path>
@@ -77,6 +77,8 @@ flowchart LR
 ```
 
 Implementation ordering, file-level todos, and test-first steps belong in `coding-plan`.
+
+Do **not** put `status` on the design. Work status and which design is current live on `task-*.md` (**Active design** + execution log).
 
 ## Context Budget
 

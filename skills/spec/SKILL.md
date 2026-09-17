@@ -20,7 +20,7 @@ A spec defines **what should be true**, not how to implement it.
 | **1 — Load** | Read task + relevant discussion; list assumptions/open questions | Goal and source facts captured | — |
 | **2 — Readiness** | Confirm behavior/scope are clear enough; use `grill-me` first when not | No blocking ambiguity | Blocking requirement unknown |
 | **3 — Write** | Create a new `spec-<slug>.md`; never overwrite an existing spec | File exists and reads back correctly | Write cannot be verified |
-| **4 — Ledger** | Add the spec path to the task artifact index / execution log | Task points to current spec | Task update fails |
+| **4 — Ledger** | Add the spec path to the task **Specs** / **Active spec** / execution log. Do **not** put `status` on the spec | Task points to current spec; only the task has work status | Task update fails |
 | **5 — Handoff** | Recommend `spec-review`, `design`, or execution depending on complexity | Next stage stated | — |
 
 ## File location
@@ -37,7 +37,6 @@ On collision use `spec-<slug>-2.md`, `-3`, … — never overwrite unless the us
 
 ```markdown
 ---
-status: Draft | Reviewed | Approved | Superseded
 artifact: spec
 date: YYYY-MM-DD
 task: <vault-relative task path>
@@ -76,6 +75,8 @@ task: <vault-relative task path>
 ## Boundary
 
 Do not choose components, APIs, schema, algorithms, or implementation steps unless they are already fixed requirements. Those belong in `design` or `coding-plan`.
+
+Do **not** put `status` on the spec. Work status and which spec is current live on `task-*.md` (**Active spec** + execution log).
 
 ## Context Budget
 

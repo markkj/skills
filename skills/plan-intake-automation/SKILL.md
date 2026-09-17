@@ -221,7 +221,6 @@ Use this for the Obsidian task folder plan.
 ## Source
 
 - **Task:** `Projects/<PROJECT_NAME>/<WORK_ID>/{{task-generate-name}}.md`
-- **Status:** Planned
 - **Planning owner:** <user or agent>
 - **Execution owner:** <user or agent>
 
@@ -364,6 +363,7 @@ ADR template:
 - Do not create a new `{{task-generate-name}}.md`; this skill starts from an existing one.
 - Do not execute implementation work while planning.
 - Keep `{{task-generate-name}}.md` as status/source/path ledger; keep executable todos in plan files. One task may have **many** plans; track them under **Plans** and **Active plan**.
+- Do **not** put work `status` on plan / spec / design / grill-me docs. The only work-status field is `status:` on the task file. Cursor todo YAML `status: pending` is todo progress, not document lifecycle.
 - For Cursor plans: each plan has one vault origin; its `~/.cursor/plans/<slug>_<short-id>.plan.md` must be a symlink to that origin — never duplicate plan content.
 - Never overwrite an existing plan file or Cursor symlink; mint a unique name and append to **Plans** ([Unique plan names](#unique-plan-names-never-overwrite)).
 - Update `{{task-generate-name}}.md` after each new plan so future sessions see the full list and the active plan.

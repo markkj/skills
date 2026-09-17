@@ -105,6 +105,7 @@ First understand what kind of work exists and what is actually known.
 - Read only what is needed to answer or choose the next stage.
 - Do not guess unchecked repository or runtime behavior. If in doubt, ask.
 - Do not force software-planning ceremony onto non-coding work.
+- Work **status** lives only on `task-*.md`. spec / design / plan / grill-me / review docs have no `status` field.
 
 For durable work intake, use [`skills/work-intake-automation/SKILL.md`](skills/work-intake-automation/SKILL.md) when requested.
 

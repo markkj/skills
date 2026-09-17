@@ -123,6 +123,8 @@ Do not create planning or discussion files during intake.
 
 `{{task-generate-name}}.md` stores the durable work record and status, not the todo list. Keep task facts current during execution; put executable todos only in plan files (a task may have many; use **Active plan**). Store task properties in Obsidian YAML frontmatter.
 
+**Only the task file has work `status`.** Do not put `status` on spec, design, plan, grill-me, or review docs. Which artifact is current is the **Active spec / Active design / Active plan / Clarify** pointers plus the execution log.
+
 ```markdown
 ---
 status: Intake | Planned | In Progress | Blocked | Done | Cancelled
@@ -156,6 +158,8 @@ owner: <person or agent>
 - **Plans:** (one task may have **many** plans; list grows over time)
   - *(none yet — optional; created by `plan-intake-automation`)*
 - **Active plan:** *(none)*
+- **Clarify / grill-me:**
+  - *(none yet — optional; created by `grill-me`)*
 - **Discussion folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
 
 ## Goal
@@ -202,6 +206,7 @@ This skill creates the durable task record and records where later artifacts may
 - **Specs:** `spec-<short-slug>.md`, `spec-<short-slug>-2.md`, ...
 - **Designs:** `design-<short-slug>.md`, `design-<short-slug>-2.md`, ...
 - **Plans:** `plan-<short-slug>.md`, `plan-<short-slug>-2.md`, ...
+- **Clarify:** `discussion/grill-me-<slug>.md` (optional; no `status` field)
 - **Discussion folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
 - **Cursor plan path(s):** each Cursor-linked plan gets its own `~/.cursor/plans/<slug>_<short-id>.plan.md` symlink → that vault origin
 
