@@ -36,7 +36,7 @@
 
 ## Open Questions / Blockers
 
-- <only unresolved items>
+- See `discussion/questions-*.md` (user fills each **A:**) or none.
 
 ## Verification Signals
 

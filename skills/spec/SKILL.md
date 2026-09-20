@@ -18,8 +18,8 @@ A spec defines **what should be true**, not how to implement it.
 |---|---|---|---|
 | **0 — Preconditions** | Locate the task folder/task file via `$OBSIDIAN_BASE_VAULT_PATH` when one exists | Source facts readable | Required vault path is unavailable |
 | **1 — Load** | Read task + relevant discussion; list assumptions/open questions | Goal and source facts captured | — |
-| **2 — Readiness** | Confirm behavior/scope are clear enough; use `grill-me` first when not | No blocking ambiguity | Blocking requirement unknown |
-| **3 — Write** | Create a new `spec-<slug>.md`; never overwrite an existing spec | File exists and reads back correctly | Write cannot be verified |
+| **2 — Readiness** | Confirm behavior/scope are clear enough; use `grill-me` first when not. If blocking questions remain, write `discussion/questions-spec-<slug>.md` (user fills **A:**) | Blockers are in the questions file (or none remain) | Cannot write the questions file |
+| **3 — Write** | Create a new `spec-<slug>.md`; never overwrite an existing spec. Point **Open questions** at the discussion file — do not put fill-in answers in the spec | File exists and reads back correctly | Write cannot be verified |
 | **4 — Ledger** | Add the spec path to the task **Specs** / **Active spec** / execution log. Do **not** put `status` on the spec | Task points to current spec; only the task has work status | Task update fails |
 | **5 — Handoff** | Recommend `spec-review`, `design`, or execution depending on complexity | Next stage stated | — |
 
@@ -69,7 +69,7 @@ task: <vault-relative task path>
 - <Assumption being accepted>
 
 ## Open Questions
-- <None | unresolved question>
+- *(none)* **or** `discussion/questions-spec-<slug>.md` — fill each **A:** line
 ```
 
 ## Boundary
@@ -77,6 +77,8 @@ task: <vault-relative task path>
 Do not choose components, APIs, schema, algorithms, or implementation steps unless they are already fixed requirements. Those belong in `design` or `coding-plan`.
 
 Do **not** put `status` on the spec. Work status and which spec is current live on `task-*.md` (**Active spec** + execution log).
+
+Blocking questions belong in `discussion/questions-spec-<slug>.md` (fill **A:**), not as a hard-to-edit list in the spec body. List that file on the task **Open questions**.
 
 ## Context Budget
 

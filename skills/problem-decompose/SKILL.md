@@ -38,6 +38,8 @@ Do **not** use it for:
 
 If evidence is missing, ask the user **1–3** questions so they can investigate more. Do not invent requirements, repo behavior, or runtime facts.
 
+When a named flow skill is running, also write those questions to `discussion/questions-<stage>-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md). The user types each answer on the **`A:`** line.
+
 Ask when:
 
 - two readings would produce different work

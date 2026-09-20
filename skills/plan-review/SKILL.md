@@ -27,7 +27,7 @@ Check:
 
 Return findings and verdict: `READY TO EXECUTE`, `READY WITH CHANGES`, or `NOT READY`.
 
-When persisted, write `discussion/plan-review-<slug>.md`. Do **not** put `status` on the plan or the review file. Log the verdict on `task-*.md`.
+When persisted, write `discussion/plan-review-<slug>.md`. If the user must answer anything, also write `discussion/questions-plan-review-<slug>.md` (**A:** line). Do **not** put `status` on the plan or the review file. Log the verdict on `task-*.md`.
 
 ## Context Budget
 

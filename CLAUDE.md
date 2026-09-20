@@ -47,6 +47,8 @@ Name the problem. Split it into small pieces. Do not invent missing facts.
 - **Do not assume.** If a guess would change the next action, ask the user 1–3 questions so they can investigate more. Do not fill gaps with invented requirements or repo/runtime behavior.
 - Light ask (default) ≠ [`grill-me`](skills/grill-me/SKILL.md). Use `grill-me` only when the user wants a full interrogation session.
 
+**Open questions go in `discussion/`.** Ask 1–3 in chat, and write the same questions to `discussion/questions-<stage>-<slug>.md` using [`templates/open-questions.md`](templates/open-questions.md). The user types each answer on the **`A:`** line. Do not bury fill-in answers inside spec / design / plan / task body. Do not invent answers. STOP the next stage until answers are filled or the user says proceed.
+
 **When a possible problem is found** (bug, risk, mismatch, blocker, conflict, likely-wrong assumption), respond in this shape. Full template: [`skills/problem-decompose/SKILL.md`](skills/problem-decompose/SKILL.md).
 
 ```markdown
@@ -106,6 +108,7 @@ First understand what kind of work exists and what is actually known.
 - Do not guess unchecked repository or runtime behavior. If in doubt, ask.
 - Do not force software-planning ceremony onto non-coding work.
 - Work **status** lives only on `task-*.md`. spec / design / plan / grill-me / review docs have no `status` field.
+- Open questions to fill live in `discussion/questions-*.md` (the **A:** line).
 
 For durable work intake, use [`skills/work-intake-automation/SKILL.md`](skills/work-intake-automation/SKILL.md) when requested.
 

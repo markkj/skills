@@ -73,12 +73,18 @@ flowchart LR
 - <option + why not>
 
 ## Open Decisions
-- <none | decision>
+- <none | decision already chosen>
+
+## Open Questions
+See `discussion/questions-design-<slug>.md` — fill each **A:** line. Template: [`templates/open-questions.md`](../../templates/open-questions.md).
+*(none)*
 ```
 
 Implementation ordering, file-level todos, and test-first steps belong in `coding-plan`.
 
 Do **not** put `status` on the design. Work status and which design is current live on `task-*.md` (**Active design** + execution log).
+
+Questions the user must answer go in `discussion/questions-design-<slug>.md` (fill **A:**), not as a buried list in the design. List that file on the task **Open questions**.
 
 ## Context Budget
 

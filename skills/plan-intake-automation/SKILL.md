@@ -19,7 +19,7 @@ Use this skill only after a task record exists. Inputs are `{{task-generate-name
 |-------|-----|--------|---------|
 | **0 — Preconditions** | User named this skill; locate `{{task-generate-name}}.md` via `$OBSIDIAN_BASE_VAULT_PATH` + vault-relative path | File exists and is readable | No task file or env unset → tell user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first |
 | **1 — Load** | Read task file; load **Active spec** and **Active design** when present; restate goal/criteria/constraints; list existing **Plans** + **Active plan** | Inputs are internally consistent and gaps listed | — |
-| **2 — Planning readiness** | Check whether enough decisions exist to create executable todos. If requirements are unclear → hand off to `grill-me` / `spec`; if solution architecture is unresolved and needed → hand off to `design`. If plans already exist, confirm add-new vs explicit revision. | No implementation-critical ambiguity remains | Missing requirement/design decision → STOP; do not bury it inside the plan |
+| **2 — Planning readiness** | Check whether enough decisions exist to create executable todos. If requirements are unclear → hand off to `grill-me` / `spec`; if solution architecture is unresolved and needed → hand off to `design`. Write remaining blockers to `discussion/questions-plan-<slug>.md`. If plans already exist, confirm add-new vs explicit revision. | No implementation-critical ambiguity remains, or blockers are in the questions file | Missing requirement/design decision with no questions file → STOP; do not bury it inside the plan |
 | **3 — Artifact choice** | Pick one primary output: Obsidian-only plan, Cursor plan (+ symlink), or discussion doc only | Choice matches execution owner in task file or user stated preference | Ambiguous and user did not choose → ask; STOP until chosen |
 | **4 — Write** | Create a **new** plan at vault origin via `$OBSIDIAN_BASE_VAULT_PATH`; on name collision use [unique plan names](#unique-plan-names-never-overwrite) | New artifact exists; prior plans untouched; no literal `{{…}}` in filenames | `$OBSIDIAN_BASE_VAULT_PATH` unset or write failed → STOP |
 | **5 — Link** (Cursor only) | Symlink a **new** `~/.cursor/plans/<slug>_<short-id>.plan.md` → this vault origin | `readlink` + `realpath` show same file | Symlink wrong or Cursor path is a duplicate copy → fix or STOP |
@@ -231,7 +231,7 @@ Use this for the Obsidian task folder plan.
 ## Assumptions and Unknowns
 
 - **Assumption:** <Known working assumption>
-- **Unknown:** <Question or dependency>
+- **Open questions:** See `discussion/questions-plan-<slug>.md` — fill each **A:** line. *(none)*
 
 ## Approach
 
@@ -330,6 +330,7 @@ If the user did not request a coding plan, use the templates above without codin
 
 Use `discussion/` for material that supports the plan but is not the work queue:
 
+- `discussion/questions-plan-<slug>.md` when the user must answer blockers (fill **A:**). Template: [`templates/open-questions.md`](../../templates/open-questions.md).
 - `discussion/notes.md` for research notes or copied source context.
 - `discussion/adr-0001-<decision>.md` when there are real tradeoffs.
 

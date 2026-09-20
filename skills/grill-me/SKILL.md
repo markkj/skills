@@ -40,9 +40,9 @@ It must **not**:
 |---|---|---|---|
 | **0 — Load context** | Read the task/spec/context the user names | Goal and known facts identified | Source/context cannot be located |
 | **1 — Find uncertainty** | Separate known facts, assumptions, unknowns, decisions | No important uncertainty is hidden inside prose | — |
-| **2 — Grill** | Ask focused questions, 1–3 at a time; follow answers rather than a fixed script | Blocking unknowns are resolved or explicitly accepted as assumptions | User cannot answer a critical blocker |
+| **2 — Grill** | Ask focused questions, 1–3 at a time; write unanswered ones to `discussion/questions-grill-me-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md) | Blocking unknowns are resolved, accepted, or recorded for the user to fill **A:** | User cannot answer a critical blocker |
 | **3 — Synthesize** | Restate clarified goal, scope, criteria, constraints, remaining assumptions | User agrees or corrects the synthesis | User rejects synthesis → continue phase 2 |
-| **4 — Ledger** | If a task file exists: append the execution log; optional `discussion/grill-me-<slug>.md` with **no** `status` field; list it under **Clarify** on the task | Task is the status ledger | Task update fails |
+| **4 — Ledger** | If a task file exists: append the execution log; list the questions file under **Open questions** / **Clarify**; no `status` on the discussion file | Task is the status ledger | Task update fails |
 | **5 — Handoff** | Recommend the next artifact: direct execution, `spec`, `design`, research, or planning | Next stage matches the work | — |
 
 ## Question lenses
@@ -79,4 +79,4 @@ clear coding task             -> plan-intake-automation / coding-plan when plann
 
 **Avoid loading:** whole repo scans, implementation details unrelated to ambiguity, archived discussions/plans.
 
-**Context update:** create or rewrite `context.md` when clarification produces stable facts, constraints, decisions, or unresolved questions. Do not copy the Q&A transcript. If a task file exists, also update that task — not a status field on a grill-me doc. See [`../../CONTEXT.md`](../../CONTEXT.md).
+**Context update:** create or rewrite `context.md` when clarification produces stable facts, constraints, decisions, or unresolved questions. Do not copy the Q&A transcript. Unanswered questions live in `discussion/questions-grill-me-*.md` (fill **A:**). If a task file exists, list that path on the task. See [`../../CONTEXT.md`](../../CONTEXT.md).

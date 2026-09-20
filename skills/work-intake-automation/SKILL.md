@@ -19,13 +19,13 @@ Use this skill when work starts outside the agent and must become a durable task
 |-------|-----|--------|---------|
 | **0 — Preconditions** | User named this skill; identify source type (Jira, typed request, other) | Source type and raw input captured | User did not name skill → do not run intake |
 | **1 — Restate** | Restate goal, assumptions, unknowns in chat | Matches user intent; unknowns listed | — |
-| **2 — Clarify** | If facts insufficient for a useful task record, ask **1–3** focused questions | User answered or said proceed with stated assumptions | Critical gap unresolved → STOP; do not write task file |
+| **2 — Clarify** | If facts insufficient, ask **1–3** questions in chat **and** write `discussion/questions-intake-<slug>.md` from [`templates/open-questions.md`](../../templates/open-questions.md) | User can fill each **A:** line, or questions are recorded | Vault path unknown → STOP; do not invent answers |
 | **3 — Paths** | Choose `work-id`, `PROJECT_NAME`, generate `task-<slug>.md` and future `plan-<slug>.md` paths | No literal `{{…}}` in filenames; paths follow [filename rules](#filename-generation) | Cannot infer project and user did not specify → ask |
 | **4 — Roles** | Record intake, planning, execution, discussion owners in task template | Roles filled or marked TBD | — |
-| **5 — Write** | Create task folder; write **only** `{{task-generate-name}}.md` to vault via `$OBSIDIAN_BASE_VAULT_PATH` | Read-back shows file at vault-relative path | `$OBSIDIAN_BASE_VAULT_PATH` unset or write unverified → **STOP** |
+| **5 — Write** | Create task folder; write `{{task-generate-name}}.md`; if blocking questions exist, also write the questions file under `discussion/` | Read-back shows task (and questions file if any) | `$OBSIDIAN_BASE_VAULT_PATH` unset or write unverified → **STOP** |
 | **6 — Handoff** | Emit [completion report](#completion-report) | User can find task file and future plan paths | — |
 
-**Forbidden during any phase:** create plan files, `~/.cursor/plans/*.plan.md`, `discussion/`, notes, ADRs, or product code. Do not assume planning is next. If the task is unclear, recommend `grill-me`; if it needs a durable behavior contract, recommend `spec`; if it needs solution architecture, recommend `design`; if an executable plan is needed, recommend [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
+**Forbidden during any phase:** create plan files, `~/.cursor/plans/*.plan.md`, notes, ADRs, or product code. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Do not assume planning is next. If the task is unclear, recommend `grill-me`; if it needs a durable behavior contract, recommend `spec`; if it needs solution architecture, recommend `design`; if an executable plan is needed, recommend [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
 
 ## Completion report
 
@@ -39,7 +39,7 @@ After phase 6, output this block in chat:
 - **Status:** Intake
 - **Task folder (plans live here):** `<vault-relative folder>` — many `plan-*.md` allowed later
 - **Future discussion:** `<vault-relative discussion folder>`
-- **Blockers:** <none | list>
+- **Blockers:** <none | path to `discussion/questions-intake-*.md`>
 - **Next:** Choose the smallest needed next stage: direct execution, `grill-me`, `spec`, `design`, research/investigation, or `plan-intake-automation` when an executable plan is needed.
 ```
 
@@ -90,7 +90,7 @@ Follow [Harness phases](#harness-phases). Details per phase:
    - **Execution owner:** user | Cursor | Claude Code | Codex | Other | TBD.
    - **Discussion owner:** user | Claude Code | Cursor | Other | TBD.
 
-**Phase 2 — Clarify:** If the request lacks enough facts for a useful task record, ask 1-3 focused questions before writing `{{task-generate-name}}.md`.
+**Phase 2 — Clarify:** If the request lacks enough facts, ask 1–3 questions in chat **and** write `discussion/questions-intake-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md). The user fills each **`A:`** line. List the file under **Open questions** on the task. Write the task when the vault path is known. Do not invent answers.
 
 **Phase 3 — Paths:**
 
@@ -98,7 +98,7 @@ Follow [Harness phases](#harness-phases). Details per phase:
 - **Filenames:** generate `task-<slug>.md` and future `plan-<slug>.md` per [filename rules](#filename-generation).
 - **Folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/` — infer `<PROJECT_NAME>` from, in order: `--project`, `TASK_PROJECT`, git repo root name, current directory name.
 
-**Phase 5 — Write:** create folder and task file only. Record future plan and discussion paths in the task file. Do not create plan, `~/.cursor/plans/*.plan.md`, `discussion/`, notes, or ADRs.
+**Phase 5 — Write:** create folder and task file. If there are blocking questions, also write `discussion/questions-intake-<slug>.md`. Do not create plan, spec, design, Cursor plan, notes, or ADRs.
 
 ## Obsidian Vault Writes
 
@@ -117,7 +117,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 └── {{task-generate-name}}.md
 ```
 
-Do not create planning or discussion files during intake.
+Do not create planning files, Cursor plans, notes, or ADRs during intake. A questions file under `discussion/` is allowed.
 
 ## `{{task-generate-name}}.md`
 
@@ -160,6 +160,8 @@ owner: <person or agent>
 - **Active plan:** *(none)*
 - **Clarify / grill-me:**
   - *(none yet — optional; created by `grill-me`)*
+- **Open questions:**
+  - *(none yet — optional; `discussion/questions-<stage>-<slug>.md`)*
 - **Discussion folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
 
 ## Goal
@@ -207,6 +209,7 @@ This skill creates the durable task record and records where later artifacts may
 - **Designs:** `design-<short-slug>.md`, `design-<short-slug>-2.md`, ...
 - **Plans:** `plan-<short-slug>.md`, `plan-<short-slug>-2.md`, ...
 - **Clarify:** `discussion/grill-me-<slug>.md` (optional; no `status` field)
+- **Open questions:** `discussion/questions-<stage>-<slug>.md` — user fills each **A:** line; template: [`templates/open-questions.md`](../../templates/open-questions.md)
 - **Discussion folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
 - **Cursor plan path(s):** each Cursor-linked plan gets its own `~/.cursor/plans/<slug>_<short-id>.plan.md` symlink → that vault origin
 
@@ -215,7 +218,7 @@ This skill creates the durable task record and records where later artifacts may
 - Before writing `{{task-generate-name}}.md`, restate the current goal, assumptions, and unknowns.
 - Treat `{{task-generate-name}}.md` as the task brief/status ledger and path index.
 - Do not put checkboxes or implementation todos in `{{task-generate-name}}.md`; acceptance criteria there are descriptive criteria, not progress tracking.
-- Do not create spec, design, plan, Cursor plan, discussion, note, ADR, or product-code artifacts during intake. Intake captures and routes only. Later skills remain explicit opt-in.
+- Do not create spec, design, plan, Cursor plan, note, ADR, or product-code artifacts during intake. Intake captures and routes only. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Later skills remain explicit opt-in.
 - Update `{{task-generate-name}}.md` whenever status changes, a blocker appears, task facts change, or completion evidence should be logged.
 - Keep Obsidian docs concise: facts, decisions, status, path pointers, and verification evidence.
 

@@ -25,7 +25,7 @@ Review:
 
 Return severity-tagged findings and verdict: `READY`, `READY WITH CHANGES`, or `NOT READY`.
 
-When persisted, write `discussion/design-review-<slug>.md` in the task folder. Do **not** put `status` on the design or the review file. Log the verdict on `task-*.md`. Do not silently rewrite the design.
+When persisted, write `discussion/design-review-<slug>.md` in the task folder. If the user must answer anything, also write `discussion/questions-design-review-<slug>.md` (**A:** line). Do **not** put `status` on the design or the review file. Log the verdict on `task-*.md`. Do not silently rewrite the design.
 
 ## Context Budget
 

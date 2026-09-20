@@ -22,7 +22,7 @@ Create it lazily when the first clarification/spec/design/planning/review stage 
 4. **Artifacts beat summaries.** When a detail matters for correctness, read the authoritative spec/design/plan rather than trusting a summary.
 5. **Keep the cache bounded.** Target `context.md` at <= ~1,200 words. Replace stale detail; do not append forever.
 6. **Link, don't duplicate.** Record artifact paths and file/symbol references instead of copying large bodies.
-7. **Preserve unresolved items.** Open questions and blockers stay until resolved, then collapse them into a decision/fact or remove them.
+7. **Preserve unresolved items.** Open questions live in `discussion/questions-*.md` (user fills **A:**). `context.md` only links that path. When resolved, collapse them into a decision/fact or remove them.
 8. **No hidden decisions.** Any durable product/architecture decision belongs in spec/design/plan/ADR; `context.md` may summarize it but must not be its only record.
 
 ## Loading order

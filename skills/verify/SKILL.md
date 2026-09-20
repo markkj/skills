@@ -25,7 +25,7 @@ Also verify relevant quality attributes, compatibility, failure cases, migration
 
 Never equate `tests exited 0` with task completion unless tests cover every acceptance criterion.
 
-If persisted, append concise evidence to the task **Execution Log** and/or write `discussion/verification-<slug>.md` when details are large.
+If persisted, append concise evidence to the task **Execution Log** and/or write `discussion/verification-<slug>.md` when details are large. Gaps that need a user call go in `discussion/questions-verify-<slug>.md` (**A:** line).
 
 ## Context Budget
 

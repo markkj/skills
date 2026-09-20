@@ -218,7 +218,7 @@ Discover what the repo uses, then mirror it:
 - **Levels:** unit, integration, e2e — use what similar features use.
 - **Style:** same framework, mocks, fixtures, and run commands as peers.
 
-**Not sure** — look at 1–2 similar features, then **ask**.
+**Not sure** — look at 1–2 similar features, then **ask**. If the answer must be durable, write `discussion/questions-plan-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md) (user fills **A:**).
 
 ---
 

@@ -25,7 +25,7 @@ Check:
 
 Output findings by severity: `BLOCKER`, `IMPORTANT`, `NIT`, then a verdict: `READY`, `READY WITH ASSUMPTIONS`, or `NOT READY`.
 
-When the user asks to persist the review, write `discussion/spec-review-<slug>.md` under the existing task folder and reference the reviewed spec. Do **not** put `status` on the spec or the review file. Log the verdict on `task-*.md` (execution log). Do not overwrite the spec unless explicitly asked to revise it.
+When the user asks to persist the review, write `discussion/spec-review-<slug>.md` under the existing task folder and reference the reviewed spec. If the user must answer anything, also write `discussion/questions-spec-review-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md) (**A:** line). Do **not** put `status` on the spec or the review file. Log the verdict on `task-*.md` (execution log). Do not overwrite the spec unless explicitly asked to revise it.
 
 ## Context Budget
 
