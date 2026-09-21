@@ -38,7 +38,7 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 | **2 — Quality attributes** | Fill [quality attributes table](#quality-attributes-block-required-in-plan-output)                                                                                                                                                                                                                                  | All three rows filled or N/A with reason                                                                       | Blank row → STOP; no diagram yet                                                                                                                |
 | **3 — Feature map**        | Name user-visible behaviors; group features                                                                                                                                                                                                                                                                         | Behaviors trace to acceptance criteria                                                                         | Cannot trace to criteria → back to readiness                                                                                                    |
 | **4 — Diagram**            | Mermaid component + call flow per feature group                                                                                                                                                                                                                                                                     | User confirms diagram                                                                                          | User objects or diagram incomplete → revise; STOP before todos                                                                                  |
-| **5 — Todos**              | One Cursor Plan todo per small e2e iteration; each has `verify:`                                                                                                                                                                                                                                                    | Todo count matches iteration outline                                                                           | Layer-only or file-only todos → fix before implement                                                                                            |
+| **5 — Todos**              | One Cursor Plan todo per small e2e iteration; each has `verify:`. **Last todo is always** Manual test & verify (not a code slice) | Slice count + 1 last verify todo; last title contains `Manual test & verify` | Layer-only todos, or last todo is another slice → fix before implement |
 | **6 — Cursor Plan**        | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin                                                                                                                                        | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite                                   | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement                                                         |
 | **7 — Worktree**           | Resolve `WORK_NAME` (`<WORK_ID>_<TASK_SLUG>`, or slug alone with no `WORK_ID`); for each repo the work touches, add a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>` from local `main`/`master` on branch `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-7) | Worktree path exists per repo; `git branch --show-current` = `mark/<WORK_NAME>`; no upstream on the new branch | No `TASK_SLUG`, dirty base repo, branch/worktree name taken, upstream points at `main`/`master`, or not a git repo → ask; STOP before implement |
 
@@ -327,7 +327,14 @@ sequenceDiagram
 | Feature group       | One API/capability                                             | Chat outline only             |
 | Small e2e iteration | One thin behavior feedback loop that may touch multiple layers | **One Cursor Plan todo each** |
 
-**Critical:** 5 small e2e iterations in outline → **5 Cursor Plan todos**. Do not nest multiple iterations in one todo.
+**Critical:** 5 small e2e iterations in outline → **5 slice todos + 1 last `Manual test & verify`**. Do not nest multiple iterations in one todo. Do not skip the last todo.
+
+**Last todo (required):** After every code slice, add **one** closing todo for the whole plan:
+
+- Title: `Manual test & verify` (optional `[Feature]` prefix).
+- This is **not** a coding slice. No new production code unless a bug showed up in the manual path.
+- `verify:` lists the real user path (UI clicks or HTTP as a person would) and each acceptance criterion.
+- Mark done only after that path actually ran and the criteria held. Automated tests green is not enough.
 
 **Do not split by layer by default.** If the same feature milestone needs controller + service, put them in the **same todo**. Add repository/DB in that same todo too when needed to make that milestone pass.
 
@@ -352,6 +359,7 @@ Only split controller, service, repository, or DB into separate todos when they 
 
 - **Good (one todo):** `[Register] Slice 1: controller -> service -> repo stub returns 201` — create the controller API, service, repo interface/stub, request/response types, and tests needed to make the first API path pass.
 - **Good (next todo):** `[Register] Slice 2: save user to DB` — update controller/service/repo only as needed to persist through the real DB and verify with repo/IT coverage.
+- **Good (last todo):** `Manual test & verify` — register a user in the real app/API and check acceptance criteria. Not a code slice.
 - **Bad (over-split):** todo 1 `CreateUserRequest` · todo 2 `UserController` · todo 3 `UserService` · todo 4 `UserRepository`
 
 Same for other APIs: start with the thinnest passing path, then add persistence, validation, error cases, and integration coverage as separate small e2e iterations.
@@ -394,6 +402,12 @@ Default to the **smallest vertical slice** that proves useful behavior, unless t
 | `[GetUser] Slice 3: return 404 when missing`                    | Feature/API not-found tests green              |
 | `[GetUser] Slice 4: full get-user flow`                         | IT if project uses it                          |
 
+**Last todo (whole plan, required):**
+
+| Todo                     | Verify                                                          |
+| ------------------------ | --------------------------------------------------------------- |
+| `Manual test & verify`   | Real register + get-user path works; acceptance criteria hold |
+
 ### 7. Cursor Plan checklist
 
 Follow [Plan harness](#plan-harness-before-code) phases 0–7. Quick list:
@@ -404,7 +418,7 @@ Follow [Plan harness](#plan-harness-before-code) phases 0–7. Quick list:
 4. Feature groups by user-visible behavior
 5. **Diagram** (component + call flow) — user confirms
 6. Feature groups aligned with diagram and quality attributes
-7. **One Cursor todo per small e2e feedback-loop iteration** with `verify:`
+7. **One Cursor todo per small e2e feedback-loop iteration** with `verify:`, then **one last `Manual test & verify`**
 8. Write vault origin `plan-<slug>.md`; symlink `~/.cursor/plans/*.plan.md` → origin
 9. **Worktree** from `main`/`master` on `mark/<WORK_NAME>` — [worktree setup](#worktree-setup-phase-7)
 10. Implement only what the diagram shows — [execution harness](#execution-harness-per-todo) per todo, inside the worktree
@@ -428,7 +442,9 @@ For each Cursor Plan todo, in order:
 | **4 — Refactor** | Clean up only if needed; keep tests green                                                         | Related tests still pass                                                                                                     | Regression → fix before next todo                                                                       |
 | **5 — Complete** | Mark todo done only after verify                                                                  | `verify:` line satisfied                                                                                                     | —                                                                                                       |
 
-**Opt out:** user says skip tests — note it in chat; use another verify method if cheap.
+**Last todo — `Manual test & verify`:** Skip red/green coding. Walk the real user path (UI or HTTP as a person would). Check every acceptance criterion. Do not mark complete because unit tests passed. If a bug shows up, stop, fix it (new failing test if behavior), then re-run this todo.
+
+**Opt out:** user says skip tests — note it in chat; use another verify method if cheap. The last `Manual test & verify` todo is still required unless the user explicitly skips it too.
 
 ---
 
@@ -455,7 +471,7 @@ Skip formal plan and diagram; verify if cheap.
 
 ---
 
-**Working well if:** plan harness phases 0–7 done (readiness passed), quality attributes table filled, diagram confirmed, work happens in a `mark/<WORK_NAME>` worktree off `main`/`master`, code matches call flow, each small e2e iteration is its own Cursor todo with verify, execution harness completed per todo.
+**Working well if:** plan harness phases 0–7 done (readiness passed), quality attributes table filled, diagram confirmed, last Cursor todo is `Manual test & verify`, work happens in a `mark/<WORK_NAME>` worktree off `main`/`master`, code matches call flow, each small e2e iteration is its own Cursor todo with verify, execution harness completed per todo.
 
 ## Context Budget
 

@@ -234,6 +234,7 @@ A coding plan should:
 - **STOP** if the work is still ambiguous (same gate as plan-intake),
 - use small end-to-end outcomes,
 - include verification with each outcome,
+- end with a last Cursor todo `Manual test & verify` (real user path, not tests-green-only),
 - preserve the existing git worktree / branch conventions defined by the skill,
 - prefer the simplest approach consistent with the approved design,
 - avoid reopening settled decisions unless new evidence invalidates them.
