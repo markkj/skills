@@ -25,9 +25,13 @@ Check:
 - repo/worktree assumptions are correct
 - no implementation-critical decision is left vague
 
-Return findings and verdict: `READY TO EXECUTE`, `READY WITH CHANGES`, or `NOT READY`.
+Return a **short** report using [`templates/review-report.md`](../../templates/review-report.md) — same shape in chat and in `discussion/plan-review-<slug>.md`.
 
-When persisted, write `discussion/plan-review-<slug>.md`. If the user must answer anything, also write `discussion/questions-plan-review-<slug>.md` (**A:** line). Do **not** put `status` on the plan or the review file. Log the verdict on `task-*.md`.
+The user only fills **Your call:** (`fix` / `skip` / `need more info`). Do not dump this checklist into the report. Cap: 5 Must fix, 5 Should fix, 3 Nice to have.
+
+Verdict in the report: `READY` | `READY WITH CHANGES` | `NOT READY` (map `READY TO EXECUTE` → `READY`).
+
+List the file on the task. Do **not** put `status` on the plan or the review file. Log the verdict on `task-*.md`. Extra questions go in **Questions for you** in the same report.
 
 ## Context Budget
 

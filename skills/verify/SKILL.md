@@ -13,19 +13,18 @@ Ask: **Did the work actually satisfy what we said should be true?**
 
 Load the task and the relevant spec/design/active plan. Inspect implementation/test evidence when the work is coding-related.
 
-Produce a verification matrix:
+Write a **short** report using [`templates/review-report.md`](../../templates/review-report.md) in chat and in `discussion/verification-<slug>.md`.
 
-```markdown
-| Requirement / Criterion | Evidence | Result |
-|---|---|---|
-| <criterion> | <test, command, observation, diff, metric> | PASS / FAIL / NOT VERIFIED |
-```
+- Put each FAIL / NOT VERIFIED criterion as a **Must fix** item (**Where** = the evidence).
+- Keep a tiny matrix only if it helps; do not paste a huge table as the whole report.
+- User fills **Your call:** (`fix` / `skip` / `need more info`).
+- Verdict: `READY` if all PASS, `NOT READY` if any FAIL, `READY WITH CHANGES` if gaps remain but are accepted.
 
-Also verify relevant quality attributes, compatibility, failure cases, migrations, and operational behavior.
+Cap: 5 Must fix. Extra questions go in **Questions for you** in the same report (do not also create `questions-verify-*.md` unless the user asks).
 
 Never equate `tests exited 0` with task completion unless tests cover every acceptance criterion.
 
-If persisted, append concise evidence to the task **Execution Log** and/or write `discussion/verification-<slug>.md` when details are large. Gaps that need a user call go in `discussion/questions-verify-<slug>.md` (**A:** line).
+Append a one-line verdict to the task **Execution Log**.
 
 ## Context Budget
 

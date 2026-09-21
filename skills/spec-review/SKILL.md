@@ -23,9 +23,13 @@ Check:
 - hidden solution decisions masquerading as requirements
 - unresolved questions that block the next stage
 
-Output findings by severity: `BLOCKER`, `IMPORTANT`, `NIT`, then a verdict: `READY`, `READY WITH ASSUMPTIONS`, or `NOT READY`.
+Return a **short** report using [`templates/review-report.md`](../../templates/review-report.md) — same shape in chat and in `discussion/spec-review-<slug>.md`.
 
-When the user asks to persist the review, write `discussion/spec-review-<slug>.md` under the existing task folder and reference the reviewed spec. If the user must answer anything, also write `discussion/questions-spec-review-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md) (**A:** line). Do **not** put `status` on the spec or the review file. Log the verdict on `task-*.md` (execution log). Do not overwrite the spec unless explicitly asked to revise it.
+The user only fills **Your call:** (`fix` / `skip` / `need more info`). Do not dump this checklist into the report. Cap: 5 Must fix, 5 Should fix, 3 Nice to have.
+
+Verdict in the report: `READY` | `READY WITH CHANGES` | `NOT READY` (map old `READY WITH ASSUMPTIONS` → `READY WITH CHANGES`).
+
+List the file on the task. Do **not** put `status` on the spec or the review file. Log the verdict on `task-*.md`. Do not overwrite the spec unless explicitly asked to revise it. Extra questions go in **Questions for you** in the same report.
 
 ## Context Budget
 

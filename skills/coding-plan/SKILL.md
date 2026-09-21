@@ -17,13 +17,15 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 
 **Do not auto-apply.** Load this skill only when the user explicitly requests a coding plan or names `coding-plan`.
 
+**Core rule: already know what to do.** This skill turns a **clear** task/spec/design into diagrams and todos. It does not invent requirements or architecture. Same gate as [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
+
 **Core rule: test-first.** For behavior changes, write or extend a **failing test first**, then minimal code to pass, then verify. Do not add production logic for new behavior without a failing test (unless the user opts out).
 
 **Core rule: match the project.** New code and tests follow the **same structure and conventions** as that repo.
 
 **Core rule: follow the diagram.** Implementation must match the agreed **implementation outline diagram**. If the design changes, update the diagram first, then todos and code.
 
-**Core rule: work in a worktree.** For an existing repo, implement in a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>`, branched off local `main`/`master` as `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-6). Never commit or push to `main`/`master`; the base is a start point, never an upstream.
+**Core rule: work in a worktree.** For an existing repo, implement in a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>`, branched off local `main`/`master` as `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-7). Never commit or push to `main`/`master`; the base is a start point, never an upstream.
 
 **Harness rule:** Run plan phases **in order**; run each todo with the [execution harness](#execution-harness-per-todo). Do not skip gates. On **STOP**, report and wait.
 
@@ -31,17 +33,29 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 
 | Phase                      | Do                                                                                                                                                                                                                                                                                                                  | Verify                                                                                                         | STOP if                                                                                                                                         |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **0 — Preconditions**      | User named `coding-plan`; read repo layout and 1–2 similar features                                                                                                                                                                                                                                                 | Stack and test style identified                                                                                | Repo unreadable or scope unknown → ask                                                                                                          |
-| **1 — Quality attributes** | Fill [quality attributes table](#quality-attributes-block-required-in-plan-output)                                                                                                                                                                                                                                  | All three rows filled or N/A with reason                                                                       | Blank row → STOP; no diagram yet                                                                                                                |
-| **2 — Feature map**        | Name user-visible behaviors; group features                                                                                                                                                                                                                                                                         | Behaviors trace to acceptance criteria                                                                         | —                                                                                                                                               |
-| **3 — Diagram**            | Mermaid component + call flow per feature group                                                                                                                                                                                                                                                                     | User confirms diagram                                                                                          | User objects or diagram incomplete → revise; STOP before todos                                                                                  |
-| **4 — Todos**              | One Cursor Plan todo per small e2e iteration; each has `verify:`                                                                                                                                                                                                                                                    | Todo count matches iteration outline                                                                           | Layer-only or file-only todos → fix before implement                                                                                            |
-| **5 — Cursor Plan**        | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin                                                                                                                                        | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite                                   | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement                                                         |
-| **6 — Worktree**           | Resolve `WORK_NAME` (`<WORK_ID>_<TASK_SLUG>`, or slug alone with no `WORK_ID`); for each repo the work touches, add a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>` from local `main`/`master` on branch `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-6) | Worktree path exists per repo; `git branch --show-current` = `mark/<WORK_NAME>`; no upstream on the new branch | No `TASK_SLUG`, dirty base repo, branch/worktree name taken, upstream points at `main`/`master`, or not a git repo → ask; STOP before implement |
+| **0 — Preconditions**      | User named `coding-plan`; load task + **Active spec** / **Active design** / **Active plan** when present; read repo layout and 1–2 similar features                                                                                                                                                                 | Task (or stated goal) and stack/test style identified                                                          | No task and goal unknown, or repo unreadable → ask                                                                                              |
+| **1 — Readiness**          | Confirm we **already know what to do**. Goal/acceptance unclear → `grill-me` / `spec`. Architecture still open when it matters → `design`. Write blockers to `discussion/questions-plan-<slug>.md` (**A:**). Only narrow planning questions (owner, sequencing, verify command).                                   | Acceptance criteria exist; no implementation-critical ambiguity                                                | Missing requirement/design decision → STOP; do not draw diagrams or invent todos. Recommend the earlier skill.                                  |
+| **2 — Quality attributes** | Fill [quality attributes table](#quality-attributes-block-required-in-plan-output)                                                                                                                                                                                                                                  | All three rows filled or N/A with reason                                                                       | Blank row → STOP; no diagram yet                                                                                                                |
+| **3 — Feature map**        | Name user-visible behaviors; group features                                                                                                                                                                                                                                                                         | Behaviors trace to acceptance criteria                                                                         | Cannot trace to criteria → back to readiness                                                                                                    |
+| **4 — Diagram**            | Mermaid component + call flow per feature group                                                                                                                                                                                                                                                                     | User confirms diagram                                                                                          | User objects or diagram incomplete → revise; STOP before todos                                                                                  |
+| **5 — Todos**              | One Cursor Plan todo per small e2e iteration; each has `verify:`                                                                                                                                                                                                                                                    | Todo count matches iteration outline                                                                           | Layer-only or file-only todos → fix before implement                                                                                            |
+| **6 — Cursor Plan**        | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin                                                                                                                                        | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite                                   | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement                                                         |
+| **7 — Worktree**           | Resolve `WORK_NAME` (`<WORK_ID>_<TASK_SLUG>`, or slug alone with no `WORK_ID`); for each repo the work touches, add a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>` from local `main`/`master` on branch `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-7) | Worktree path exists per repo; `git branch --show-current` = `mark/<WORK_NAME>`; no upstream on the new branch | No `TASK_SLUG`, dirty base repo, branch/worktree name taken, upstream points at `main`/`master`, or not a git repo → ask; STOP before implement |
 
-**Forbidden before phase 6 complete:** production code for new behavior (except trivial one-liners user agreed to skip). All implementation happens **inside the worktree**, never on `main`/`master`.
+**Forbidden before phase 7 complete:** production code for new behavior (except trivial one-liners user agreed to skip). All implementation happens **inside the worktree**, never on `main`/`master`. Do not invent spec/design decisions to pass readiness.
 
-### Plan file layout (phase 5)
+### Planning readiness (phase 1)
+
+A coding plan is not the place to resolve foundational ambiguity. Same rule as [`plan-intake-automation`](../plan-intake-automation/SKILL.md):
+
+- Goal, scope, or acceptance criteria unclear → **STOP**. Recommend `grill-me` or `spec`. Write `discussion/questions-plan-<slug>.md` (**A:**).
+- How to build it still open (APIs, data model, job vs request, etc.) and it matters → **STOP**. Recommend `design`.
+- Small, already-clear work may skip spec/design. Do not skip readiness.
+- Only ask narrow planning questions (execution owner, verify command, sequencing).
+
+Do not draw diagrams or write todos until this phase passes.
+
+### Plan file layout (phase 6)
 
 **Origin (write content here):**
 
@@ -71,7 +85,7 @@ If that Cursor path exists, mint a new `<short-id>` — do not replace the exist
 
 Do not maintain two copies. Write the vault origin to `$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>` first, then `ln -s` the Cursor path to the **absolute** vault origin. Verify with `readlink` + `realpath`.
 
-### Worktree setup (phase 6)
+### Worktree setup (phase 7)
 
 Implement in a **dedicated git worktree** branched off the base branch, so `main`/`master` and the user's current checkout stay untouched.
 
@@ -382,21 +396,22 @@ Default to the **smallest vertical slice** that proves useful behavior, unless t
 
 ### 7. Cursor Plan checklist
 
-Follow [Plan harness](#plan-harness-before-code) phases 0–6. Quick list:
+Follow [Plan harness](#plan-harness-before-code) phases 0–7. Quick list:
 
 1. Plan mode
-2. **Quality attributes table** — confirm or N/A with reason
-3. Feature groups by user-visible behavior
-4. **Diagram** (component + call flow) — user confirms
-5. Feature groups aligned with diagram and quality attributes
-6. **One Cursor todo per small e2e feedback-loop iteration** with `verify:`
-7. Write vault origin `plan-<slug>.md`; symlink `~/.cursor/plans/*.plan.md` → origin
-8. **Worktree** from `main`/`master` on `mark/<WORK_NAME>` — [worktree setup](#worktree-setup-phase-6)
-9. Implement only what the diagram shows — [execution harness](#execution-harness-per-todo) per todo, inside the worktree
+2. **Readiness** — already know what to do, or STOP
+3. **Quality attributes table** — confirm or N/A with reason
+4. Feature groups by user-visible behavior
+5. **Diagram** (component + call flow) — user confirms
+6. Feature groups aligned with diagram and quality attributes
+7. **One Cursor todo per small e2e feedback-loop iteration** with `verify:`
+8. Write vault origin `plan-<slug>.md`; symlink `~/.cursor/plans/*.plan.md` → origin
+9. **Worktree** from `main`/`master` on `mark/<WORK_NAME>` — [worktree setup](#worktree-setup-phase-7)
+10. Implement only what the diagram shows — [execution harness](#execution-harness-per-todo) per todo, inside the worktree
 
 ### 8. Ask during planning
 
-Ask if unclear: scope, API contract, layer map, mocks, IT in repo, acceptance criteria.
+Ask only **narrow** planning questions: verify command, todo order, worktree path. If scope, acceptance criteria, or architecture are unclear, do **not** keep planning — go back to phase 1 (readiness).
 
 ---
 
@@ -406,7 +421,7 @@ For each Cursor Plan todo, in order:
 
 | Step             | Do                                                                                                | Verify                                                                                                                       | STOP if                                                                                                 |
 | ---------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **0 — Worktree** | Confirm the working directory is `~/workspace/working-place/<WORK_NAME>/<repo-name>` from phase 6 | `pwd` matches the worktree; `git branch --show-current` = `mark/<WORK_NAME>`; upstream is unset or `origin/mark/<WORK_NAME>` | On `main`/`master`, outside the worktree, or upstream names the base branch → STOP; do not edit or push |
+| **0 — Worktree** | Confirm the working directory is `~/workspace/working-place/<WORK_NAME>/<repo-name>` from phase 7 | `pwd` matches the worktree; `git branch --show-current` = `mark/<WORK_NAME>`; upstream is unset or `origin/mark/<WORK_NAME>` | On `main`/`master`, outside the worktree, or upstream names the base branch → STOP; do not edit or push |
 | **1 — Scope**    | Confirm todo maps to diagram; list files to touch                                                 | Matches one behavior milestone                                                                                               | Scope grew → update diagram and plan first                                                              |
 | **2 — Red**      | Write or extend failing test (repo style)                                                         | Test fails for the right reason                                                                                              | No test and user did not opt out → STOP                                                                 |
 | **3 — Green**    | Minimal code across needed layers                                                                 | Target test passes                                                                                                           | —                                                                                                       |
@@ -440,7 +455,7 @@ Skip formal plan and diagram; verify if cheap.
 
 ---
 
-**Working well if:** plan harness phases 0–6 done, quality attributes table filled, diagram confirmed, work happens in a `mark/<WORK_NAME>` worktree off `main`/`master`, code matches call flow, each small e2e iteration is its own Cursor todo with verify, execution harness completed per todo.
+**Working well if:** plan harness phases 0–7 done (readiness passed), quality attributes table filled, diagram confirmed, work happens in a `mark/<WORK_NAME>` worktree off `main`/`master`, code matches call flow, each small e2e iteration is its own Cursor todo with verify, execution harness completed per todo.
 
 ## Context Budget
 

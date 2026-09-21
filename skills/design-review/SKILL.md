@@ -23,9 +23,13 @@ Review:
 - complexity / simpler alternatives
 - decisions hidden or deferred into implementation
 
-Return severity-tagged findings and verdict: `READY`, `READY WITH CHANGES`, or `NOT READY`.
+Return a **short** report using [`templates/review-report.md`](../../templates/review-report.md) — same shape in chat and in `discussion/design-review-<slug>.md`.
 
-When persisted, write `discussion/design-review-<slug>.md` in the task folder. If the user must answer anything, also write `discussion/questions-design-review-<slug>.md` (**A:** line). Do **not** put `status` on the design or the review file. Log the verdict on `task-*.md`. Do not silently rewrite the design.
+The user only fills **Your call:** (`fix` / `skip` / `need more info`). Do not dump this checklist into the report. Cap: 5 Must fix, 5 Should fix, 3 Nice to have.
+
+Verdict in the report: `READY` | `READY WITH CHANGES` | `NOT READY`.
+
+List the file on the task. Do **not** put `status` on the design or the review file. Log the verdict on `task-*.md`. Do not silently rewrite the design. Extra questions (if any) go in **Questions for you** in the same report — do not create a second questions file unless the user asks.
 
 ## Context Budget
 

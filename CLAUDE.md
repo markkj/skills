@@ -222,7 +222,7 @@ Planning converts an understood/defined/designed task into executable work.
 
 Use [`skills/plan-intake-automation/SKILL.md`](skills/plan-intake-automation/SKILL.md) when requested to enter the planning workflow from a durable task record.
 
-`plan-intake-automation` is a **planning-readiness gate**. It should consume active task/spec/design artifacts when present; it should not silently redo requirements or architecture inside the plan.
+`plan-intake-automation` and `coding-plan` are **planning-readiness gates**. They should consume active task/spec/design when present. They must **already know what to do**. If goal/scope is unclear → `grill-me` / `spec`. If architecture is still open and it matters → `design`. Do not invent that inside the plan.
 
 ### Software implementation plans
 
@@ -231,6 +231,7 @@ For diagram-backed, test-first software plans with Obsidian/Cursor integration a
 A coding plan should:
 
 - be derived from the active task/spec/design,
+- **STOP** if the work is still ambiguous (same gate as plan-intake),
 - use small end-to-end outcomes,
 - include verification with each outcome,
 - preserve the existing git worktree / branch conventions defined by the skill,
@@ -282,12 +283,18 @@ Prefer targeted evidence first, then broader validation when risk warrants it.
 
 Review the **artifact appropriate to the stage**. Avoid a vague generic “review”.
 
-| Skill | Reviews | Main question |
-|------|---------|---------------|
-| [`spec-review`](skills/spec-review/SKILL.md) | spec | Did we define the right thing? |
-| [`design-review`](skills/design-review/SKILL.md) | design | Is this a sound solution? |
-| [`plan-review`](skills/plan-review/SKILL.md) | implementation plan | Can this be executed safely and completely? |
-| [`code-review`](skills/code-review/SKILL.md) | actual code/diff/tests | Does the implementation satisfy the earlier artifacts correctly? |
+Write **one** short report in `discussion/` using [`templates/review-report.md`](templates/review-report.md). Same shape in chat. Do not dump the review checklist into the report.
+
+The user only: reads **Verdict**, fills **Your call** (`fix` / `skip` / `need more info`), then tells the agent the file is filled.
+
+Keep it small: at most 5 Must fix, 5 Should fix, 3 Nice to have. Drop the rest or fold into a question.
+
+| Skill | Reviews | Main question | File |
+|------|---------|---------------|------|
+| [`spec-review`](skills/spec-review/SKILL.md) | spec | Did we define the right thing? | `discussion/spec-review-<slug>.md` |
+| [`design-review`](skills/design-review/SKILL.md) | design | Is this a sound solution? | `discussion/design-review-<slug>.md` |
+| [`plan-review`](skills/plan-review/SKILL.md) | implementation plan | Can this be executed safely? | `discussion/plan-review-<slug>.md` |
+| [`code-review`](skills/code-review/SKILL.md) | actual code/diff/tests | Does the code match the contract? | `discussion/code-review-<slug>.md` |
 
 For code review, use the smallest sufficient evidence set: active spec/design/plan + diff + relevant tests, not the entire task history.
 

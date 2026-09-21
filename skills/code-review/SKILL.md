@@ -28,7 +28,13 @@ Prioritize:
 5. missing or misleading tests
 6. maintainability / needless complexity
 
-Report findings first, ordered by severity with concrete file/line references when possible. Avoid generic praise. State whether the implementation is `APPROVE`, `APPROVE WITH NITS`, or `CHANGES REQUIRED`.
+Return a **short** report using [`templates/review-report.md`](../../templates/review-report.md) — same shape in chat and in `discussion/code-review-<slug>.md`.
+
+The user only fills **Your call:** (`fix` / `skip` / `need more info`). Do not dump this checklist into the report. Cap: 5 Must fix, 5 Should fix, 3 Nice to have.
+
+Verdict in the report: `READY` | `READY WITH CHANGES` | `NOT READY` (map `APPROVE` → `READY`, `APPROVE WITH NITS` → `READY WITH CHANGES`, `CHANGES REQUIRED` → `NOT READY`).
+
+List the file on the task. Findings stay in the report; fixes stay in code. Extra questions go in **Questions for you** in the same report.
 
 ## Context Budget
 
