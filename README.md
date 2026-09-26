@@ -147,16 +147,16 @@ work-intake-automation
 ## Artifact ownership
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/
+Projects/<PROJECT_NAME>/<WORK_ID>/          # same folder as task-*.md
 ├── task-<slug>.md                 # work-intake-automation: durable ledger
 ├── context.md                     # compact handoff cache; created lazily
 ├── spec-<slug>.md                 # spec: optional; one or more over time
 ├── design-<slug>.md               # design: optional; one or more over time
 ├── plan-<slug>.md                 # plan-intake / coding-plan: one or more
-└── discussion/
-    ├── spec-review-<slug>.md       # optional persisted review
-    ├── design-review-<slug>.md     # optional persisted review
-    └── verification-<slug>.md      # optional detailed evidence
+└── discussion/                    # questions + reviews — never repo root
+    ├── spec-review-<slug>.md
+    ├── design-review-<slug>.md
+    └── verification-<slug>.md
 ```
 
 For Cursor plans, the **Obsidian plan is the origin** and `~/.cursor/plans/*.plan.md` is a symlink. `coding-plan` retains the existing git-worktree behavior under:

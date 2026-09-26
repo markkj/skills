@@ -52,7 +52,19 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 └── {{task-generate-name}}.md
 ```
 
-Use `{{task-generate-name}}.md` as the intake contract. It records source facts and the task folder where later optional `spec-*.md`, `design-*.md`, `plan-*.md`, and `discussion/` artifacts may live. When the user is ready to plan, they must explicitly request [`plan-intake-automation`](../plan-intake-automation/SKILL.md) — do not auto-switch.
+Use `{{task-generate-name}}.md` as the intake contract. It records source facts and the **task folder** where later `spec-*.md`, `design-*.md`, `plan-*.md`, `context.md`, and `discussion/` **must** live. Later skills write into this same folder only.
+
+## Same folder as the task
+
+This skill **creates** the task folder. Every later file belongs here:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/
+├── task-<slug>.md
+└── discussion/     ← questions-intake-*.md lives here, not at repo root
+```
+
+When the user is ready to plan, they must explicitly request [`plan-intake-automation`](../plan-intake-automation/SKILL.md) — do not auto-switch.
 
 ## Filename Generation
 
@@ -102,7 +114,7 @@ Follow [Harness phases](#harness-phases). Details per phase:
 
 ## Obsidian Vault Writes
 
-Write directly to the Obsidian vault filesystem. Do not use Obsidian MCP for vault content.
+Write vault files under `$OBSIDIAN_BASE_VAULT_PATH` (filesystem).
 
 1. **Vault root:** Read from `$OBSIDIAN_BASE_VAULT_PATH`. If unset or empty → **STOP** and report.
 2. **Absolute path:** `$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>` (vault-relative path has no leading slash).

@@ -8,6 +8,7 @@ Type your answer on the **`A:`** line under each question.
 
 - **Stage:** intake | grill-me | spec | design | plan | spec-review | design-review | plan-review | verify
 - **Task:** `Projects/<PROJECT_NAME>/<WORK_ID>/task-<slug>.md`
+- **Write this file at:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/questions-<stage>-<slug>.md` (same folder as the task, never repo root)
 - **Date:** YYYY-MM-DD
 
 ---

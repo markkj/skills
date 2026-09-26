@@ -11,6 +11,16 @@ disable-model-invocation: true
 
 Ask: **Did the work actually satisfy what we said should be true?**
 
+## Same folder as the task
+
+Write the report **only** here:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/discussion/verification-<slug>.md
+```
+
+That `discussion/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
+
 Load the task and the relevant spec/design/active plan. Inspect implementation/test evidence when the work is coding-related.
 
 Write a **short** report using [`templates/review-report.md`](../../templates/review-report.md) in chat and in `discussion/verification-<slug>.md`.

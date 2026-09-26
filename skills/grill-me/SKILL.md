@@ -14,6 +14,18 @@ disable-model-invocation: true
 
 Default light ask-when-unsure (1–3 questions, no silent assumptions) lives in `CLAUDE.md` and [`problem-decompose`](../problem-decompose/SKILL.md). This skill is the **work-clarity gate** for a full interrogation session.
 
+## Same folder as the task
+
+Write **only** into the folder that already has `task-*.md`:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/
+├── task-<slug>.md
+└── discussion/questions-grill-me-<slug>.md
+```
+
+Never write `discussion/` at the git repo root or vault root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
+
 ## Boundary
 
 `grill-me` answers: **What are we missing or assuming?**

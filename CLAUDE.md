@@ -15,6 +15,15 @@ These are **stages, not mandatory ceremony**. Use the minimum rigor needed for t
 
 [`problem-decompose`](skills/problem-decompose/SKILL.md) **auto-applies** — do not wait to be asked. Other stage skills load when named.
 
+**Same folder as the task.** Every file this pack creates lives next to `task-*.md`. `discussion/` is **inside that task folder**, never at the repo root.
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/
+├── task-<slug>.md
+├── spec-*.md, design-*.md, plan-*.md, context.md
+└── discussion/          ← questions, reviews, grill-me notes
+```
+
 ---
 
 ## Always: Short by default
@@ -47,7 +56,7 @@ Name the problem. Split it into small pieces. Do not invent missing facts.
 - **Do not assume.** If a guess would change the next action, ask the user 1–3 questions so they can investigate more. Do not fill gaps with invented requirements or repo/runtime behavior.
 - Light ask (default) ≠ [`grill-me`](skills/grill-me/SKILL.md). Use `grill-me` only when the user wants a full interrogation session.
 
-**Open questions go in `discussion/`.** Ask 1–3 in chat, and write the same questions to `discussion/questions-<stage>-<slug>.md` using [`templates/open-questions.md`](templates/open-questions.md). The user types each answer on the **`A:`** line. Do not bury fill-in answers inside spec / design / plan / task body. Do not invent answers. STOP the next stage until answers are filled or the user says proceed.
+**Open questions go in the task folder’s `discussion/`.** Ask 1–3 in chat, and write the same questions to `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/questions-<stage>-<slug>.md` using [`templates/open-questions.md`](templates/open-questions.md). The user types each answer on the **`A:`** line. Do not bury fill-in answers inside spec / design / plan / task body. Do not invent answers. STOP the next stage until answers are filled or the user says proceed. Do not write `discussion/` anywhere except under that task folder.
 
 **When a possible problem is found** (bug, risk, mismatch, blocker, conflict, likely-wrong assumption), respond in this shape. Full template: [`skills/problem-decompose/SKILL.md`](skills/problem-decompose/SKILL.md).
 
@@ -284,7 +293,7 @@ Prefer targeted evidence first, then broader validation when risk warrants it.
 
 Review the **artifact appropriate to the stage**. Avoid a vague generic “review”.
 
-Write **one** short report in `discussion/` using [`templates/review-report.md`](templates/review-report.md). Same shape in chat. Do not dump the review checklist into the report.
+Write **one** short report in `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/` using [`templates/review-report.md`](templates/review-report.md). Same shape in chat. Do not dump the review checklist into the report. Do not write the report outside that task folder.
 
 The user only: reads **Verdict**, fills **Your call** (`fix` / `skip` / `need more info`), then tells the agent the file is filled.
 

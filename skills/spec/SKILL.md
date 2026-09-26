@@ -12,6 +12,19 @@ disable-model-invocation: true
 
 A spec defines **what should be true**, not how to implement it.
 
+## Same folder as the task
+
+Write **only** into the folder that already has `task-*.md`:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/
+├── task-<slug>.md
+├── spec-<slug>.md
+└── discussion/questions-spec-<slug>.md
+```
+
+Never write `discussion/` at the git repo root or vault root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
+
 ## Harness
 
 | Phase | Do | Verify | STOP if |

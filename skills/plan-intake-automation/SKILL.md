@@ -11,6 +11,19 @@ disable-model-invocation: true
 
 Use this skill only after a task record exists. Inputs are `{{task-generate-name}}.md` plus the task’s **Active spec** / **Active design** when present. The output is **one new** planning artifact appended to that task (a task may already have other plans). This skill is a planning-entry gate; it does not invent missing requirements or architecture.
 
+## Same folder as the task
+
+Write **only** into the folder that already has `task-*.md`:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/
+├── task-<slug>.md
+├── plan-<slug>.md
+└── discussion/questions-plan-<slug>.md
+```
+
+Never write `discussion/` at the git repo root or vault root. The Cursor `~/.cursor/plans/*.plan.md` path is a **symlink only**; the origin file stays in this task folder. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
+
 **Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks, no product code changes.
 
 ## Harness phases
@@ -151,7 +164,7 @@ Follow [Harness phases](#harness-phases). The steps below are phase details — 
 
 ## Obsidian Vault Writes
 
-Write directly to the Obsidian vault filesystem. Do not use Obsidian MCP for vault content.
+Write vault files under `$OBSIDIAN_BASE_VAULT_PATH` (filesystem).
 
 1. **Vault root:** Read from `$OBSIDIAN_BASE_VAULT_PATH`. If unset or empty → **STOP** and report.
 2. **Absolute path:** `$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>` (vault-relative path has no leading slash).

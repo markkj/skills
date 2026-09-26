@@ -17,6 +17,19 @@ Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. 
 
 **Do not auto-apply.** Load this skill only when the user explicitly requests a coding plan or names `coding-plan`.
 
+## Same folder as the task
+
+Write the plan origin and any questions **only** into the folder that already has `task-*.md`:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/
+├── task-<slug>.md
+├── plan-<slug>.md
+└── discussion/questions-plan-<slug>.md
+```
+
+Never write `discussion/` at the git repo root or vault root. `~/.cursor/plans/*.plan.md` is a symlink to that origin. No task folder → ask; do not invent a discussion path under the git repo.
+
 **Core rule: already know what to do.** This skill turns a **clear** task/spec/design into diagrams and todos. It does not invent requirements or architecture. Same gate as [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
 
 **Core rule: test-first.** For behavior changes, write or extend a **failing test first**, then minimal code to pass, then verify. Do not add production logic for new behavior without a failing test (unless the user opts out).

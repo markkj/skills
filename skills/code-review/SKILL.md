@@ -12,6 +12,16 @@ disable-model-invocation: true
 
 Review **the implementation**, using earlier artifacts as the contract.
 
+## Same folder as the task
+
+Write the report **only** here:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/discussion/code-review-<slug>.md
+```
+
+That `discussion/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
+
 Load when available:
 - task record
 - current spec

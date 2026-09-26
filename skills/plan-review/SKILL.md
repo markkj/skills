@@ -12,6 +12,16 @@ disable-model-invocation: true
 
 Ask: **Can this design/spec be implemented safely from this plan?**
 
+## Same folder as the task
+
+Write the report **only** here:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/discussion/plan-review-<slug>.md
+```
+
+That `discussion/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
+
 Load the task, active/chosen plan, and spec/design when present.
 
 Check:

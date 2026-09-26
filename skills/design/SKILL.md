@@ -12,6 +12,19 @@ disable-model-invocation: true
 
 A design defines **how the spec should be satisfied**. It is not the executable implementation todo list.
 
+## Same folder as the task
+
+Write **only** into the folder that already has `task-*.md`:
+
+```text
+Projects/<PROJECT_NAME>/<WORK_ID>/
+├── task-<slug>.md
+├── design-<slug>.md
+└── discussion/questions-design-<slug>.md
+```
+
+Never write `discussion/` at the git repo root or vault root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
+
 ## Harness
 
 | Phase | Do | Verify | STOP if |

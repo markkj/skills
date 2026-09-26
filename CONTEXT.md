@@ -12,6 +12,8 @@ For work that benefits from multi-stage handoff, use:
 Projects/<PROJECT_NAME>/<WORK_ID>/context.md
 ```
 
+That is the **task folder** (same directory as `task-*.md`). Do not put `context.md` at the git repo root.
+
 Create it lazily when the first clarification/spec/design/planning/review stage needs persistent handoff context. `work-intake-automation` still creates **only** the task file.
 
 ## Rules

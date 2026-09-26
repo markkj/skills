@@ -16,6 +16,8 @@ Default thinking: **name the problem → split it small → ask if unsure → th
 
 This skill owns the thinking/response shape. It does **not** own spec, design, or plan artifacts. Full interrogation sessions still belong to `grill-me`.
 
+When a named flow skill writes a file, that file belongs in the **same folder as `task-*.md`**: `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/…` — never the git repo root.
+
 ## When to use the problem format
 
 Use the template **only when something was found that might be a problem**: a bug, risk, mismatch, blocker, conflict, or likely-wrong assumption.
@@ -38,7 +40,7 @@ Do **not** use it for:
 
 If evidence is missing, ask the user **1–3** questions so they can investigate more. Do not invent requirements, repo behavior, or runtime facts.
 
-When a named flow skill is running, also write those questions to `discussion/questions-<stage>-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md). The user types each answer on the **`A:`** line.
+When a named flow skill is running, also write those questions to `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/questions-<stage>-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md). The user types each answer on the **`A:`** line.
 
 Ask when:
 
