@@ -364,6 +364,10 @@ Work Intake
 
 Do not force `coding-plan` into non-coding work.
 
+### Driven by `workflow-loop`
+
+When the user names [`workflow-loop`](skills/workflow-loop/SKILL.md), that skill runs the smallest path above from a task or feature idea until the user has a result. It pauses only at human gates: empty **A:**, review **Your call**, or a coding-plan diagram confirm. Naming the loop counts as naming each stage on that path.
+
 ---
 
 ## Skills
@@ -371,6 +375,7 @@ Do not force `coding-plan` into non-coding work.
 | Skill | When |
 |-------|------|
 | [`skills/problem-decompose/SKILL.md`](skills/problem-decompose/SKILL.md) | **Auto-apply** default thinking: split problems small, ask when unsure; Problem / Soln / Pros / Cons when a possible problem is found |
+| [`skills/workflow-loop/SKILL.md`](skills/workflow-loop/SKILL.md) | User names it, or asks to run a task/feature idea until they have a result. Drives the smallest path; pauses at human gates |
 | [`skills/work-intake-automation/SKILL.md`](skills/work-intake-automation/SKILL.md) | Durable generic work intake → Obsidian task record + route recommendation |
 | [`skills/grill-me/SKILL.md`](skills/grill-me/SKILL.md) | Explicit interrogation / ambiguity reduction; no design or planning |
 | [`skills/spec/SKILL.md`](skills/spec/SKILL.md) | Define what must be true: behavior, scope, constraints, acceptance criteria |

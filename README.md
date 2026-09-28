@@ -12,6 +12,8 @@ Capture -> Clarify -> Define -> Design -> Plan -> Execute -> Verify -> Review
 
 Not every task uses every stage.
 
+[`workflow-loop`](skills/workflow-loop/SKILL.md) is the controller. The user gives a task or feature idea; that skill runs the smallest path below until there is a result. It pauses only when a stage needs the user (empty **A:**, review **Your call**, coding-plan diagram confirm).
+
 - **Capture** — `work-intake-automation`: what work exists?
 - **Clarify** — `grill-me`: what is ambiguous or assumed?
 - **Define** — `spec`: what exactly should be true?
@@ -213,6 +215,7 @@ raw source/history
 
 | Skill | Question it answers | Must not own |
 |---|---|---|
+| `workflow-loop` | Which smallest path, and when do we pause for the user? | Replacing a stage skill, or filling **A:** / **Your call** |
 | `problem-decompose` | What is the problem, split small, with Soln/Pros/Cons — and what must we ask instead of assuming? (**auto-apply**) | spec/design/plan artifacts; full `grill-me` sessions |
 | `work-intake-automation` | What work exists and where is its durable record? | spec/design/plan/code |
 | `grill-me` | What are we missing or assuming? | solution design / implementation plan |
