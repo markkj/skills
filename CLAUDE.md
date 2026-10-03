@@ -387,6 +387,7 @@ When the user names [`workflow-loop`](skills/workflow-loop/SKILL.md), that skill
 | [`skills/plan-review/SKILL.md`](skills/plan-review/SKILL.md) | Review plan completeness, sequencing, risk, and verification |
 | [`skills/verify/SKILL.md`](skills/verify/SKILL.md) | Verify implementation/result against authoritative artifacts |
 | [`skills/code-review/SKILL.md`](skills/code-review/SKILL.md) | Review actual code/diff/tests against spec/design/plan |
+| [`skills/daily-check-in/SKILL.md`](skills/daily-check-in/SKILL.md) | Morning list: query every project's open tasks, read yesterday's log if it exists, write `Daily Log/YYYY-MM-DD.md` under `$OBSIDIAN_BASE_VAULT_PATH` |
 
 Install/link center file + stage skills: `./scripts/link-skills.sh all`
 

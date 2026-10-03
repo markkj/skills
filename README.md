@@ -4,6 +4,8 @@ A generic work workflow with specialized software-engineering stages. The system
 
 **Center file:** [`CLAUDE.md`](CLAUDE.md) — always-on policy. Loaded at this repo’s project root, and globally after `./scripts/link-skills.sh all` (`~/.claude/CLAUDE.md` + Cursor always-apply rule). That script also installs `skills/*/SKILL.md`.
 
+**Token use:** These skills are not well optimized for tokens yet. They can pull in more context than a task needs. Treat that as known, not as the target.
+
 ## Core model
 
 ```text
@@ -228,6 +230,7 @@ raw source/history
 | `plan-review` | Is the plan safe and executable? | implementation |
 | `verify` | Did the result satisfy the contract? | assuming tests alone prove completion |
 | `code-review` | Is the actual code correct against task/spec/design/plan? | redefining requirements |
+| `daily-check-in` | What should we do today, from open tasks and yesterday's log? | editing tasks, specs, designs, or plans |
 
 ## Routing principle
 
