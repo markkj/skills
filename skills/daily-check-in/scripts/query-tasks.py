@@ -103,17 +103,39 @@ def date_key(raw: str) -> str:
     return raw if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw or "") else "9999-99-99"
 
 
+def task_ref(rel: str, title: str) -> str:
+    """Obsidian wikilink. Path is vault-relative, without .md."""
+    stem = rel[:-3] if rel.endswith(".md") else rel
+    alias = (title or Path(stem).name).replace("|", " ").strip()
+    return f"[[{stem}|{alias}]]"
+
+
+def task_link(line: str) -> tuple[str, str] | None:
+    """Return (vault path with .md, title) from a wikilink or a backticked path."""
+    wiki = re.search(r"\[\[(Projects/[^\]|]*task-[^\]|]+)(?:\|([^\]]+))?\]\]", line)
+    if wiki:
+        rel = wiki.group(1).strip()
+        if not rel.endswith(".md"):
+            rel += ".md"
+        return rel, (wiki.group(2) or "").strip()
+    path_match = re.search(r"`(Projects/[^`]*task-[^`]+\.md)`", line)
+    if not path_match:
+        return None
+    return path_match.group(1), ""
+
+
 def task_paths(body: str) -> list[tuple[bool, str, str]]:
     """Return (checked, title, vault path) from a Yesterday/Today body."""
     found: list[tuple[bool, str, str]] = []
     for line in body.splitlines():
-        path_match = re.search(r"`(Projects/[^`]*task-[^`]+\.md)`", line)
-        if not path_match:
+        linked = task_link(line)
+        if not linked:
             continue
-        rel = path_match.group(1)
-        checked = bool(re.search(r"\[[xX]\]", line))
-        title_match = re.search(r"\*\*([^*]+)\*\*", line)
-        title = title_match.group(1).strip() if title_match else rel
+        rel, title = linked
+        if not title:
+            title_match = re.search(r"\*\*([^*]+)\*\*", line)
+            title = title_match.group(1).strip() if title_match else rel
+        checked = bool(re.match(r"\s*-\s+\[[xX]\]", line))
         found.append((checked, title, rel))
     return found
 
@@ -138,6 +160,7 @@ def load_task(path: Path, vault: Path) -> dict[str, str] | None:
         "project": project,
         "title": title,
         "path": rel,
+        "ref": task_ref(rel, title),
         "next": plan or goal or NEXT_FALLBACK,
     }
 
@@ -173,6 +196,7 @@ def emit(rows: list[dict[str, str]], section: str, why_for) -> None:
                     row["project"],
                     row["title"],
                     row["path"],
+                    row["ref"],
                     row["next"],
                 ]
             )

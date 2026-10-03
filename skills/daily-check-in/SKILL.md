@@ -54,7 +54,9 @@ Do not re-sort. Do not open a task file to "add detail." Copy `next` from the sc
 
 Columns after the header lines, tab-separated:
 
-`section` `n` `why` `status` `priority` `date` `project` `title` `path` `next`
+`section` `n` `why` `status` `priority` `date` `project` `title` `path` `ref` `next`
+
+`ref` is the Obsidian wikilink: `[[Projects/<project>/<work-id>/task-<slug>|title]]`. Copy it next to `path` on every task line. Do not invent a different link.
 
 | Script line | Meaning |
 |-------------|---------|
@@ -75,7 +77,7 @@ Rank rules live in the script. `why` is one of `carry from yesterday`, `already 
 
 1. `mkdir -p "$OBSIDIAN_BASE_VAULT_PATH/Projects/Daily Log"`
 2. Fill [`templates/daily-log.md`](../../templates/daily-log.md) from the script. No leftover `<placeholders>`.
-3. Today rows use `- [ ]` so the next run can see what is still open.
+3. Today rows use `- [ ]` so the next run can see what is still open. Each task row includes `ref` and `path`.
 4. If `today_log` is not `none`, put the `notes<<` block under **Notes**.
 5. Read the file back. Frontmatter `date` is the script `today` line. `project` is `all`. `previous` is `yesterday_log`.
 
@@ -116,16 +118,16 @@ previous: Projects/Daily Log/2026-10-02.md
 
 ## Today
 
-- [ ] **Fix login timeout** — `In Progress` · priority `1` · `Projects/client-app/20261001-login-timeout/task-login-timeout.md`
+- [ ] [[Projects/client-app/20261001-login-timeout/task-login-timeout|Fix login timeout]] — `In Progress` · priority `1` · `Projects/client-app/20261001-login-timeout/task-login-timeout.md`
   - Why: carry from yesterday
   - Next: Confirm the timeout is enforced on the session cookie
-- [ ] **Add export button** — `Planned` · priority `2` · `Projects/client-app/add-export-button/task-add-export-button.md`
+- [ ] [[Projects/client-app/add-export-button/task-add-export-button|Add export button]] — `Planned` · priority `2` · `Projects/client-app/add-export-button/task-add-export-button.md`
   - Why: highest open priority
   - Next: Open the task and pick the next step
 
 ## Blocked
 
-- **Billing webhook** — `Blocked` · priority `2` · `Projects/billing/20260928-billing-webhook/task-billing-webhook.md`
+- [[Projects/billing/20260928-billing-webhook/task-billing-webhook|Billing webhook]] — `Blocked` · priority `2` · `Projects/billing/20260928-billing-webhook/task-billing-webhook.md`
   - Next: see task
 
 ## Later
