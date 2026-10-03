@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Compact daily-check-in query. Stdlib only.
 
-$OBSIDIAN_BASE_VAULT_PATH is already the Projects directory.
-Scans every project folder there, skips Daily Log, and prints a short ranked list.
+$OBSIDIAN_BASE_VAULT_PATH is the Obsidian vault root.
+Scans only vault/Projects, skips Projects/Daily Log, and prints a short ranked list.
 The agent writes the log from this output and does not open each task file.
 """
 
@@ -107,12 +107,10 @@ def task_paths(body: str) -> list[tuple[bool, str, str]]:
     """Return (checked, title, vault path) from a Yesterday/Today body."""
     found: list[tuple[bool, str, str]] = []
     for line in body.splitlines():
-        path_match = re.search(r"`((?:Projects/)?[^`]*task-[^`]+\.md)`", line)
+        path_match = re.search(r"`(Projects/[^`]*task-[^`]+\.md)`", line)
         if not path_match:
             continue
         rel = path_match.group(1)
-        if rel.startswith("Projects/"):
-            rel = rel[len("Projects/") :]
         checked = bool(re.search(r"\[[xX]\]", line))
         title_match = re.search(r"\*\*([^*]+)\*\*", line)
         title = title_match.group(1).strip() if title_match else rel
@@ -128,7 +126,7 @@ def load_task(path: Path, vault: Path) -> dict[str, str] | None:
         return None
     rel = path.relative_to(vault).as_posix()
     parts = Path(rel).parts
-    project = parts[0] if parts else ""
+    project = parts[1] if len(parts) > 1 and parts[0] == "Projects" else ""
     meta = frontmatter(text)
     goal = first_prose(section_body(text, "Goal"))
     plan = active_plan(text)
@@ -191,11 +189,14 @@ def main() -> None:
 
     today = date.today()
     yesterday = today - timedelta(days=1)
-    log_dir = vault / "Daily Log"
+    projects_dir = vault / "Projects"
+    if not projects_dir.is_dir():
+        die(f"Projects folder not found: {projects_dir}", 2)
+    log_dir = projects_dir / "Daily Log"
     y_path = log_dir / f"{yesterday.isoformat()}.md"
     t_path = log_dir / f"{today.isoformat()}.md"
 
-    tasks = find_tasks(vault, vault)
+    tasks = find_tasks(projects_dir, vault)
     by_path = {t["path"]: t for t in tasks}
     projects = sorted({t["project"] for t in tasks})
 

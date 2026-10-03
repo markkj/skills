@@ -3,7 +3,7 @@ date: YYYY-MM-DD
 tags:
   - daily-log
 project: all
-previous: <Daily Log/YYYY-MM-DD.md | none>
+previous: <Projects/Daily Log/YYYY-MM-DD.md | none>
 ---
 
 # YYYY-MM-DD
@@ -18,7 +18,7 @@ previous: <Daily Log/YYYY-MM-DD.md | none>
 
 Do these in order. Default cap is 3. Copy rows from the query script. Use `- [ ]` so the next run can see what is still open.
 
-- [ ] **<task title>** — `<status>` · priority `<n|unset>` · `<PROJECT/WORK_ID/task-slug.md>`
+- [ ] **<task title>** — `<status>` · priority `<n|unset>` · `<Projects/PROJECT/WORK_ID/task-slug.md>`
   - Why: <why column>
   - Next: <next column>
 
