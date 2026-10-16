@@ -50,7 +50,7 @@ Ask when:
 
 Do **not** ask when the current artifact, `context.md`, or a direct file already answers.
 
-Light ask (this skill / CLAUDE.md default) ≠ `grill-me`. Use `grill-me` only when the user wants a full interrogation session.
+Light ask (this skill) is not `grill-me`. Use `grill-me` only when the user wants a full interrogation session.
 
 ## Response shape
 

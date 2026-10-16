@@ -2,13 +2,11 @@
 set -euo pipefail
 
 # Copies shippable skills from this repo into an agent skills directory (rsync each run).
-# Also installs the pack center file (CLAUDE.md) globally for Cursor and Claude Code.
+# Does not install CLAUDE.md. For that opt-in, run ./scripts/install-center.sh.
 #
 # Layout:
 #   skills/<skill-name>/SKILL.md
 #   skills/<bucket>/<skill-name>/SKILL.md   (symlink name = <skill-name>)
-#   CLAUDE.md  →  ~/.claude/CLAUDE.md (symlink)
-#              →  ~/.cursor/rules/markkj-skills-center.mdc (alwaysApply)
 #
 # Skipped: deprecated/, in-progress/, personal/, examples/, _template/
 #
@@ -104,11 +102,9 @@ case "$TARGET" in
       mkdir -p "$LEGACY_CURSOR"
       link_into "$LEGACY_CURSOR" "cursor-legacy"
     fi
-    install_cursor_center "$REPO"
     ;;
   claude)
     link_into "$HOME/.claude/skills" "claude"
-    install_claude_center "$REPO"
     ;;
   all)
     link_into "$CURSOR_DEST" "cursor"
@@ -116,9 +112,7 @@ case "$TARGET" in
       mkdir -p "$LEGACY_CURSOR"
       link_into "$LEGACY_CURSOR" "cursor-legacy"
     fi
-    install_cursor_center "$REPO"
     link_into "$HOME/.claude/skills" "claude"
-    install_claude_center "$REPO"
     ;;
   status)
     AGENT="${2:-cursor}"
@@ -144,7 +138,7 @@ case "$TARGET" in
     ;;
   *)
     echo "usage: $0 [cursor|claude|all|status]" >&2
-    echo "  cursor|claude|all  — rsync skills + install CLAUDE.md as global center" >&2
+    echo "  cursor|claude|all  — rsync skills only (CLAUDE.md: ./scripts/install-center.sh)" >&2
     echo "  CURSOR_SKILLS_DIR    — override cursor destination (default: ~/.agents/skills)" >&2
     echo "  status [agent]     — show which skills and center file are linked" >&2
     exit 1

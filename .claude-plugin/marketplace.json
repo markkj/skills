@@ -1,0 +1,13 @@
+{
+  "name": "markkj-skills",
+  "owner": {
+    "name": "markkj"
+  },
+  "plugins": [
+    {
+      "name": "markkj-skills",
+      "source": "./",
+      "description": "Artifact-driven work workflow: capture, spec, design, plan, verify, and review."
+    }
+  ]
+}

@@ -13,7 +13,7 @@ description: >-
 
 # Coding Plan
 
-Follow [CLAUDE.md](../../CLAUDE.md) for **Understand** and high-level **Plan**. This skill adds **coding-plan-specific** rules for diagram-backed Cursor plans and test-first execution.
+Understand the task and the active spec or design before planning. This skill adds **coding-plan-specific** rules for diagram-backed Cursor plans and test-first execution. When [`workflow-high`](../workflow-high/SKILL.md) sent you here, its test-case review gate happens before production code.
 
 **Do not auto-apply.** Load this skill only when the user explicitly requests a coding plan or names `coding-plan`.
 

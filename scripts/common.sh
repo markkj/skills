@@ -117,6 +117,35 @@ cursor_center_rule() {
   echo "${CURSOR_CENTER_RULE:-$HOME/.cursor/rules/markkj-skills-center.mdc}"
 }
 
+# Write a Cursor always-apply rule whose body is CLAUDE.md.
+# Used only by install-center.sh. Does not write into the plugin.
+write_center_rule() {
+  local src="$1"
+  local dest="$2"
+  local marker_value="$3"
+
+  if [ ! -f "$src" ]; then
+    echo "error: missing center file $src" >&2
+    return 1
+  fi
+
+  mkdir -p "$(dirname "$dest")"
+
+  {
+    cat <<EOF
+---
+description: MarkKJ skills pack center — always-on workflow and default thinking
+alwaysApply: true
+---
+
+<!-- $CENTER_MARKER $marker_value -->
+<!-- Generated from CLAUDE.md. Edit CLAUDE.md, then re-run ./scripts/install-center.sh cursor. -->
+
+EOF
+    cat "$src"
+  } > "$dest"
+}
+
 claude_center_file() {
   echo "${CLAUDE_CENTER_FILE:-$HOME/.claude/CLAUDE.md}"
 }
@@ -157,7 +186,7 @@ install_claude_center() {
   echo "[claude] center CLAUDE.md -> $src"
 }
 
-# Write ~/.cursor/rules/*.mdc with frontmatter + CLAUDE.md body
+# Write ~/.cursor/rules/*.mdc from CLAUDE.md. Opt-in via install-center.sh.
 install_cursor_center() {
   local repo="$1"
   local src="$repo/CLAUDE.md"
@@ -169,27 +198,13 @@ install_cursor_center() {
     return 1
   fi
 
-  mkdir -p "$(dirname "$dest")"
-
   if [ -e "$dest" ] && ! grep -q "$CENTER_MARKER" "$dest" 2>/dev/null; then
-    echo "error: $dest exists and is not managed by link-skills.sh" >&2
+    echo "error: $dest exists and is not managed by install-center.sh" >&2
     echo "Move it aside, then re-run." >&2
     return 1
   fi
 
-  {
-    cat <<EOF
----
-description: MarkKJ skills pack center — always-on workflow and default thinking
-alwaysApply: true
----
-
-<!-- $CENTER_MARKER $repo -->
-
-EOF
-    cat "$src"
-  } > "$dest"
-
+  write_center_rule "$src" "$dest" "$repo"
   echo "[cursor] center rule $dest <- $src"
 }
 

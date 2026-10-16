@@ -1,0 +1,29 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "markkj-skills",
+  "version": "0.1.0",
+  "description": "Artifact-driven work workflow: capture, spec, design, plan, verify, and review.",
+  "author": {
+    "name": "markkj",
+    "url": "https://github.com/markkj"
+  },
+  "homepage": "https://github.com/markkj/skills",
+  "repository": "https://github.com/markkj/skills",
+  "keywords": ["workflow", "skills", "spec", "planning", "review"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "MarkKJ Skills",
+        "shortDescription": "Artifact-driven work workflow for specs, design, plans, and review.",
+        "developerName": "markkj",
+        "category": "Productivity",
+        "websiteURL": "https://github.com/markkj/skills",
+        "defaultPrompt": [
+          "Use /workflow-loop-fast for this task.",
+          "Use /workflow-high for this task.",
+          "Run a daily check-in from my open tasks."
+        ]
+      }
+    }
+  }
+}

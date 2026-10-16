@@ -1,0 +1,11 @@
+{
+  "name": "markkj-skills",
+  "version": "0.1.0",
+  "description": "Artifact-driven work workflow: capture, spec, design, plan, verify, and review.",
+  "author": {
+    "name": "markkj"
+  },
+  "homepage": "https://github.com/markkj/skills",
+  "repository": "https://github.com/markkj/skills",
+  "keywords": ["workflow", "skills", "spec", "planning", "review"]
+}

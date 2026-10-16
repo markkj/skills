@@ -2,7 +2,26 @@
 
 A generic work workflow with specialized software-engineering stages. The system is **artifact-driven**: each skill has one job, stages are optional, and the durable task record in Obsidian is the handoff point between agents/tools.
 
-**Center file:** [`CLAUDE.md`](CLAUDE.md) — always-on policy. Loaded at this repo’s project root, and globally after `./scripts/link-skills.sh all` (`~/.claude/CLAUDE.md` + Cursor always-apply rule). That script also installs `skills/*/SKILL.md`.
+Two commands:
+
+| Command | What it does |
+|---------|----------------|
+| `/workflow-loop-fast` | The agent runs the smallest stage path until a result or a human gate. |
+| `/workflow-high` | Intake, then you finish the task. When you say it is ready, one high skill starts. For code, that skill shows the test input and output for you to review before any production code. |
+
+[`CLAUDE.md`](CLAUDE.md) is optional personal thinking. It is not part of the install. `./scripts/link-skills.sh` copies skills only. `./scripts/install-center.sh` installs `CLAUDE.md` when you want it, and it will not replace a file you already have.
+
+## Install as a plugin
+
+One repo, three manifests. Skills stay in `skills/*/SKILL.md`. Bump `version` in every manifest together when you release.
+
+| Host | Manifest | Install |
+|------|----------|---------|
+| Codex | [`plugin.json`](plugin.json) + [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) | `codex plugin marketplace add .` then install **markkj-skills** |
+| Claude Code | [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) | `claude plugin marketplace add .` then `claude plugin install markkj-skills@markkj-skills` |
+| Cursor | [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) | Load this repo as a local plugin |
+
+`problem-decompose` asks the agent to apply it on every task. The other skills run when a mode or you names them.
 
 **Token use:** These skills are not well optimized for tokens yet. They can pull in more context than a task needs. Treat that as known, not as the target.
 
@@ -14,7 +33,7 @@ Capture -> Clarify -> Define -> Design -> Plan -> Execute -> Verify -> Review
 
 Not every task uses every stage.
 
-[`workflow-loop`](skills/workflow-loop/SKILL.md) is the controller. The user gives a task or feature idea; that skill runs the smallest path below until there is a result. It pauses only when a stage needs the user (empty **A:**, review **Your call**, coding-plan diagram confirm).
+[`workflow`](skills/workflow/SKILL.md) only asks which command to run. [`workflow-loop-fast`](skills/workflow-loop-fast/SKILL.md) runs the path below and pauses when a stage needs the user (empty **A:**, review **Your call**, coding-plan diagram confirm). [`workflow-high`](skills/workflow-high/SKILL.md) stops after intake until you say the task is ready.
 
 - **Capture** — `work-intake-automation`: what work exists?
 - **Clarify** — `grill-me`: what is ambiguous or assumed?
@@ -217,7 +236,9 @@ raw source/history
 
 | Skill | Question it answers | Must not own |
 |---|---|---|
-| `workflow-loop` | Which smallest path, and when do we pause for the user? | Replacing a stage skill, or filling **A:** / **Your call** |
+| `workflow` | Which command, fast or high? | Running the work itself |
+| `workflow-loop-fast` | Which smallest path, and when do we pause for the user? | Replacing a stage skill, or filling **A:** / **Your call** |
+| `workflow-high` | When is the task ready, and which one high skill starts? | Looping stages, or writing code before the test is accepted |
 | `problem-decompose` | What is the problem, split small, with Soln/Pros/Cons — and what must we ask instead of assuming? (**auto-apply**) | spec/design/plan artifacts; full `grill-me` sessions |
 | `work-intake-automation` | What work exists and where is its durable record? | spec/design/plan/code |
 | `grill-me` | What are we missing or assuming? | solution design / implementation plan |

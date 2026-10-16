@@ -1,17 +1,17 @@
 ---
-name: workflow-loop
+name: workflow-loop-fast
 description: >-
-  Drive this pack from a task or feature idea until the user has a result.
-  Picks the smallest path in CLAUDE.md, runs each stage skill in order, and
-  pauses only at human gates (empty A: lines, review Your call, coding-plan
-  diagram confirm). Use when the user names workflow-loop, says run the
-  workflow, or asks to take an idea or task until they have the result.
+  Fast path. The agent runs the smallest stage path from a task or feature
+  idea until the user has a result. Pauses only at human gates (empty A:
+  lines, review Your call, coding-plan diagram confirm). Use when the user
+  types /workflow-loop-fast, names workflow-loop-fast, or asks the agent to run
+  the workflow loop.
 disable-model-invocation: true
 ---
 
-# Workflow Loop
+# workflow-loop-fast
 
-**Do not auto-apply.** Load only when the user names `workflow-loop`, says “run the workflow”, or asks to take a task or feature idea until they have a result.
+**Do not auto-apply.** Load only when the user types `/workflow-loop-fast` or names `workflow-loop-fast`.
 
 This skill **controls** the other stage skills. It does not replace them.
 
@@ -33,13 +33,13 @@ Keep going through phases 2–3 in this chat until a gate or **Loop done**.
 
 ## Routes
 
-Use the **minimum** path from [`CLAUDE.md`](../../CLAUDE.md). Do not run every skill.
+Use the **minimum** path. Do not run every skill.
 
 | Route | Use when | Stages |
 |-------|----------|--------|
 | **small** | One clear code change. Place and success check are already known. | `work-intake-automation` → execute → `verify` → `code-review` only if the change can break users or the user asked |
 | **normal** | A feature or behavior that is not written down yet. | `work-intake-automation` → `grill-me` only if outcome, scope, or acceptance is unclear → `spec` → `design` only if more than one way matters → `plan-intake-automation` → `coding-plan` → `plan-review` → execute → `verify` → `code-review` |
-| **high-risk** | Auth, money, data loss, migration, public API, or the user says high-risk. | **normal**, but always `grill-me`, `spec-review`, and `design-review` |
+| **high-risk** | Auth, money, data loss, migration, public API, or the user says high-risk. Prefer [`workflow-high`](../workflow-high/SKILL.md) when the human should finish the task before any high skill runs. | **normal**, but always `grill-me`, `spec-review`, and `design-review` |
 | **non-coding** | The result is not a software change. | `work-intake-automation` → `grill-me` only if unclear → `spec` only if a durable contract is needed → do the work → `verify` if there is a checkable outcome |
 
 **Execute** for a coding plan means the [coding-plan](../coding-plan/SKILL.md) execution harness (worktree, test-first, todos). There is no separate execute skill.
@@ -82,7 +82,7 @@ On the task file only (same folder as `task-*.md`). Add this block on first run.
 - **Result:** pending | <path the user should open>
 ```
 
-Also append one line to **Execution Log**: `YYYY-MM-DD HH:MM - workflow-loop: <stage> done | paused on <file>.`
+Also append one line to **Execution Log**: `YYYY-MM-DD HH:MM - workflow-loop-fast: <stage> done | paused on <file>.`
 
 Task `status`: `In Progress` while moving, `Blocked` while waiting, `Done` when the result is delivered.
 

@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 **Opt-in only.** This skill replaces the old `socratic` workflow skill for work clarification.
 
-Default light ask-when-unsure (1–3 questions, no silent assumptions) lives in `CLAUDE.md` and [`problem-decompose`](../problem-decompose/SKILL.md). This skill is the **work-clarity gate** for a full interrogation session.
+Default light ask-when-unsure (1–3 questions, no silent assumptions) lives in [`problem-decompose`](../problem-decompose/SKILL.md). This skill is the **work-clarity gate** for a full interrogation session.
 
 ## Same folder as the task
 
