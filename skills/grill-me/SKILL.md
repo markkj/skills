@@ -14,6 +14,8 @@ disable-model-invocation: true
 
 Default light ask-when-unsure (1–3 questions, no silent assumptions) lives in [`problem-decompose`](../problem-decompose/SKILL.md). This skill is the **work-clarity gate** for a full interrogation session.
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 ## Same folder as the task
 
 Write **only** into the folder that already has `task-*.md`:

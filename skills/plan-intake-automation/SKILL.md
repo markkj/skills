@@ -9,6 +9,8 @@ disable-model-invocation: true
 
 **Do not auto-apply.** Load this skill only when the user explicitly names `plan-intake-automation`, asks to plan from a saved task record, or requests plan files / Cursor plans from an existing `{{task-generate-name}}.md`.
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 Use this skill only after a task record exists. Inputs are `{{task-generate-name}}.md` plus the task’s **Active spec** / **Active design** when present. The output is **one new** planning artifact appended to that task (a task may already have other plans). This skill is a planning-entry gate; it does not invent missing requirements or architecture.
 
 ## Same folder as the task

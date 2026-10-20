@@ -99,3 +99,4 @@ Item 2 has no Soln yet — ask, then continue.
 | Ask 1–3 blocking questions | Start a `grill-me` session uninvited |
 | Propose Soln + Pros / Cons when a problem is found | Wrap every reply in this template |
 | Hand off to spec/design/plan when that artifact is needed | Write those artifacts from this skill |
+| Leave file sentences to [`humanizer`](../humanizer/SKILL.md) | Rewrite a spec, design, or plan from this skill |

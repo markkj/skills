@@ -13,6 +13,8 @@ Review **the specification artifact**, not the implementation.
 
 Ask: **Did we define the right thing clearly enough to design or execute?**
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 ## Same folder as the task
 
 Write the report **only** here:

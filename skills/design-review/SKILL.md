@@ -11,6 +11,8 @@ disable-model-invocation: true
 
 Ask: **Is this a sound way to satisfy the spec?**
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 ## Same folder as the task
 
 Write the report **only** here:

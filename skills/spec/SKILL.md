@@ -12,6 +12,8 @@ disable-model-invocation: true
 
 A spec defines **what should be true**, not how to implement it.
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 ## Same folder as the task
 
 Write **only** into the folder that already has `task-*.md`:

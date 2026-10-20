@@ -12,6 +12,8 @@ disable-model-invocation: true
 
 Review **the implementation**, using earlier artifacts as the contract.
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 ## Same folder as the task
 
 Write the report **only** here:

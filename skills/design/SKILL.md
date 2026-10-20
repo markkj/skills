@@ -12,6 +12,8 @@ disable-model-invocation: true
 
 A design defines **how the spec should be satisfied**. It is not the executable implementation todo list.
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 ## Same folder as the task
 
 Write **only** into the folder that already has `task-*.md`:

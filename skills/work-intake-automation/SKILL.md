@@ -9,6 +9,8 @@ disable-model-invocation: true
 
 **Do not auto-apply.** Load this skill only when the user explicitly names `work-intake-automation`, asks for work intake, Jira-to-task capture, or Obsidian task tracking before planning.
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 Use this skill when work starts outside the agent and must become a durable task record before the user plans it. The source may be Jira, a typed request, a pasted spec, Slack/email notes, or a verbal summary.
 
 **Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks when `$OBSIDIAN_BASE_VAULT_PATH` is required.

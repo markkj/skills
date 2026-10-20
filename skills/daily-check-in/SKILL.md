@@ -11,6 +11,8 @@ disable-model-invocation: true
 
 **Do not auto-apply.** Load only when the user names `daily-check-in`, asks for a daily check-in, a daily log, or what to do today from project tasks.
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 Scan **every** project under `Projects/`. Rank a short Today list. Write one note under `Projects/Daily Log`. Read yesterday only when that file exists.
 
 Do not create or edit `task-*.md`, specs, designs, or plans. Do not mark tasks Done.

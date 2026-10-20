@@ -12,6 +12,8 @@ disable-model-invocation: true
 
 Ask: **Can this design/spec be implemented safely from this plan?**
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 ## Same folder as the task
 
 Write the report **only** here:

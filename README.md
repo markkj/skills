@@ -21,7 +21,7 @@ One repo, three manifests. Skills stay in `skills/*/SKILL.md`. Bump `version` in
 | Claude Code | [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) | `claude plugin marketplace add .` then `claude plugin install markkj-skills@markkj-skills` |
 | Cursor | [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) | Load this repo as a local plugin |
 
-`problem-decompose` asks the agent to apply it on every task. The other skills run when a mode or you names them.
+`problem-decompose` asks the agent to apply it on every task. `humanizer` applies when a skill writes markdown. The other skills run when a mode or you names them.
 
 **Token use:** These skills are not well optimized for tokens yet. They can pull in more context than a task needs. Treat that as known, not as the target.
 
@@ -240,6 +240,7 @@ raw source/history
 | `workflow-loop-fast` | Which smallest path, and when do we pause for the user? | Replacing a stage skill, or filling **A:** / **Your call** |
 | `workflow-high` | When is the task ready, and which one high skill starts? | Looping stages, or writing code before the test is accepted |
 | `problem-decompose` | What is the problem, split small, with Soln/Pros/Cons — and what must we ask instead of assuming? (**auto-apply**) | spec/design/plan artifacts; full `grill-me` sessions |
+| `humanizer` | Do the sentences in this markdown file match our plain voice? (**auto-apply** on docs) | Chat problem format; required headings, YAML, links, checkboxes |
 | `work-intake-automation` | What work exists and where is its durable record? | spec/design/plan/code |
 | `grill-me` | What are we missing or assuming? | solution design / implementation plan |
 | `spec` | What should be true? | architecture / implementation order |

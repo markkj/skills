@@ -17,6 +17,8 @@ Understand the task and the active spec or design before planning. This skill ad
 
 **Do not auto-apply.** Load this skill only when the user explicitly requests a coding plan or names `coding-plan`.
 
+**Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
+
 ## Same folder as the task
 
 Write the plan origin and any questions **only** into the folder that already has `task-*.md`:
