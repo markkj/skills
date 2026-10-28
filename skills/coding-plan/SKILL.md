@@ -38,6 +38,8 @@ Never write `discussion/` at the git repo root or vault root. `~/.cursor/plans/*
 
 **Core rule: match the project.** New code and tests follow the **same structure and conventions** as that repo.
 
+**Core rule: comment only when required.** Write a comment only when the next reader must have it: a constraint the code does not show, a workaround and why it exists, or an invariant a later edit would break. Leave out comments that restate the name, the step, or the type. If the nearest similar file has no comments, add none.
+
 **Core rule: follow the diagram.** Implementation must match the agreed **implementation outline diagram**. If the design changes, update the diagram first, then todos and code.
 
 **Core rule: work in a worktree.** For an existing repo, implement in a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>`, branched off local `main`/`master` as `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-7). Never commit or push to `main`/`master`; the base is a start point, never an upstream.
@@ -238,6 +240,7 @@ During **Understand**, inspect how this repo is organized. During **Plan**, stat
 
 - Same **layout**, **naming**, **patterns** (errors, DI, logging), and **dependencies** as neighboring code.
 - Do not invent a new style or add libraries unless asked.
+- **Comments:** only a must-have. A hidden constraint, a workaround and why, or an invariant the code cannot show. Match the comment density of the nearest similar file.
 
 ### Tests
 
@@ -453,7 +456,7 @@ For each Cursor Plan todo, in order:
 | **0 — Worktree** | Confirm the working directory is `~/workspace/working-place/<WORK_NAME>/<repo-name>` from phase 7 | `pwd` matches the worktree; `git branch --show-current` = `mark/<WORK_NAME>`; upstream is unset or `origin/mark/<WORK_NAME>` | On `main`/`master`, outside the worktree, or upstream names the base branch → STOP; do not edit or push |
 | **1 — Scope**    | Confirm todo maps to diagram; list files to touch                                                 | Matches one behavior milestone                                                                                               | Scope grew → update diagram and plan first                                                              |
 | **2 — Red**      | Write or extend failing test (repo style)                                                         | Test fails for the right reason                                                                                              | No test and user did not opt out → STOP                                                                 |
-| **3 — Green**    | Minimal code across needed layers                                                                 | Target test passes                                                                                                           | —                                                                                                       |
+| **3 — Green**    | Minimal code across needed layers. Comment only a must-have (hidden constraint, workaround and why, or an invariant). | Target test passes                                                                                                           | —                                                                                                       |
 | **4 — Refactor** | Clean up only if needed; keep tests green                                                         | Related tests still pass                                                                                                     | Regression → fix before next todo                                                                       |
 | **5 — Complete** | Mark todo done only after verify                                                                  | `verify:` line satisfied                                                                                                     | —                                                                                                       |
 
