@@ -27,7 +27,7 @@ Use this skill when work starts outside the agent and must become a durable task
 | **5 — Write** | Create task folder; write `{{task-generate-name}}.md`; if blocking questions exist, also write the questions file under `discussion/` | Read-back shows task (and questions file if any) | `$OBSIDIAN_BASE_VAULT_PATH` unset or write unverified → **STOP** |
 | **6 — Handoff** | Emit [completion report](#completion-report) | User can find task file and future plan paths | — |
 
-**Forbidden during any phase:** create plan files, `~/.cursor/plans/*.plan.md`, notes, ADRs, or product code. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Do not assume planning is next. If the task is unclear, recommend `grill-me`; if it needs a durable behavior contract, recommend `spec`; if it needs solution architecture, recommend `design`; if an executable plan is needed, recommend [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
+**Forbidden during any phase:** create plan files, `~/.cursor/plans/*.plan.md`, notes, ADRs, or product code. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Do not assume planning is next. If the task is unclear, recommend `grill-me`; if it needs a durable behavior contract, recommend `requirement-spec`; if it needs solution architecture, recommend `design`; if an executable plan is needed, recommend [`plan`](../plan/SKILL.md).
 
 ## Completion report
 
@@ -42,7 +42,7 @@ After phase 6, output this block in chat:
 - **Task folder (plans live here):** `<vault-relative folder>` — many `plan-*.md` allowed later
 - **Future discussion:** `<vault-relative discussion folder>`
 - **Blockers:** <none | path to `discussion/questions-intake-*.md`>
-- **Next:** Choose the smallest needed next stage: direct execution, `grill-me`, `spec`, `design`, research/investigation, or `plan-intake-automation` when an executable plan is needed.
+- **Next:** Choose the smallest needed next stage: direct execution, `grill-me`, `requirement-spec`, `design`, research/investigation, or `plan` when an executable plan is needed.
 ```
 
 ## Goal
@@ -66,7 +66,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 └── discussion/     ← questions-intake-*.md lives here, not at repo root
 ```
 
-When the user is ready to plan, they must explicitly request [`plan-intake-automation`](../plan-intake-automation/SKILL.md) — do not auto-switch.
+When the user is ready to plan, they must explicitly request [`plan`](../plan/SKILL.md) — do not auto-switch.
 
 ## Filename Generation
 
@@ -164,13 +164,13 @@ owner: <person or agent>
 
 - **Task folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/`
 - **Specs:**
-  - *(none yet — optional; created by `spec`)*
+  - *(none yet — optional; created by `requirement-spec`)*
 - **Active spec:** *(none)*
 - **Designs:**
   - *(none yet — optional; created by `design`)*
 - **Active design:** *(none)*
 - **Plans:** (one task may have **many** plans; list grows over time)
-  - *(none yet — optional; created by `plan-intake-automation`)*
+  - *(none yet — optional; created by `plan`)*
 - **Active plan:** *(none)*
 - **Clarify / grill-me:**
   - *(none yet — optional; created by `grill-me`)*
@@ -199,7 +199,7 @@ owner: <person or agent>
 - YYYY-MM-DD HH:MM - Created task folder.
 ```
 
-Intake records the **folder** and that plans will live there. Do not invent a single locked plan filename as the only plan; `plan-intake-automation` appends each new plan to **Plans** and sets **Active plan**.
+Intake records the **folder** and that plans will live there. Do not invent a single locked plan filename as the only plan; `plan` appends each new plan to **Plans** and sets **Active plan**.
 
 Example after two plans exist:
 
@@ -216,10 +216,10 @@ Example after two plans exist:
 
 ## Future Artifact Paths
 
-This skill creates the durable task record and records where later artifacts may live. It does **not** assume every task needs planning. After intake, route the task to the smallest appropriate next stage: direct execution, `grill-me`, `spec`, `design`, research/investigation, or `plan-intake-automation`.
+This skill creates the durable task record and records where later artifacts may live. It does **not** assume every task needs planning. After intake, route the task to the smallest appropriate next stage: direct execution, `grill-me`, `requirement-spec`, `design`, research/investigation, or `plan`.
 
 - **Task folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/`
-- **Specs:** `spec-<short-slug>.md`, `spec-<short-slug>-2.md`, ...
+- **Specs:** `requirement-spec-<short-slug>.md`, `requirement-spec-<short-slug>-2.md`, ...
 - **Designs:** `design-<short-slug>.md`, `design-<short-slug>-2.md`, ...
 - **Plans:** `plan-<short-slug>.md`, `plan-<short-slug>-2.md`, ...
 - **Clarify:** `discussion/grill-me-<slug>.md` (optional; no `status` field)

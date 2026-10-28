@@ -1,6 +1,6 @@
-# Plan Intake Automation
+# Plan
 
-**Opt-in only.** The agent loads this skill when the user explicitly names `plan-intake-automation` or asks to plan from an existing task record.
+**Opt-in only.** The agent loads this skill when the user names `plan`, asks to plan from an existing task record, or a workflow route reaches this stage.
 
 **Harness:** Phases 0–7 in `SKILL.md` — preconditions → load → clarify → artifact choice → write (vault origin) → symlink (Cursor) → ledger (append to Plans) → completion report. Do not skip phases.
 
@@ -11,7 +11,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 └── {{task-generate-name}}.md
 ```
 
-It reads `{{task-generate-name}}.md` plus the task’s active spec/design when present, checks planning readiness, and **adds** a planning artifact under that task folder. **One task may have many plans.** Missing requirements/design decisions are routed back to `grill-me` / `spec` / `design` rather than hidden inside the plan.
+It reads `{{task-generate-name}}.md` plus the task’s active spec/design when present, checks planning readiness, and **adds** a planning artifact under that task folder. **One task may have many plans.** Missing requirements or design decisions go back to `grill-me`, `requirement-spec`, or `design`. They do not get buried in the plan. A clear code job hands off to `coding-plan`, which writes the one plan file. Any other job stays in this skill.
 
 `{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders. Use real generated filenames. Example:
 
@@ -34,9 +34,10 @@ It does not perform original work intake and does not execute implementation cha
 
 ```text
 work-intake-automation: source request -> task record
-grill-me / spec / design: optional clarification + definition stages
-plan-intake-automation: task + active spec/design -> plan-*.md / Cursor symlink
-coding-plan: active plan -> coding-specific diagram/todos + worktree -> implementation
+grill-me / requirement-spec / design: optional clarification + definition stages
+plan: task + active spec/design
+  clear code job -> coding-plan writes the one plan (diagrams, test-first todos, worktree)
+  anything else  -> this skill writes plan-*.md / Cursor symlink
 ```
 
 ## Multi-plan example

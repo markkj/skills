@@ -57,7 +57,7 @@ It must **not**:
 | **2 — Grill** | Ask focused questions, 1–3 at a time; write unanswered ones to `discussion/questions-grill-me-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md) | Blocking unknowns are resolved, accepted, or recorded for the user to fill **A:** | User cannot answer a critical blocker |
 | **3 — Synthesize** | Restate clarified goal, scope, criteria, constraints, remaining assumptions | User agrees or corrects the synthesis | User rejects synthesis → continue phase 2 |
 | **4 — Ledger** | If a task file exists: append the execution log; list the questions file under **Open questions** / **Clarify**; no `status` on the discussion file | Task is the status ledger | Task update fails |
-| **5 — Handoff** | Recommend the next artifact: direct execution, `spec`, `design`, research, or planning | Next stage matches the work | — |
+| **5 — Handoff** | Recommend the next artifact: direct execution, `requirement-spec`, `design`, research, or `plan` | Next stage matches the work | — |
 
 ## Question lenses
 
@@ -80,9 +80,9 @@ Do not force every task through every stage.
 unclear task -> grill-me -> clear task
 
 clear small task            -> execute / domain workflow
-clear requirement-heavy task -> spec
-clear architecture-heavy task -> design (or spec first when behavior is not yet fixed)
-clear coding task             -> plan-intake-automation / coding-plan when planning is requested
+clear requirement-heavy task -> requirement-spec
+clear architecture-heavy task -> design (or requirement-spec first when behavior is not yet fixed)
+clear coding task             -> plan when planning is requested; plan opens coding-plan
 ```
 
 ## Context Budget

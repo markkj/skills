@@ -7,7 +7,7 @@ Two commands:
 | Command | What it does |
 |---------|----------------|
 | `/workflow-loop-fast` | The agent runs the smallest stage path until a result or a human gate. |
-| `/workflow-high` | Intake, then you finish the task. When you say it is ready, one high skill starts. For code, that skill shows the test input and output for you to review before any production code. |
+| `/workflow-high` | Intake, then you finish the task. When you say it is ready, one skill starts. For a clear code change, that skill is `coding-plan` and it shows the test input and output for you to review before any production code. If the task is not that specific, the skill is `design` or a normal plan. |
 
 [`CLAUDE.md`](CLAUDE.md) is optional personal thinking. It is not part of the install. `./scripts/link-skills.sh` copies skills only. `./scripts/install-center.sh` installs `CLAUDE.md` when you want it, and it will not replace a file you already have.
 
@@ -21,7 +21,7 @@ One repo, three manifests. Skills stay in `skills/*/SKILL.md`. Bump `version` in
 | Claude Code | [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) | `claude plugin marketplace add .` then `claude plugin install markkj-skills@markkj-skills` |
 | Cursor | [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) | Load this repo as a local plugin |
 
-`problem-decompose` asks the agent to apply it on every task. `humanizer` applies when a skill writes markdown. The other skills run when a mode or you names them.
+`problem-decompose` asks the agent to apply it on every task. `humanizer` applies whenever the agent writes sentences a person will read, in a file or in chat. The other skills run when a mode or you names them.
 
 **Token use:** These skills are not well optimized for tokens yet. They can pull in more context than a task needs. Treat that as known, not as the target.
 
@@ -37,9 +37,9 @@ Not every task uses every stage.
 
 - **Capture** — `work-intake-automation`: what work exists?
 - **Clarify** — `grill-me`: what is ambiguous or assumed?
-- **Define** — `spec`: what exactly should be true?
+- **Define** — `requirement-spec`: what exactly should be true?
 - **Design** — `design`: how should it work?
-- **Plan** — `plan-intake-automation` + `coding-plan`: what executable steps will we take?
+- **Plan** — `plan`: what executable steps will we take? It opens `coding-plan` only when the task clearly asks to write or change code.
 - **Verify** — `verify`: did the result satisfy the task/spec?
 - **Review** — artifact-specific review: is this artifact/result good enough to proceed?
 
@@ -58,9 +58,9 @@ flowchart TD
 
     R -- Simple --> EX[Execute directly / domain workflow]
     R -- Research or investigation --> RS[Research / investigate]
-    R -- Needs durable requirements --> S[spec]
+    R -- Needs durable requirements --> S[requirement-spec]
     R -- Already-defined but needs solution design --> D[design]
-    R -- Ready for executable planning --> PI[plan-intake-automation]
+    R -- Ready for executable planning --> PI[plan]
 
     S --> SR{Spec review needed?}
     SR -- Yes --> SRV[spec-review]
@@ -109,15 +109,14 @@ flowchart TD
 ### Small task
 
 ```text
-work-intake-automation -> execute -> verify (when useful)
+work-intake-automation -> coding-plan -> verify (when useful)
 ```
 
 ### Clear software change
 
 ```text
 work-intake-automation
--> plan-intake-automation
--> coding-plan
+-> plan                      # opens coding-plan for this clear code change
 -> execute
 -> verify
 -> code-review
@@ -127,40 +126,25 @@ work-intake-automation
 
 ```text
 work-intake-automation
--> grill-me              # only if unclear
--> spec
--> design                # only if non-trivial solution design is needed
--> plan-intake-automation
--> coding-plan
--> plan-review           # optional pressure test
--> execute
--> verify
--> code-review
+-> grill-me?             # only if unclear
+-> requirement-spec
+-> one next step:
+   design, then stop                         # how it should work is still open
+   plan                                  # opens coding-plan only for a clear code job
+     plan-review? -> execute -> verify -> code-review
+                                           # only when plan opened coding-plan
 ```
 
 ### High-risk / platform / architecture change
 
-```text
-work-intake-automation
--> grill-me
--> spec
--> spec-review
--> design
--> design-review
--> plan-intake-automation
--> coding-plan
--> plan-review
--> execute
--> verify
--> code-review
-```
+Same fork as a normal feature. Always run `grill-me` and `spec-review`. Add `design-review` only when that fork includes `design`.
 
 ### Non-coding work
 
 ```text
 work-intake-automation
 -> grill-me?             # ambiguity only
--> spec?                 # durable definition only when useful
+-> requirement-spec?     # durable definition only when useful
 -> research / investigate / write / operate / execute
 -> verify / result review when useful
 ```
@@ -173,16 +157,16 @@ work-intake-automation
 Projects/<PROJECT_NAME>/<WORK_ID>/          # same folder as task-*.md
 ├── task-<slug>.md                 # work-intake-automation: durable ledger
 ├── context.md                     # compact handoff cache; created lazily
-├── spec-<slug>.md                 # spec: optional; one or more over time
+├── requirement-spec-<slug>.md     # requirement-spec: optional; one or more over time
 ├── design-<slug>.md               # design: optional; one or more over time
-├── plan-<slug>.md                 # plan-intake / coding-plan: one or more
+├── plan-<slug>.md                 # plan, or coding-plan when the job is code
 └── discussion/                    # questions + reviews — never repo root
     ├── spec-review-<slug>.md
     ├── design-review-<slug>.md
     └── verification-<slug>.md
 ```
 
-For Cursor plans, the **Obsidian plan is the origin** and `~/.cursor/plans/*.plan.md` is a symlink. `coding-plan` retains the existing git-worktree behavior under:
+For Cursor plans, the **Obsidian plan is the origin** and `~/.cursor/plans/*.plan.md` is a symlink. Product code goes through `coding-plan`, which creates the git worktree here:
 
 ```text
 ~/workspace/working-place/<WORK_NAME>/<repo-name>
@@ -237,17 +221,17 @@ raw source/history
 | Skill | Question it answers | Must not own |
 |---|---|---|
 | `workflow` | Which command, fast or high? | Running the work itself |
-| `workflow-loop-fast` | Which smallest path, and when do we pause for the user? | Replacing a stage skill, or filling **A:** / **Your call** |
-| `workflow-high` | When is the task ready, and which one high skill starts? | Looping stages, or writing code before the test is accepted |
+| `workflow-loop-fast` | Which smallest path, when do we pause, and when is the next stage a different job for a sub-agent? | Replacing a stage skill, filling **A:** / **Your call**, or opening `coding-plan` for a vague task |
+| `workflow-high` | When is the task ready, and which one skill starts? | Looping stages, opening `coding-plan` when the task does not ask to write code, or writing code before the test is accepted |
 | `problem-decompose` | What is the problem, split small, with Soln/Pros/Cons — and what must we ask instead of assuming? (**auto-apply**) | spec/design/plan artifacts; full `grill-me` sessions |
-| `humanizer` | Do the sentences in this markdown file match our plain voice? (**auto-apply** on docs) | Chat problem format; required headings, YAML, links, checkboxes |
+| `humanizer` | Do these sentences match our plain voice, wherever they are written? (**auto-apply**) | Chat problem format; code, commands, identifiers; required headings, YAML, links, checkboxes |
 | `work-intake-automation` | What work exists and where is its durable record? | spec/design/plan/code |
 | `grill-me` | What are we missing or assuming? | solution design / implementation plan |
-| `spec` | What should be true? | architecture / implementation order |
+| `requirement-spec` | What should be true? | architecture / implementation order |
 | `spec-review` | Is the definition complete and testable? | implementation |
 | `design` | How should the desired behavior work? | file-level execution todos |
 | `design-review` | Is this a sound solution to the spec? | code changes |
-| `plan-intake-automation` | Is the task ready for planning, and where does the plan live? | foundational requirements/design decisions |
+| `plan` | What are the steps, and does this job use `coding-plan`? | foundational requirements/design decisions; a second plan file when `coding-plan` writes the plan |
 | `coding-plan` | How do we implement this software change safely? | changing agreed requirements silently |
 | `plan-review` | Is the plan safe and executable? | implementation |
 | `verify` | Did the result satisfy the contract? | assuming tests alone prove completion |
@@ -258,4 +242,4 @@ raw source/history
 
 Use the **smallest workflow that preserves correctness**. Stages are gates, not ceremony.
 
-A solid task may skip `grill-me`. A tiny task may skip `spec`, `design`, and planning. A research task may never touch `coding-plan`. A risky platform change may use every review gate.
+A solid task may skip `grill-me`. A tiny task may skip `requirement-spec`, `design`, and planning. A research task may never touch `coding-plan`. A risky platform change may use every review gate.

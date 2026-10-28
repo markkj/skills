@@ -18,4 +18,4 @@ disable-model-invocation: true
 
 If the user typed `/workflow` and did not name a command, ask once which one they want. Do not start intake, spec, design, or code until they answer.
 
-Stage skills (`spec`, `coding-plan`, and the rest) stay separate. A mode reads each skill when that stage is actually called. File layout for task records lives in `work-intake-automation`, not here.
+Stage skills (`requirement-spec`, `plan`, `coding-plan`, and the rest) stay separate. A mode reads each skill when that stage is actually called. `plan` decides whether the job uses `coding-plan`. File layout for task records lives in `work-intake-automation`, not here.

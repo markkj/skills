@@ -9,7 +9,7 @@ disable-model-invocation: true
 
 # Spec Review
 
-Review **the specification artifact**, not the implementation.
+Review the requirement spec (`requirement-spec-<slug>.md` from [`requirement-spec`](../requirement-spec/SKILL.md)), not the implementation.
 
 Ask: **Did we define the right thing clearly enough to design or execute?**
 

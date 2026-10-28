@@ -14,7 +14,7 @@ description: >-
 
 Default thinking: **name the problem → split it small → ask if unsure → then propose.**
 
-This skill owns the thinking/response shape. It does **not** own spec, design, or plan artifacts. Full interrogation sessions still belong to `grill-me`.
+This skill owns the thinking/response shape. It does **not** own requirement-spec, design, or plan artifacts. Full interrogation sessions still belong to `grill-me`.
 
 When a named flow skill writes a file, that file belongs in the **same folder as `task-*.md`**: `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/…` — never the git repo root.
 
@@ -98,5 +98,5 @@ Item 2 has no Soln yet — ask, then continue.
 | Name and split problems | Silently assume missing facts |
 | Ask 1–3 blocking questions | Start a `grill-me` session uninvited |
 | Propose Soln + Pros / Cons when a problem is found | Wrap every reply in this template |
-| Hand off to spec/design/plan when that artifact is needed | Write those artifacts from this skill |
-| Leave file sentences to [`humanizer`](../humanizer/SKILL.md) | Rewrite a spec, design, or plan from this skill |
+| Hand off to requirement-spec/design/plan when that artifact is needed | Write those artifacts from this skill |
+| Leave file sentences to [`humanizer`](../humanizer/SKILL.md) | Rewrite a requirement spec, design, or plan from this skill |

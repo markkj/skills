@@ -1,13 +1,13 @@
 ---
-name: plan-intake-automation
+name: plan
 description: >-
-  Turns an existing Obsidian task record — plus active spec/design when present — into a new executable planning artifact such as {{plan-generate-name}}.md and an optional Cursor ~/.cursor/plans/*.plan.md symlink. Use only when the user explicitly names plan-intake-automation, asks to plan from a saved task record, convert task facts into executable todos, or create Cursor plan files after intake.
+  Turns an existing Obsidian task record — plus active spec/design when present — into a new executable planning artifact such as {{plan-generate-name}}.md and an optional Cursor ~/.cursor/plans/*.plan.md symlink. Chooses coding-plan only when the task clearly asks to write or change code. Use when the user names plan, asks to plan from a saved task record, or a workflow route reaches this stage.
 disable-model-invocation: true
 ---
 
-# Plan Intake Automation
+# Plan
 
-**Do not auto-apply.** Load this skill only when the user explicitly names `plan-intake-automation`, asks to plan from a saved task record, or requests plan files / Cursor plans from an existing `{{task-generate-name}}.md`.
+**Do not auto-apply.** Load this skill when the user names `plan`, asks to plan from a saved task record, or a workflow route reaches this stage.
 
 **Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
 
@@ -26,29 +26,30 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 
 Never write `discussion/` at the git repo root or vault root. The Cursor `~/.cursor/plans/*.plan.md` path is a **symlink only**; the origin file stays in this task folder. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
 
-**Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks, no product code changes.
+**Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks, no product code changes. Phase **2b** is the exception: a yes ends this harness and continues in `coding-plan`.
 
 ## Harness phases
 
 | Phase | Do | Verify | STOP if |
 |-------|-----|--------|---------|
-| **0 — Preconditions** | User named this skill; locate `{{task-generate-name}}.md` via `$OBSIDIAN_BASE_VAULT_PATH` + vault-relative path | File exists and is readable | No task file or env unset → tell user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first |
+| **0 — Preconditions** | User named `plan`, or a workflow route reached this stage; locate `{{task-generate-name}}.md` via `$OBSIDIAN_BASE_VAULT_PATH` + vault-relative path | File exists and is readable | No task file or env unset → tell user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first |
 | **1 — Load** | Read task file; load **Active spec** and **Active design** when present; restate goal/criteria/constraints; list existing **Plans** + **Active plan** | Inputs are internally consistent and gaps listed | — |
-| **2 — Planning readiness** | Check whether enough decisions exist to create executable todos. If requirements are unclear → hand off to `grill-me` / `spec`; if solution architecture is unresolved and needed → hand off to `design`. Write remaining blockers to `discussion/questions-plan-<slug>.md`. If plans already exist, confirm add-new vs explicit revision. | No implementation-critical ambiguity remains, or blockers are in the questions file | Missing requirement/design decision with no questions file → STOP; do not bury it inside the plan |
-| **3 — Artifact choice** | Pick one primary output: Obsidian-only plan, Cursor plan (+ symlink), or discussion doc only | Choice matches execution owner in task file or user stated preference | Ambiguous and user did not choose → ask; STOP until chosen |
+| **2 — Planning readiness** | Check whether enough decisions exist to create executable todos. If requirements are unclear → hand off to `grill-me` / `requirement-spec`; if solution architecture is unresolved and needed → hand off to `design`. Write remaining blockers to `discussion/questions-plan-<slug>.md`. If plans already exist, confirm add-new vs explicit revision. | No implementation-critical ambiguity remains, or blockers are in the questions file | Missing requirement/design decision with no questions file → STOP; do not bury it inside the plan |
+| **2b — Coding plan or not** | Apply [Coding plan or not](#coding-plan-or-not). If yes, stop this harness and follow `coding-plan`. | The choice is written on the task | You cannot tell and the user has not answered |
+| **3 — Artifact choice** | Only when coding-plan is not used. Pick one primary output: Obsidian-only plan, Cursor plan (+ symlink), or discussion doc only | Choice matches execution owner in task file or user stated preference | Ambiguous and user did not choose → ask; STOP until chosen |
 | **4 — Write** | Create a **new** plan at vault origin via `$OBSIDIAN_BASE_VAULT_PATH`; on name collision use [unique plan names](#unique-plan-names-never-overwrite) | New artifact exists; prior plans untouched; no literal `{{…}}` in filenames | `$OBSIDIAN_BASE_VAULT_PATH` unset or write failed → STOP |
 | **5 — Link** (Cursor only) | Symlink a **new** `~/.cursor/plans/<slug>_<short-id>.plan.md` → this vault origin | `readlink` + `realpath` show same file | Symlink wrong or Cursor path is a duplicate copy → fix or STOP |
 | **6 — Ledger** | **Append** new plan to **Plans**; set **Active plan** to the new file; `status: Planned`; execution log | Task file lists all plans; Active plan = newest | Task update failed → STOP and report |
 | **7 — Handoff** | Emit [completion report](#completion-report) | User can resume from task + active (or chosen) plan | — |
 
-**Forbidden during any phase:** create a new task file, change product code, auto-apply [`coding-plan`](../coding-plan/SKILL.md) unless user names it.
+**Forbidden during any phase:** create a new task file, change product code, or open [`coding-plan`](../coding-plan/SKILL.md) when [Coding plan or not](#coding-plan-or-not) says no. When it says yes, follow `coding-plan` and do not write a second plan in this skill.
 
 ## Completion report
 
 After phase 7, output this block in chat:
 
 ```markdown
-## Plan intake complete
+## Plan complete
 
 - **Task:** `<vault-relative path to task file>`
 - **New plan:** `<vault path>` (origin) | Cursor: `~/.cursor/plans/…` → symlink to origin | Obsidian-only
@@ -56,7 +57,7 @@ After phase 7, output this block in chat:
 - **All plans:** `<N total for this task>`
 - **Discussion:** `<path or none>`
 - **Status:** Planned
-- **Next:** Name `coding-plan` for diagram-backed implementation, or execute from the active plan. Re-run `plan-intake-automation` to add another plan for the same task.
+- **Next:** Execute from the active plan. Re-run `plan` to add another plan for the same task.
 - **Blockers:** <none | list>
 ```
 
@@ -64,10 +65,10 @@ After phase 7, output this block in chat:
 
 - [`work-intake-automation`](../work-intake-automation/SKILL.md): source request -> durable task record.
 - [`grill-me`](../grill-me/SKILL.md): resolve ambiguity when needed.
-- [`spec`](../spec/SKILL.md): define what should be true when a durable contract is useful.
-- [`design`](../design/SKILL.md): define how to satisfy the spec when solution design is needed.
-- `plan-intake-automation` (this skill): task + active spec/design -> **another** vault `plan-*.md` (origin), optional Cursor symlink. One task → many plans.
-- [`coding-plan`](../coding-plan/SKILL.md): add coding-specific diagrams, test-first e2e todos, and git worktree setup.
+- [`requirement-spec`](../requirement-spec/SKILL.md): define what should be true when a durable contract is useful.
+- [`design`](../design/SKILL.md): define how to satisfy the requirement spec when solution design is needed.
+- `plan` (this skill): task + active spec/design -> one plan. Opens `coding-plan` only for a clear code job. One task → many plans.
+- [`coding-plan`](../coding-plan/SKILL.md): the plan body for a clear code job — diagrams, test-first todos, and a git worktree. Not a second plan file.
 - Execution happens later; do not change product code while planning.
 
 If `{{task-generate-name}}.md` does not exist, tell the user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first — do not auto-apply intake.
@@ -135,7 +136,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 └── discussion/
 ```
 
-- Re-running `plan-intake-automation` on the same task **adds** a plan; it does not replace the only plan.
+- Re-running `plan` on the same task **adds** a plan; it does not replace the only plan.
 - Execution / `coding-plan` uses **Active plan** unless the user picks another from **Plans**.
 - Obsidian-only and Cursor-linked plans can coexist in the same **Plans** list.
 
@@ -151,7 +152,7 @@ Follow [Harness phases](#harness-phases). The steps below are phase details — 
    - unknowns/blockers
    - existing **Plans** list, **Active plan**, discussion path
 
-**Phase 2 — Planning readiness:** A plan is not the place to resolve foundational ambiguity. If acceptance criteria/scope are unclear, recommend `grill-me` or `spec`. If architecture/solution decisions are required but unresolved, recommend `design`. Only ask narrow planning-specific questions (execution owner, artifact format, sequencing constraints). If **Plans** is non-empty, confirm the user wants an **additional** plan (default) rather than editing an old one in place.
+**Phase 2 — Planning readiness:** A plan is not the place to resolve foundational ambiguity. If acceptance criteria/scope are unclear, recommend `grill-me` or `requirement-spec`. If architecture/solution decisions are required but unresolved, recommend `design`. Only ask narrow planning-specific questions (execution owner, artifact format, sequencing constraints). If **Plans** is non-empty, confirm the user wants an **additional** plan (default) rather than editing an old one in place.
 
 **Phase 3 — Artifact choice:**
    - **Obsidian-only plan:** write a **new** `plan-*.md` in the task folder (markdown template below; no `~/.cursor/plans/` file).
@@ -335,11 +336,15 @@ flowchart LR
 Start by reading `{{task-generate-name}}.md`, this Cursor plan, and any relevant `discussion/` docs. Track executable todo progress in the YAML frontmatter.
 ````
 
-## Coding plan (explicit opt-in)
+## Coding plan or not
 
-Do **not** auto-apply the `coding-plan` skill. Only when the user **explicitly** asks for a coding plan or names `coding-plan`, follow [`coding-plan`](../coding-plan/SKILL.md): include the **quality attributes table** (reliability, scalability, maintainability), implementation diagrams for non-trivial work, one Cursor todo per small e2e feedback-loop iteration, and test-first verification in todo `verify:` lines.
+Decide once, after planning readiness. Record the choice on the task.
 
-If the user did not request a coding plan, use the templates above without coding-plan diagrams or slice rules.
+Use [`coding-plan`](../coding-plan/SKILL.md) when the task clearly asks to write or change code: a bug, a feature in a repo, an API, or a behavior to implement. Stop this harness and follow that skill. It writes the one `plan-*.md` (diagrams, test-first todos, worktree). Do not write a second plan here.
+
+Do not use `coding-plan` when the task is a direction, a question, a doc, a process, or “figure out how.” Continue this harness and use the templates above.
+
+If those two readings would change the work and you cannot tell, ask once.
 
 ## Discussion Docs
 

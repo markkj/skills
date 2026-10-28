@@ -6,16 +6,17 @@ description: >-
   feature-first Cursor Plan todos as small e2e feedback loops, git worktree off
   main/master on branch mark/<WORK_ID>_<TASK_SLUG> (slug alone when there is no
   WORK_ID), test-first execution,
-  match project structure and test style. Use only when the user explicitly asks for
-  a coding plan, mentions coding-plan, or wants diagram-backed Cursor Plan todos
-  for implementation.
+  match project structure and test style. Use when the user explicitly asks for
+  a coding plan, mentions coding-plan, wants diagram-backed Cursor Plan todos
+  for implementation, plan hands off a clear code job, or any skill is about to
+  change product code.
 ---
 
 # Coding Plan
 
 Understand the task and the active spec or design before planning. This skill adds **coding-plan-specific** rules for diagram-backed Cursor plans and test-first execution. When [`workflow-high`](../workflow-high/SKILL.md) sent you here, its test-case review gate happens before production code.
 
-**Do not auto-apply.** Load this skill only when the user explicitly requests a coding plan or names `coding-plan`.
+**Do not auto-apply** for a requirement spec, a design, or a plan that is not code. Load this skill before any product code: the user named `coding-plan`, [`plan`](../plan/SKILL.md) handed off a clear code job, or another skill is about to edit the repo.
 
 **Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
 
@@ -32,7 +33,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 
 Never write `discussion/` at the git repo root or vault root. `~/.cursor/plans/*.plan.md` is a symlink to that origin. No task folder → ask; do not invent a discussion path under the git repo.
 
-**Core rule: already know what to do.** This skill turns a **clear** task/spec/design into diagrams and todos. It does not invent requirements or architecture. Same gate as [`plan-intake-automation`](../plan-intake-automation/SKILL.md).
+**Core rule: already know what to do.** This skill turns a **clear** task/spec/design into diagrams and todos. It does not invent requirements or architecture. Same gate as [`plan`](../plan/SKILL.md).
 
 **Core rule: test-first.** For behavior changes, write or extend a **failing test first**, then minimal code to pass, then verify. Do not add production logic for new behavior without a failing test (unless the user opts out).
 
@@ -50,8 +51,8 @@ Never write `discussion/` at the git repo root or vault root. `~/.cursor/plans/*
 
 | Phase                      | Do                                                                                                                                                                                                                                                                                                                  | Verify                                                                                                         | STOP if                                                                                                                                         |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **0 — Preconditions**      | User named `coding-plan`; load task + **Active spec** / **Active design** / **Active plan** when present; read repo layout and 1–2 similar features                                                                                                                                                                 | Task (or stated goal) and stack/test style identified                                                          | No task and goal unknown, or repo unreadable → ask                                                                                              |
-| **1 — Readiness**          | Confirm we **already know what to do**. Goal/acceptance unclear → `grill-me` / `spec`. Architecture still open when it matters → `design`. Write blockers to `discussion/questions-plan-<slug>.md` (**A:**). Only narrow planning questions (owner, sequencing, verify command).                                   | Acceptance criteria exist; no implementation-critical ambiguity                                                | Missing requirement/design decision → STOP; do not draw diagrams or invent todos. Recommend the earlier skill.                                  |
+| **0 — Preconditions**      | User named `coding-plan`, or `plan` handed off a clear code job; load task + **Active spec** / **Active design** / **Active plan** when present; read repo layout and 1–2 similar features                                                                                                                        | Task (or stated goal) and stack/test style identified                                                          | No task and goal unknown, or repo unreadable → ask                                                                                              |
+| **1 — Readiness**          | Confirm we **already know what to do**. Goal/acceptance unclear → `grill-me` / `requirement-spec`. Architecture still open when it matters → `design`. Write blockers to `discussion/questions-plan-<slug>.md` (**A:**). Only narrow planning questions (owner, sequencing, verify command).                                   | Acceptance criteria exist; no implementation-critical ambiguity                                                | Missing requirement/design decision → STOP; do not draw diagrams or invent todos. Recommend the earlier skill.                                  |
 | **2 — Quality attributes** | Fill [quality attributes table](#quality-attributes-block-required-in-plan-output)                                                                                                                                                                                                                                  | All three rows filled or N/A with reason                                                                       | Blank row → STOP; no diagram yet                                                                                                                |
 | **3 — Feature map**        | Name user-visible behaviors; group features                                                                                                                                                                                                                                                                         | Behaviors trace to acceptance criteria                                                                         | Cannot trace to criteria → back to readiness                                                                                                    |
 | **4 — Diagram**            | Mermaid component + call flow per feature group                                                                                                                                                                                                                                                                     | User confirms diagram                                                                                          | User objects or diagram incomplete → revise; STOP before todos                                                                                  |
@@ -63,9 +64,9 @@ Never write `discussion/` at the git repo root or vault root. `~/.cursor/plans/*
 
 ### Planning readiness (phase 1)
 
-A coding plan is not the place to resolve foundational ambiguity. Same rule as [`plan-intake-automation`](../plan-intake-automation/SKILL.md):
+A coding plan is not the place to resolve foundational ambiguity. Same rule as [`plan`](../plan/SKILL.md):
 
-- Goal, scope, or acceptance criteria unclear → **STOP**. Recommend `grill-me` or `spec`. Write `discussion/questions-plan-<slug>.md` (**A:**).
+- Goal, scope, or acceptance criteria unclear → **STOP**. Recommend `grill-me` or `requirement-spec`. Write `discussion/questions-plan-<slug>.md` (**A:**).
 - How to build it still open (APIs, data model, job vs request, etc.) and it matters → **STOP**. Recommend `design`.
 - Small, already-clear work may skip spec/design. Do not skip readiness.
 - Only ask narrow planning questions (execution owner, verify command, sequencing).
@@ -86,7 +87,7 @@ Vault-relative path (for task ledger and symlinks):
 Projects/<PROJECT_NAME>/<WORK_ID>/plan-<slug>.md
 ```
 
-Prefer the task folder from an existing task record ([`plan-intake-automation`](../plan-intake-automation/SKILL.md) / [`work-intake-automation`](../work-intake-automation/SKILL.md)). If none exists, ask for the vault project/work folder before writing. Read vault root from `$OBSIDIAN_BASE_VAULT_PATH`; if unset → **STOP** and report.
+Prefer the task folder from an existing task record ([`plan`](../plan/SKILL.md) / [`work-intake-automation`](../work-intake-automation/SKILL.md)). `plan` sends a clear code job here to write the one plan file. If none exists, ask for the vault project/work folder before writing. Read vault root from `$OBSIDIAN_BASE_VAULT_PATH`; if unset → **STOP** and report.
 
 **One task → many plans.** Write a **new** plan file; never overwrite. If `plan-<slug>.md` exists, use `plan-<slug>-2.md`, then `-3`, … until free. **Append** to the task’s **Plans** list and set **Active plan** to the new file. If several plans exist and the user did not say which to execute, ask once — default is **Active plan**.
 
@@ -125,7 +126,7 @@ Implement in a **dedicated git worktree** branched off the base branch, so `main
 
 **Branch name:** `mark/<WORK_NAME>`.
 
-**Worktree path:** `~/workspace/working-place/<WORK_NAME>/<repo-name>` — never a sibling of the repo. One folder per work item in the shared hub; inside it, one folder per repo that work touches. Work spanning several repos keeps those checkouts side by side under the same work folder.
+**Worktree path:** `~/workspace/working-place/<WORK_NAME>/<repo-name>` — never a sibling of the repo. One folder per work item in the shared hub; inside it, one folder per repo that work touches. Work spanning several repos keeps those checkouts side by side under the same work folder. Product code reaches this path only by loading this skill.
 
 ```text
 ~/workspace/working-place/

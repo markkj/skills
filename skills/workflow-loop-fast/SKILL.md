@@ -3,9 +3,11 @@ name: workflow-loop-fast
 description: >-
   Fast path. The agent runs the smallest stage path from a task or feature
   idea until the user has a result. Pauses only at human gates (empty A:
-  lines, review Your call, coding-plan diagram confirm). Use when the user
-  types /workflow-loop-fast, names workflow-loop-fast, or asks the agent to run
-  the workflow loop.
+  lines, review Your call, coding-plan diagram confirm). After the
+  requirement spec, the next step is design or plan. plan opens coding-plan
+  only for a clear code job. A sub-agent runs a stage only when that stage is
+  a different job from this loop. Use when the user types /workflow-loop-fast,
+  names workflow-loop-fast, or asks the agent to run the workflow loop.
 disable-model-invocation: true
 ---
 
@@ -25,7 +27,7 @@ Naming this skill **is** permission to run each stage on the chosen path. Read t
 |-------|-----|--------|---------|
 | **0 — Input** | Take the user’s task or feature idea. If a task file already exists, resume it. | Idea or task path is known | Neither an idea nor a task file |
 | **1 — Route** | Pick the smallest path in [Routes](#routes). Record it on the task. | Route name is one of the four | Small vs normal would change the work and the user did not say which → ask once |
-| **2 — Stage** | Read that stage’s `SKILL.md`. Do the stage. Update the [loop ledger](#loop-ledger). | Stage’s own verify passed | Stage STOP, or a [human gate](#human-gates) |
+| **2 — Stage** | Read that stage’s `SKILL.md`. If [Sub-agent](#sub-agent) says this stage is a different job, spawn one. Otherwise do the stage here. Update the [loop ledger](#loop-ledger). | Stage’s own verify passed, or the sub-agent’s file is on the task | Stage STOP, or a [human gate](#human-gates) |
 | **3 — Advance** | Next stage on the route. Skip a stage only when its “only if” line is false. | Ledger stage matches where you are | — |
 | **4 — Result** | When the route’s last stage is done and gates are clear, mark the task `Done` and emit [Loop done](#loop-done). | User can open the result | A gate is still open |
 
@@ -37,16 +39,55 @@ Use the **minimum** path. Do not run every skill.
 
 | Route | Use when | Stages |
 |-------|----------|--------|
-| **small** | One clear code change. Place and success check are already known. | `work-intake-automation` → execute → `verify` → `code-review` only if the change can break users or the user asked |
-| **normal** | A feature or behavior that is not written down yet. | `work-intake-automation` → `grill-me` only if outcome, scope, or acceptance is unclear → `spec` → `design` only if more than one way matters → `plan-intake-automation` → `coding-plan` → `plan-review` → execute → `verify` → `code-review` |
-| **high-risk** | Auth, money, data loss, migration, public API, or the user says high-risk. Prefer [`workflow-high`](../workflow-high/SKILL.md) when the human should finish the task before any high skill runs. | **normal**, but always `grill-me`, `spec-review`, and `design-review` |
-| **non-coding** | The result is not a software change. | `work-intake-automation` → `grill-me` only if unclear → `spec` only if a durable contract is needed → do the work → `verify` if there is a checkable outcome |
+| **small** | One clear code change. Place and success check are already known. | `work-intake-automation` → `coding-plan` → `verify` → `code-review` only if the change can break users or the user asked |
+| **normal** | A feature or behavior that is not written down yet. | `work-intake-automation` → `grill-me` only if outcome, scope, or acceptance is unclear → `requirement-spec` → [one next step](#after-the-requirement-spec) |
+| **high-risk** | Auth, money, data loss, migration, public API, or the user says high-risk. Prefer [`workflow-high`](../workflow-high/SKILL.md) when the human should finish the task before any high skill runs. | **normal**, and always `grill-me` and `spec-review`. Add `design-review` only when the next step includes `design` |
+| **non-coding** | The result is not a software change. | `work-intake-automation` → `grill-me` only if unclear → `requirement-spec` only if a durable contract is needed → do the work → `verify` if there is a checkable outcome |
 
-**Execute** for a coding plan means the [coding-plan](../coding-plan/SKILL.md) execution harness (worktree, test-first, todos). There is no separate execute skill.
+## After the requirement spec
+
+Pick **one** next step. Do not run both.
+
+| Next step | When | Then |
+|-----------|------|------|
+| [`design`](../design/SKILL.md) | How it should work is still open. | Stop. The result is the design. Ledger: `normal (design)`. |
+| [`plan`](../plan/SKILL.md) | The approach is known, or the task clearly asks to write or change code. | Follow `plan`. That skill opens [`coding-plan`](../coding-plan/SKILL.md) only for a clear code job. Ledger: `normal (plan)`. |
+
+If design vs plan would change the work and you cannot tell, ask once.
+
+When `plan` opened `coding-plan`, continue `plan-review` only if that plan should be pressure-tested, then execute, `verify`, and `code-review`. Otherwise stop. The result is the plan.
+
+**Execute** means the [coding-plan](../coding-plan/SKILL.md) execution harness (worktree, test-first, todos). There is no separate execute skill. Any product code loads `coding-plan` first, including the **small** route.
 
 **Execute** for non-coding work means produce the outcome named on the task. Do not open `coding-plan`.
 
 If the user said “feature idea”, start at **normal** unless they also said high-risk. If they gave one exact code change, start at **small**.
+
+## Sub-agent
+
+This chat owns the route, the task ledger, and every human gate. Spawn a sub-agent only when the next stage is a different job.
+
+| Spawn | Stage |
+|-------|--------|
+| Yes | `spec-review`, `design-review`, `plan-review`, or `code-review` of a file this chat just wrote |
+| Yes | Research or a spike whose notes would bury this loop |
+| Yes | `coding-plan` execution (the todos after the plan exists) |
+| No | The next step of the same skill |
+| No | A human gate is open (empty **A:** or **Your call**) |
+| No | The brief would have to invent the requirement spec or the design |
+
+Write this brief on the task before the spawn. The sub-agent may write only **Write**.
+
+```markdown
+## Sub-agent brief
+
+- **Goal:** <one sentence>
+- **Read:** <task path, and the artifact paths>
+- **Write:** <one file path>
+- **Do not change:** <the ledger, other artifacts, product code unless Write is the code>
+```
+
+When it returns, read **Write**, update the ledger, and continue. If that file has an empty **A:** or **Your call**, pause here. The sub-agent does not fill those lines.
 
 ## Human gates
 
@@ -71,12 +112,12 @@ When they answer:
 
 ## Loop ledger
 
-On the task file only (same folder as `task-*.md`). Add this block on first run. Update it after every stage. Do not put a second work `status` on spec, design, plan, or discussion files.
+On the task file only (same folder as `task-*.md`). Add this block on first run. Update it after every stage. Do not put a second work `status` on requirement-spec, design, plan, or discussion files.
 
 ```markdown
 ## Workflow loop
 
-- **Route:** small | normal | high-risk | non-coding
+- **Route:** small | normal | normal (design) | normal (plan) | high-risk | non-coding
 - **Stage:** <skill name now>
 - **Waiting:** none | <path to the questions or review file> | diagram
 - **Result:** pending | <path the user should open>
@@ -126,7 +167,10 @@ For software, **Result** is the worktree branch plus the verify report. For anyt
 | Do | Do not |
 |----|--------|
 | Pick the smallest route and run it | Run every stage “to be safe” |
+| After the requirement spec, run design or `plan` | Run both |
+| Load `coding-plan` before any product code | Write code from this skill |
 | Read and follow each stage skill | Copy stage procedures into this file |
 | Pause at human gates | Fill **A:** or **Your call** yourself |
+| Spawn a sub-agent only for a different job | Spawn one for the next step of the same skill |
 | Resume from the ledger | Restart intake on continue |
 | Mark the task `Done` only when the result exists | Call tests-green a result when `verify` is on the route |

@@ -8,6 +8,24 @@ The framework other people install is the skills. Start with `/workflow-loop-fas
 
 ---
 
+## Always: Code uses coding-plan
+
+Before any product code, load [`coding-plan`](skills/coding-plan/SKILL.md). This includes a one-line change and a task that never named a skill.
+
+That skill creates the worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>` on branch `mark/<WORK_NAME>`, then does the todos. Do not edit the original checkout.
+
+A requirement spec, a design, or a plan that is not code does not load it.
+
+---
+
+## Always: Humanizer
+
+Whenever you write sentences a person will read, load [`humanizer`](skills/humanizer/SKILL.md) and follow it. Do this even when the task never named a skill. A markdown file is one place. Chat, a commit, a pull request, a review, UI copy, and a code comment count too.
+
+Leave code, commands, identifiers, and an owning skill's headings, YAML, links, and checkboxes unchanged. Rewrite the sentences around them.
+
+---
+
 ## Always: Short by default
 
 Default to **short and complete** — answer the question fully in as few words as practical. Prefer **bullets**. Use **easy words** so a non-expert can follow.

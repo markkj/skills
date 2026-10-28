@@ -1,18 +1,18 @@
 ---
 name: humanizer
 description: >-
-  Rewrites sentences in markdown and docs into this pack's plain voice: short,
-  direct, everyday words, facts kept, no invented detail. Apply automatically
-  when writing or editing a markdown file, spec, design, plan, daily log,
-  review, discussion note, or other doc. Leave the owning skill's headings,
-  YAML, links, code, and checkboxes unchanged.
+  Rewrites sentences into this pack's plain voice: short, direct, everyday
+  words, facts kept, no invented detail. Apply automatically whenever you
+  write prose, in a file or anywhere else: chat, a commit, a review, UI copy,
+  a comment, a doc. Leave code, commands, identifiers, and an owning skill's
+  headings, YAML, links, and checkboxes unchanged.
 ---
 
 # Humanizer
 
-**Auto-apply** when writing or editing a markdown file or a doc. Do not wait for the user to name this skill.
+**Auto-apply** whenever you write sentences a person will read. A markdown file is one place. Chat, a commit message, a pull request, a review comment, UI copy, and a code comment are the same job. Do not wait for the user to name this skill.
 
-`problem-decompose` owns the chat shape when a problem is found. This skill owns the sentences inside the file.
+`problem-decompose` owns the chat shape when a problem is found. This skill owns the sentences inside that shape, and in every other place you write.
 
 ## Voice
 
@@ -40,7 +40,7 @@ Rewrite the sentences around that structure.
 1. Fill the owning skill's template.
 2. Rewrite the sentences to match **Voice**.
 3. Check every name, number, date, and claim. It must still come from the source. Cut a sentence that only adds mood.
-4. Write the final text into the file. Keep the chat free of a draft and a critique.
+4. Write the final text in the place it belongs. Keep the chat free of a draft and a critique.
 
 ## Tells
 

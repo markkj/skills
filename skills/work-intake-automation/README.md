@@ -15,7 +15,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/
 
 The project folder is inferred automatically from the opened project. The user should not need to type it in normal use.
 
-`{{task-generate-name}}.md` is the durable work record. Later artifacts are optional: the task may go directly to execution, through `grill-me`, to `spec`, `design`, research/investigation, or to `plan-intake-automation`. Planning is not assumed.
+`{{task-generate-name}}.md` is the durable work record. Later artifacts are optional: the task may go directly to execution, through `grill-me`, to `requirement-spec`, `design`, research/investigation, or to `plan`. Planning is not assumed.
 
 `{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders. Replace them with real kebab-case filenames. Example:
 
@@ -55,15 +55,15 @@ Projects/client-app/<WORK_ID>/
 ## Routing / Handoff Pattern
 
 - `{{task-generate-name}}.md` stores source facts, status, acceptance criteria, constraints, agent roles, and the future paths for planning/discussion docs.
-- The user explicitly names `plan-intake-automation` to create `{{plan-generate-name}}.md` when ready.
-- The user explicitly names `plan-intake-automation` to create `discussion/` notes or ADRs when needed.
+- The user explicitly names `plan` to create `{{plan-generate-name}}.md` when ready.
+- The user explicitly names `plan` to create `discussion/` notes or ADRs when needed.
 
 Example flows:
 
 ```text
-small task:      work-intake -> execute
+small task:      work-intake -> coding-plan -> execute
 unclear task:    work-intake -> grill-me -> next appropriate stage
-feature:         work-intake -> spec -> design? -> plan-intake -> coding-plan -> execute
+feature:         work-intake -> requirement-spec -> design? -> plan -> execute
 research:        work-intake -> research/investigate -> findings
-high-risk code:  work-intake -> grill-me -> spec -> spec-review -> design -> design-review -> plan-intake -> coding-plan -> plan-review -> execute -> verify -> code-review
+high-risk code:  work-intake -> grill-me -> requirement-spec -> spec-review -> design -> design-review -> plan -> plan-review -> execute -> verify -> code-review
 ```

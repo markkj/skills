@@ -1,16 +1,17 @@
 ---
-name: spec
+name: requirement-spec
 description: >-
-  Write a durable specification for a task: goals, non-goals, expected behavior,
-  acceptance criteria, constraints, edge cases, and open questions. Uses the
-  existing Obsidian task folder and never performs solution design or coding.
-  Use only when the user explicitly names spec or asks to create a specification.
+  Write a durable requirement spec for a task: goals, non-goals, expected
+  behavior, acceptance criteria, constraints, edge cases, and open questions.
+  Uses the existing Obsidian task folder and never performs solution design or
+  coding. Use only when the user explicitly names requirement-spec or asks for
+  a requirement spec.
 disable-model-invocation: true
 ---
 
-# Spec
+# Requirement spec
 
-A spec defines **what should be true**, not how to implement it.
+A requirement spec defines **what should be true**, not how to implement it.
 
 **Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
 
@@ -21,8 +22,8 @@ Write **only** into the folder that already has `task-*.md`:
 ```text
 Projects/<PROJECT_NAME>/<WORK_ID>/
 ├── task-<slug>.md
-├── spec-<slug>.md
-└── discussion/questions-spec-<slug>.md
+├── requirement-spec-<slug>.md
+└── discussion/questions-requirement-spec-<slug>.md
 ```
 
 Never write `discussion/` at the git repo root or vault root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
@@ -33,8 +34,8 @@ Never write `discussion/` at the git repo root or vault root. No task file → S
 |---|---|---|---|
 | **0 — Preconditions** | Locate the task folder/task file via `$OBSIDIAN_BASE_VAULT_PATH` when one exists | Source facts readable | Required vault path is unavailable |
 | **1 — Load** | Read task + relevant discussion; list assumptions/open questions | Goal and source facts captured | — |
-| **2 — Readiness** | Confirm behavior/scope are clear enough; use `grill-me` first when not. If blocking questions remain, write `discussion/questions-spec-<slug>.md` (user fills **A:**) | Blockers are in the questions file (or none remain) | Cannot write the questions file |
-| **3 — Write** | Create a new `spec-<slug>.md`; never overwrite an existing spec. Point **Open questions** at the discussion file — do not put fill-in answers in the spec | File exists and reads back correctly | Write cannot be verified |
+| **2 — Readiness** | Confirm behavior/scope are clear enough; use `grill-me` first when not. If blocking questions remain, write `discussion/questions-requirement-spec-<slug>.md` (user fills **A:**) | Blockers are in the questions file (or none remain) | Cannot write the questions file |
+| **3 — Write** | Create a new `requirement-spec-<slug>.md`; never overwrite an existing spec. Point **Open questions** at the discussion file — do not put fill-in answers in the spec | File exists and reads back correctly | Write cannot be verified |
 | **4 — Ledger** | Add the spec path to the task **Specs** / **Active spec** / execution log. Do **not** put `status` on the spec | Task points to current spec; only the task has work status | Task update fails |
 | **5 — Handoff** | Recommend `spec-review`, `design`, or execution depending on complexity | Next stage stated | — |
 
@@ -43,21 +44,21 @@ Never write `discussion/` at the git repo root or vault root. No task file → S
 Prefer the existing task folder:
 
 ```text
-$OBSIDIAN_BASE_VAULT_PATH/Projects/<PROJECT_NAME>/<WORK_ID>/spec-<slug>.md
+$OBSIDIAN_BASE_VAULT_PATH/Projects/<PROJECT_NAME>/<WORK_ID>/requirement-spec-<slug>.md
 ```
 
-On collision use `spec-<slug>-2.md`, `-3`, … — never overwrite unless the user explicitly asks to revise that exact file.
+On collision use `requirement-spec-<slug>-2.md`, `-3`, … — never overwrite unless the user explicitly asks to revise that exact file.
 
 ## Spec template
 
 ```markdown
 ---
-artifact: spec
+artifact: requirement-spec
 date: YYYY-MM-DD
 task: <vault-relative task path>
 ---
 
-# Spec: <Title>
+# Requirement spec: <Title>
 
 ## Problem
 <What problem exists and for whom?>
@@ -84,7 +85,7 @@ task: <vault-relative task path>
 - <Assumption being accepted>
 
 ## Open Questions
-- *(none)* **or** `discussion/questions-spec-<slug>.md` — fill each **A:** line
+- *(none)* **or** `discussion/questions-requirement-spec-<slug>.md` — fill each **A:** line
 ```
 
 ## Boundary
@@ -93,7 +94,7 @@ Do not choose components, APIs, schema, algorithms, or implementation steps unle
 
 Do **not** put `status` on the spec. Work status and which spec is current live on `task-*.md` (**Active spec** + execution log).
 
-Blocking questions belong in `discussion/questions-spec-<slug>.md` (fill **A:**), not as a hard-to-edit list in the spec body. List that file on the task **Open questions**.
+Blocking questions belong in `discussion/questions-requirement-spec-<slug>.md` (fill **A:**), not as a hard-to-edit list in the spec body. List that file on the task **Open questions**.
 
 ## Context Budget
 
