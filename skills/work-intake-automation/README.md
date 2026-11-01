@@ -2,16 +2,16 @@
 
 **Opt-in only.** The agent loads this skill when the user explicitly names `work-intake-automation` or asks for work intake.
 
-**Harness:** Phases 0–6 in `SKILL.md` — preconditions → restate → clarify → paths → roles → write (vault via `$OBSIDIAN_BASE_VAULT_PATH`) → completion report. STOP if env var unset or write unverified.
+**Harness:** Phases 0–6 in `SKILL.md` — preconditions → restate → clarify → paths → roles → write (vault via `scripts/resolve-project-path.sh`) → completion report. STOP if env var unset or write unverified.
 
-This skill turns a work request into an Obsidian task folder:
+This skill turns a work request into a task folder:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 └── {{task-generate-name}}.md
 ```
 
-`Projects/` is the Obsidian folder where all project task folders should be created.
+Project Path is that directory. `scripts/resolve-project-path.sh` prints it.
 
 The project folder is inferred automatically from the opened project. The user should not need to type it in normal use.
 
@@ -20,21 +20,21 @@ The project folder is inferred automatically from the opened project. The user s
 `{{task-generate-name}}` and `{{plan-generate-name}}` are placeholders. Replace them with real kebab-case filenames. Example:
 
 ```text
-Task: Projects/client-app/add-export-button/task-add-export-button.md
+Task: $PROJECT_PATH/client-app/add-export-button/task-add-export-button.md
 ```
 
 Do not use literal placeholder filenames, `task.md`, or `plan.md`.
 
-## Vault writes
+## Project Path writes
 
-Write directly to the Obsidian vault. Set `$OBSIDIAN_BASE_VAULT_PATH` to the vault root. If unset, abort and report the blocker.
+Run `scripts/resolve-project-path.sh` and write under the directory it prints. If the script fails, abort and report the blocker.
 
-Absolute path: `$OBSIDIAN_BASE_VAULT_PATH/Projects/<PROJECT_NAME>/<WORK_ID>/{{task-generate-name}}.md`
+Absolute path: `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/{{task-generate-name}}.md`
 
 Vault-relative path (for ledger and handoff):
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/{{task-generate-name}}.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/{{task-generate-name}}.md
 ```
 
 ## Project Detection
@@ -46,7 +46,7 @@ The user should not need to type the project in normal use. Detection order:
 3. Current git repository root folder name.
 4. Current directory name.
 
-Example: if Cursor or Claude Code is opened in `/Users/<you>/work/client-app`, then tasks go under:
+Example: if Claude Code is opened in `/Users/<you>/work/client-app`, then tasks go under:
 
 ```text
 Projects/client-app/<WORK_ID>/

@@ -1,29 +1,158 @@
-# Agent Work Skills
+# markkj-skills
 
-A generic work workflow with specialized software-engineering stages. The system is **artifact-driven**: each skill has one job, stages are optional, and the durable task record in Obsidian is the handoff point between agents/tools.
+A Claude Code plugin for artifact-driven work. Each skill does one job: capture a task, clarify it, write a spec, a design or a plan, then verify and review the result. Stages are optional. The task record in your Project Path folder is what one stage hands to the next.
 
-Two commands:
+The plugin also tracks each task: a band above the prompt shows the task and current step, and a report shows tokens and estimated cost per task and per step.
+
+## Requirements
+
+- Claude Code
+- Node.js 18 or newer (the hooks run on Node)
+- git
+- macOS or Linux
+
+## Install
+
+Clone the repo, then run the installer from it.
+
+**On in every session:**
+
+```sh
+./scripts/install-claude-plugin.sh
+```
+
+**Per session (recommended):**
+
+```sh
+./scripts/install-claude-plugin.sh --per-session
+source ~/.zshrc   # or open a new shell
+```
+
+The plugin stays off until you start a session with `claude-mk`. A session cannot turn it on after it starts, so pick `claude-mk` when you open the session.
+
+### What the installer does
+
+| Step | Command it runs | Plain install | `--per-session` |
+|------|-----------------|:-------------:|:---------------:|
+| 1. Add this repo as a plugin source | `claude plugin marketplace add ./`, or `marketplace update` when already added | ✓ | ✓ |
+| 2. Install the plugin | `claude plugin install markkj-skills@markkj-skills` | ✓ | ✓ |
+| 3. Remove old skill copies | deletes folders in `~/.claude/skills` that hold the `.markkj-skills-installed` marker | ✓ | ✓ |
+| 4. Turn the plugin off by default | `claude plugin disable markkj-skills@markkj-skills` | | ✓ |
+| 5. Add the `claude-mk` alias | writes one block to `~/.zshrc` (or `~/.bashrc`) | | ✓ |
+
+Step 3 is there because the old `link-skills.sh` copied skills into `~/.claude/skills`. Those copies loaded beside the plugin, so every skill showed up twice, even with the plugin off. Folders without the marker, such as skills from other packs, are left alone.
+
+The alias in step 5 sits between two marker lines:
+
+```sh
+# >>> markkj-skills claude-mk >>>
+alias claude-mk='claude --settings '"'"'{"enabledPlugins":{"markkj-skills@markkj-skills":true}}'"'"''
+# <<< markkj-skills claude-mk <<<
+```
+
+`--settings` turns the plugin on for that one session only. Your saved settings keep it off.
+
+After a per-session install:
+
+| You type | You get |
+|----------|---------|
+| `claude` | A plain session with no markkj skills, hooks or band |
+| `claude-mk` | The skills, the band, tracking and the report |
+
+Run the installer again at any time. It updates the marketplace instead of adding it twice, and replaces the alias block instead of adding another one.
+
+### Update
+
+The plugin is read straight from this folder. Pull the repo, then run `/reload-plugins` in an open session, or start a new one.
+
+### Uninstall
+
+```sh
+claude plugin uninstall markkj-skills@markkj-skills
+claude plugin marketplace remove markkj-skills
+```
+
+Then delete the lines between `# >>> markkj-skills claude-mk >>>` and `# <<< markkj-skills claude-mk <<<` in your shell rc file.
+
+## Use
+
+Two commands start the workflow:
 
 | Command | What it does |
-|---------|----------------|
-| `/workflow-loop-fast` | The agent runs the smallest stage path until a result or a human gate. |
-| `/workflow-high` | Intake, then you finish the task. When you say it is ready, one skill starts. For a clear code change, that skill is `coding-plan` and it shows the test input and output for you to review before any production code. If the task is not that specific, the skill is `design` or a normal plan. |
+|---------|--------------|
+| `/workflow-loop-fast` | Runs the smallest stage path until there is a result or a step needs you. |
+| `/workflow-high` | Runs intake, then waits until you say the task is ready. Then one skill starts. For a clear code change that is `coding-plan`, which shows the test input and output for you to review before any production code. Otherwise it is `design` or a normal plan. |
 
-[`CLAUDE.md`](CLAUDE.md) is optional personal thinking. It is not part of the install. `./scripts/link-skills.sh` copies skills only. `./scripts/install-center.sh` installs `CLAUDE.md` when you want it, and it will not replace a file you already have.
+You can also call any skill by name, for example `/plan` or `/design`. Claude can also pick a skill on its own when your request matches its description.
 
-## Install as a plugin
+`problem-decompose` applies to every task. `humanizer` applies whenever Claude writes sentences a person will read, in a file or in chat. The other skills run when a command or you name them.
 
-One repo, three manifests. Skills stay in `skills/*/SKILL.md`. Bump `version` in every manifest together when you release.
+**Token use:** the skills are not tuned for tokens yet. They can pull in more context than a task needs.
 
-| Host | Manifest | Install |
-|------|----------|---------|
-| Codex | [`plugin.json`](plugin.json) + [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) | `codex plugin marketplace add .` then install **markkj-skills** |
-| Claude Code | [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) | `claude plugin marketplace add .` then `claude plugin install markkj-skills@markkj-skills` |
-| Cursor | [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) | Load this repo as a local plugin |
+## Configure
 
-`problem-decompose` asks the agent to apply it on every task. `humanizer` applies whenever the agent writes sentences a person will read, in a file or in chat. The other skills run when a mode or you names them.
+### Project Path
 
-**Token use:** These skills are not well optimized for tokens yet. They can pull in more context than a task needs. Treat that as known, not as the target.
+Run this once:
+
+```sh
+./scripts/resolve-project-path.sh
+```
+
+It prints one folder and saves it in `~/.config/markkj-skills/project-path`. Task folders live there:
+
+```text
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
+```
+
+If that file is missing and `OBSIDIAN_BASE_VAULT_PATH` points at an existing folder, the script creates `$OBSIDIAN_BASE_VAULT_PATH/Projects` and saves that path. A saved path is never changed.
+
+### Plugin setting
+
+| Setting | Default | What it does |
+|---------|---------|--------------|
+| `track_turns` | on | Writes `usage.jsonl` and `report.html` after each turn, and shows the band. Change it in the `/plugin` menu. |
+
+### Environment variables
+
+| Variable | Default | What it does |
+|----------|---------|--------------|
+| `MARKKJ_CONFIG_DIR` | `$XDG_CONFIG_HOME/markkj-skills`, else `~/.config/markkj-skills` | Where the ledger, report, Project Path file and wraps live. |
+| `PROJECT_PATH` | the saved Project Path | Overrides the saved Project Path. |
+| `MARKKJ_WORKTREE_ROOT` | `~/workspace/working-place` | Where `coding-plan` worktrees live. Tracking reads the task name from this path. |
+
+## Task tracking
+
+The plugin's hooks are [`hooks/claude-hooks.json`](hooks/claude-hooks.json) (Stop, SubagentStop, UserPromptSubmit) and [`hooks/claude-band.json`](hooks/claude-band.json) (the band).
+
+```text
+~/.config/markkj-skills/
+  project-path
+  usage.jsonl     # one row per turn and per subagent run
+  report.html     # every task, grouped
+  wraps/<skill>.txt
+```
+
+**Band.** A line above the prompt reads `markkj · <task> · <step> · open report`. It shows this session only and updates after each turn. The button opens `report.html` in your browser.
+
+**Task.** A turn belongs to the task whose `task-*.md` sits in the working folder or a parent folder. In a `coding-plan` worktree, the task is the work name from the path `<worktree root>/<WORK_NAME>/<repo>`, or from the branch `mark/<WORK_NAME>`.
+
+**Step (action).** The step is the last markkj skill called in the session, through the Skill tool or a slash command. It stays until another markkj skill runs, so a follow-up turn such as "fix that" still counts toward that step. Skills from other plugins do not change it. Neither do `humanizer` and `problem-decompose`, which load on almost every turn. Turns before any markkj skill count as `other`.
+
+**Tokens.** A turn's tokens are the sum of every API call since your last prompt. Subagent runs get their own row in the parent session, marked with the agent type. Their tokens come from the subagent's own transcript. Their step is the markkj skill they called, or the parent's step when they called none.
+
+**Cost.** The report shows an estimate at Anthropic API list prices, from [`hooks/prices.json`](hooks/prices.json). Cache writes count at 2× the input price for the 1-hour cache and 1.25× for the 5-minute cache. On a Claude subscription you are not billed per token, so read it as a way to compare tasks, not as a bill. A model missing from the table shows `—`. A total marked `+` leaves some turns out. Update `prices.json` when prices change.
+
+## Wraps
+
+Other skills attach through a list, not through the skill text. Put one skill name per line:
+
+```text
+~/.config/markkj-skills/wraps/code-review.txt
+ponytail
+```
+
+When `code-review` runs, the prompt hook tells Claude to load each installed skill named in that file. A missing file or a missing skill is skipped. `code-review` itself does not name ponytail.
 
 ## Core model
 
@@ -48,7 +177,7 @@ Not every task uses every stage.
 ```mermaid
 flowchart TD
     A[Incoming work] --> WI[work-intake-automation]
-    WI --> T[Durable task record in Obsidian]
+    WI --> T[Durable task record on Project Path]
 
     T --> C{Clear enough for next action?}
     C -- No --> G[grill-me]
@@ -154,7 +283,7 @@ work-intake-automation
 ## Artifact ownership
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/          # same folder as task-*.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/          # same folder as task-*.md
 ├── task-<slug>.md                 # work-intake-automation: durable ledger
 ├── context.md                     # compact handoff cache; created lazily
 ├── requirement-spec-<slug>.md     # requirement-spec: optional; one or more over time
@@ -166,7 +295,7 @@ Projects/<PROJECT_NAME>/<WORK_ID>/          # same folder as task-*.md
     └── verification-<slug>.md
 ```
 
-For Cursor plans, the **Obsidian plan is the origin** and `~/.cursor/plans/*.plan.md` is a symlink. Product code goes through `coding-plan`, which creates the git worktree here:
+Product code goes through `coding-plan`, which creates the git worktree here:
 
 ```text
 ~/workspace/working-place/<WORK_NAME>/<repo-name>
@@ -243,3 +372,53 @@ raw source/history
 Use the **smallest workflow that preserves correctness**. Stages are gates, not ceremony.
 
 A solid task may skip `grill-me`. A tiny task may skip `requirement-spec`, `design`, and planning. A research task may never touch `coding-plan`. A risky platform change may use every review gate.
+
+## Repository layout
+
+```text
+.claude-plugin/
+  plugin.json          # plugin manifest: hooks, settings
+  marketplace.json     # local marketplace for the installer
+  icon.png
+hooks/
+  claude-hooks.json    # Stop, SubagentStop, UserPromptSubmit
+  claude-band.json     # the band module
+  band/register.tsx    # band: task, step, open report
+  record-turn.js       # writes usage.jsonl and report.html
+  prices.json          # model prices for cost estimates
+  on-stop.sh, on-prompt.sh, wrap-prompt.js
+skills/<name>/SKILL.md # one folder per skill
+templates/             # shared templates the skills use
+scripts/
+  install-claude-plugin.sh
+  install-center.sh    # optional: link CLAUDE.md
+  resolve-project-path.sh
+  test.sh              # run every test and validate the plugin
+  tests/
+```
+
+## Develop
+
+```sh
+./scripts/test.sh
+```
+
+This runs every test in `scripts/tests/` and `claude plugin validate`. Add a `*_test.sh` file there for new behavior. Each test is a plain shell script that prints `ok` or exits non-zero.
+
+To try a change, edit the files, then run `/reload-plugins` in a session.
+
+To release, bump `version` in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json).
+
+## Optional: CLAUDE.md
+
+[`CLAUDE.md`](CLAUDE.md) holds personal thinking rules. It is not part of the plugin. To use it on your machine:
+
+```sh
+./scripts/install-center.sh
+```
+
+This links it to `~/.claude/CLAUDE.md`. It will not replace a `CLAUDE.md` you already have.
+
+## License
+
+MIT. See [`LICENSE`](LICENSE).

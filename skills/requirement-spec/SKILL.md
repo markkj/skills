@@ -3,7 +3,7 @@ name: requirement-spec
 description: >-
   Write a durable requirement spec for a task: goals, non-goals, expected
   behavior, acceptance criteria, constraints, edge cases, and open questions.
-  Uses the existing Obsidian task folder and never performs solution design or
+  Uses the existing task folder and never performs solution design or
   coding. Use only when the user explicitly names requirement-spec or asks for
   a requirement spec.
 disable-model-invocation: true
@@ -20,7 +20,7 @@ A requirement spec defines **what should be true**, not how to implement it.
 Write **only** into the folder that already has `task-*.md`:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 ├── task-<slug>.md
 ├── requirement-spec-<slug>.md
 └── discussion/questions-requirement-spec-<slug>.md
@@ -32,7 +32,7 @@ Never write `discussion/` at the git repo root or vault root. No task file → S
 
 | Phase | Do | Verify | STOP if |
 |---|---|---|---|
-| **0 — Preconditions** | Locate the task folder/task file via `$OBSIDIAN_BASE_VAULT_PATH` when one exists | Source facts readable | Required vault path is unavailable |
+| **0 — Preconditions** | Locate the task folder/task file via `scripts/resolve-project-path.sh` when one exists | Source facts readable | Required vault path is unavailable |
 | **1 — Load** | Read task + relevant discussion; list assumptions/open questions | Goal and source facts captured | — |
 | **2 — Readiness** | Confirm behavior/scope are clear enough; use `grill-me` first when not. If blocking questions remain, write `discussion/questions-requirement-spec-<slug>.md` (user fills **A:**) | Blockers are in the questions file (or none remain) | Cannot write the questions file |
 | **3 — Write** | Create a new `requirement-spec-<slug>.md`; never overwrite an existing spec. Point **Open questions** at the discussion file — do not put fill-in answers in the spec | File exists and reads back correctly | Write cannot be verified |
@@ -44,7 +44,7 @@ Never write `discussion/` at the git repo root or vault root. No task file → S
 Prefer the existing task folder:
 
 ```text
-$OBSIDIAN_BASE_VAULT_PATH/Projects/<PROJECT_NAME>/<WORK_ID>/requirement-spec-<slug>.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/requirement-spec-<slug>.md
 ```
 
 On collision use `requirement-spec-<slug>-2.md`, `-3`, … — never overwrite unless the user explicitly asks to revise that exact file.
@@ -55,7 +55,7 @@ On collision use `requirement-spec-<slug>-2.md`, `-3`, … — never overwrite u
 ---
 artifact: requirement-spec
 date: YYYY-MM-DD
-task: <vault-relative task path>
+task: <project-relative task path>
 ---
 
 # Requirement spec: <Title>

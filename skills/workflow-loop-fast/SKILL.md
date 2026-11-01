@@ -98,7 +98,7 @@ Pause the loop. Do not invent the answer. Set task `status: Blocked`. Emit [Loop
 | Open question | `discussion/questions-*.md` has an empty **A:** | User filled **A:**, or said proceed |
 | Review call | Report **Must fix** has an empty **Your call** | User wrote `fix`, `skip`, or `need more info` and said the file is filled |
 | Diagram | `coding-plan` phase 4 asks the user to confirm | User confirms or asks for a change |
-| Tooling | A stage STOP for `$OBSIDIAN_BASE_VAULT_PATH`, dirty git, or a missing repo | User fixes it or tells you the path |
+| Tooling | A stage STOP for `scripts/resolve-project-path.sh`, dirty git, or a missing repo | User fixes it or tells you the path |
 
 When they answer:
 
@@ -144,7 +144,7 @@ After a gate:
 ```markdown
 ## Loop paused
 
-- **Task:** `<vault-relative task path>`
+- **Task:** `<project-relative task path>`
 - **Stage done:** <skill>
 - **Waiting on you:** `<file>` — fill **A:** or **Your call**
 - **Next after you answer:** <skill>
@@ -155,7 +155,7 @@ When the route is finished:
 ```markdown
 ## Loop done
 
-- **Task:** `<vault-relative task path>`
+- **Task:** `<project-relative task path>`
 - **Result:** `<path to open>`
 - **What you have:** <one sentence>
 ```

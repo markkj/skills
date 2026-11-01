@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Compact daily-check-in query. Stdlib only.
 
-$OBSIDIAN_BASE_VAULT_PATH is the Obsidian vault root.
-Scans only vault/Projects, skips Projects/Daily Log, and prints a short ranked list.
+PROJECT_PATH is the project root, or the first line of ~/.config/markkj-skills/project-path.
+Scans that directory, skips Daily Log, and prints a short ranked list.
 The agent writes the log from this output and does not open each task file.
 """
 
@@ -103,25 +103,31 @@ def date_key(raw: str) -> str:
     return raw if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw or "") else "9999-99-99"
 
 
+def normalize_rel(rel: str) -> str:
+    rel = rel.strip().lstrip("/")
+    if rel.startswith("Projects/"):
+        rel = rel[len("Projects/") :]
+    return rel
+
+
 def task_ref(rel: str, title: str) -> str:
-    """Obsidian wikilink. Path is vault-relative, without .md."""
-    stem = rel[:-3] if rel.endswith(".md") else rel
-    alias = (title or Path(stem).name).replace("|", " ").strip()
-    return f"[[{stem}|{alias}]]"
+    """Plain project-relative path. Title is unused and kept for the call sites."""
+    del title
+    return normalize_rel(rel)
 
 
 def task_link(line: str) -> tuple[str, str] | None:
-    """Return (vault path with .md, title) from a wikilink or a backticked path."""
-    wiki = re.search(r"\[\[(Projects/[^\]|]*task-[^\]|]+)(?:\|([^\]]+))?\]\]", line)
+    """Return (project-relative path with .md, title) from a wikilink or a backticked path."""
+    wiki = re.search(r"\[\[([^\]|]*task-[^\]|]+)(?:\|([^\]]+))?\]\]", line)
     if wiki:
-        rel = wiki.group(1).strip()
+        rel = normalize_rel(wiki.group(1).strip())
         if not rel.endswith(".md"):
             rel += ".md"
         return rel, (wiki.group(2) or "").strip()
-    path_match = re.search(r"`(Projects/[^`]*task-[^`]+\.md)`", line)
+    path_match = re.search(r"`([^`]*task-[^`]+\.md)`", line)
     if not path_match:
         return None
-    return path_match.group(1), ""
+    return normalize_rel(path_match.group(1)), ""
 
 
 def task_paths(body: str) -> list[tuple[bool, str, str]]:
@@ -140,15 +146,15 @@ def task_paths(body: str) -> list[tuple[bool, str, str]]:
     return found
 
 
-def load_task(path: Path, vault: Path) -> dict[str, str] | None:
+def load_task(path: Path, root: Path) -> dict[str, str] | None:
     try:
         text = path.read_text(encoding="utf-8")
     except OSError as exc:
         print(f"skip\t{path}\t{exc}", file=sys.stderr)
         return None
-    rel = path.relative_to(vault).as_posix()
+    rel = path.relative_to(root).as_posix()
     parts = Path(rel).parts
-    project = parts[1] if len(parts) > 1 and parts[0] == "Projects" else ""
+    project = parts[0] if len(parts) > 1 else ""
     meta = frontmatter(text)
     goal = first_prose(section_body(text, "Goal"))
     plan = active_plan(text)
@@ -165,20 +171,37 @@ def load_task(path: Path, vault: Path) -> dict[str, str] | None:
     }
 
 
-def find_tasks(projects: Path, vault: Path) -> list[dict[str, str]]:
+def find_tasks(root: Path) -> list[dict[str, str]]:
     tasks: list[dict[str, str]] = []
-    if not projects.is_dir():
+    if not root.is_dir():
         return tasks
-    for dirpath, dirnames, filenames in os.walk(projects):
+    for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIR_NAMES and not d.startswith(".")]
-        if Path(dirpath) == projects:
+        if Path(dirpath) == root:
             continue
         for name in filenames:
             if name.startswith("task-") and name.endswith(".md"):
-                loaded = load_task(Path(dirpath) / name, vault)
+                loaded = load_task(Path(dirpath) / name, root)
                 if loaded:
                     tasks.append(loaded)
     return tasks
+
+
+def resolve_root() -> Path:
+    env = os.environ.get("PROJECT_PATH", "").strip()
+    if env:
+        return Path(env).expanduser()
+    config = os.environ.get("MARKKJ_CONFIG_DIR", "").strip()
+    if not config:
+        xdg = os.environ.get("XDG_CONFIG_HOME", "").strip()
+        base = Path(xdg) if xdg else Path.home() / ".config"
+        config = str(base / "markkj-skills")
+    file = Path(config) / "project-path"
+    if file.is_file():
+        saved = file.read_text(encoding="utf-8").splitlines()
+        if saved and saved[0].strip():
+            return Path(saved[0].strip()).expanduser()
+    die("Project Path is unset. Run scripts/resolve-project-path.sh", 2)
 
 
 def emit(rows: list[dict[str, str]], section: str, why_for) -> None:
@@ -204,23 +227,17 @@ def emit(rows: list[dict[str, str]], section: str, why_for) -> None:
 
 
 def main() -> None:
-    vault_raw = os.environ.get("OBSIDIAN_BASE_VAULT_PATH", "").strip()
-    if not vault_raw:
-        die("OBSIDIAN_BASE_VAULT_PATH is unset or empty", 2)
-    vault = Path(vault_raw).expanduser()
-    if not vault.is_dir():
-        die(f"vault not found: {vault}", 2)
+    root = resolve_root()
+    if not root.is_dir():
+        die(f"Project Path not found: {root}", 2)
 
     today = date.today()
     yesterday = today - timedelta(days=1)
-    projects_dir = vault / "Projects"
-    if not projects_dir.is_dir():
-        die(f"Projects folder not found: {projects_dir}", 2)
-    log_dir = projects_dir / "Daily Log"
+    log_dir = root / "Daily Log"
     y_path = log_dir / f"{yesterday.isoformat()}.md"
     t_path = log_dir / f"{today.isoformat()}.md"
 
-    tasks = find_tasks(projects_dir, vault)
+    tasks = find_tasks(root)
     by_path = {t["path"]: t for t in tasks}
     projects = sorted({t["project"] for t in tasks})
 
@@ -256,8 +273,8 @@ def main() -> None:
 
     print(f"today\t{today.isoformat()}")
     print(f"yesterday\t{yesterday.isoformat()}")
-    print(f"yesterday_log\t{y_path.relative_to(vault).as_posix() if y_path.is_file() else 'none'}")
-    print(f"today_log\t{t_path.relative_to(vault).as_posix() if t_path.is_file() else 'none'}")
+    print(f"yesterday_log\t{y_path.relative_to(root).as_posix() if y_path.is_file() else 'none'}")
+    print(f"today_log\t{t_path.relative_to(root).as_posix() if t_path.is_file() else 'none'}")
     print(
         "counts\t"
         + "\t".join(

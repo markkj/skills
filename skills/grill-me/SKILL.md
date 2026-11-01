@@ -21,7 +21,7 @@ Default light ask-when-unsure (1–3 questions, no silent assumptions) lives in 
 Write **only** into the folder that already has `task-*.md`:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 ├── task-<slug>.md
 └── discussion/questions-grill-me-<slug>.md
 ```

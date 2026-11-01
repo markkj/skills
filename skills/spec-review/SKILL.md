@@ -20,7 +20,7 @@ Ask: **Did we define the right thing clearly enough to design or execute?**
 Write the report **only** here:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/discussion/spec-review-<slug>.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/spec-review-<slug>.md
 ```
 
 That `discussion/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.

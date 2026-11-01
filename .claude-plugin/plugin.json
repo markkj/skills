@@ -9,5 +9,25 @@
   },
   "homepage": "https://github.com/markkj/skills",
   "repository": "https://github.com/markkj/skills",
-  "keywords": ["workflow", "skills", "spec", "planning", "review"]
+  "license": "MIT",
+  "icon": "./.claude-plugin/icon.png",
+  "keywords": [
+    "workflow",
+    "skills",
+    "spec",
+    "planning",
+    "review"
+  ],
+  "hooks": [
+    "./hooks/claude-hooks.json",
+    "./hooks/claude-band.json"
+  ],
+  "userConfig": {
+    "track_turns": {
+      "type": "boolean",
+      "title": "Track turns",
+      "description": "Record token usage per task and build the report. Turn off to stop writing usage.jsonl and report.html.",
+      "default": true
+    }
+  }
 }

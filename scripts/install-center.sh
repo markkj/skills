@@ -1,32 +1,24 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-# Opt-in install of this repo's CLAUDE.md onto your machine.
-# Refuses to replace a CLAUDE.md or Cursor rule that is not already ours.
+#!/bin/sh
+# Opt-in: link this repo's CLAUDE.md to ~/.claude/CLAUDE.md.
+# It never replaces a CLAUDE.md that is not already a link to this repo.
 #
-# Usage:
-#   ./scripts/install-center.sh [claude|cursor|all]
+#   ./scripts/install-center.sh
+set -eu
 
-REPO="$(cd "$(dirname "$0")/.." && pwd)"
-# shellcheck source=common.sh
-source "$REPO/scripts/common.sh"
+REPO=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+SRC="$REPO/CLAUDE.md"
+DEST=${CLAUDE_CENTER_FILE:-$HOME/.claude/CLAUDE.md}
 
-TARGET="${1:-all}"
-
-case "$TARGET" in
-  claude)
-    install_claude_center "$REPO"
-    ;;
-  cursor)
-    install_cursor_center "$REPO"
-    ;;
-  all)
-    install_claude_center "$REPO"
-    install_cursor_center "$REPO"
-    ;;
-  *)
-    echo "usage: $0 [claude|cursor|all]" >&2
-    echo "  Installs CLAUDE.md only if you ask. link-skills.sh does not." >&2
+if [ -L "$DEST" ]; then
+  if [ "$(readlink "$DEST")" != "$SRC" ]; then
+    echo "error: $DEST links to $(readlink "$DEST"), not this repo. Move it aside, then re-run." >&2
     exit 1
-    ;;
-esac
+  fi
+elif [ -e "$DEST" ]; then
+  echo "error: $DEST exists and is not this repo's. Move it aside, then re-run." >&2
+  exit 1
+fi
+
+mkdir -p "$(dirname "$DEST")"
+ln -sfn "$SRC" "$DEST"
+echo "CLAUDE.md $DEST -> $SRC"
