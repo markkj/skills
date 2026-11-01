@@ -1,19 +1,19 @@
 ---
 name: work-intake-automation
 description: >-
-  Automates AI-assisted work intake from Jira issues, typed user requests, pasted specs, or other task sources into an Obsidian {{task-generate-name}}.md with pointers for where the user can later store {{plan-generate-name}}.md and discussion docs. Use only when the user explicitly names work-intake-automation, asks for work intake, Jira-to-task capture, or Obsidian task handoff before planning.
+  Automates AI-assisted work intake from Jira issues, typed user requests, pasted specs, or other task sources into a Project Path {{task-generate-name}}.md with pointers for where the user can later store {{plan-generate-name}}.md and discussion docs. Use only when the user explicitly names work-intake-automation, asks for work intake, Jira-to-task capture, or task handoff before planning.
 disable-model-invocation: true
 ---
 
 # Work Intake Automation
 
-**Do not auto-apply.** Load this skill only when the user explicitly names `work-intake-automation`, asks for work intake, Jira-to-task capture, or Obsidian task tracking before planning.
+**Do not auto-apply.** Load this skill only when the user explicitly names `work-intake-automation`, asks for work intake, Jira-to-task capture, or task tracking before planning.
 
 **Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
 
 Use this skill when work starts outside the agent and must become a durable task record before the user plans it. The source may be Jira, a typed request, a pasted spec, Slack/email notes, or a verbal summary.
 
-**Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks when `$OBSIDIAN_BASE_VAULT_PATH` is required.
+**Harness rule:** Run phases **in order**. Do not skip a phase. Do not start the next phase until the current phase **verify** passes. On **STOP**, report the blocker and wait — no silent fallbacks when `scripts/resolve-project-path.sh` is required.
 
 ## Harness phases
 
@@ -24,10 +24,10 @@ Use this skill when work starts outside the agent and must become a durable task
 | **2 — Clarify** | If facts insufficient, ask **1–3** questions in chat **and** write `discussion/questions-intake-<slug>.md` from [`templates/open-questions.md`](../../templates/open-questions.md) | User can fill each **A:** line, or questions are recorded | Vault path unknown → STOP; do not invent answers |
 | **3 — Paths** | Choose `work-id`, `PROJECT_NAME`, generate `task-<slug>.md` and future `plan-<slug>.md` paths | No literal `{{…}}` in filenames; paths follow [filename rules](#filename-generation) | Cannot infer project and user did not specify → ask |
 | **4 — Roles** | Record intake, planning, execution, discussion owners in task template | Roles filled or marked TBD | — |
-| **5 — Write** | Create task folder; write `{{task-generate-name}}.md`; if blocking questions exist, also write the questions file under `discussion/` | Read-back shows task (and questions file if any) | `$OBSIDIAN_BASE_VAULT_PATH` unset or write unverified → **STOP** |
+| **5 — Write** | Create task folder; write `{{task-generate-name}}.md`; if blocking questions exist, also write the questions file under `discussion/` | Read-back shows task (and questions file if any) | `scripts/resolve-project-path.sh` unset or write unverified → **STOP** |
 | **6 — Handoff** | Emit [completion report](#completion-report) | User can find task file and future plan paths | — |
 
-**Forbidden during any phase:** create plan files, `~/.cursor/plans/*.plan.md`, notes, ADRs, or product code. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Do not assume planning is next. If the task is unclear, recommend `grill-me`; if it needs a durable behavior contract, recommend `requirement-spec`; if it needs solution architecture, recommend `design`; if an executable plan is needed, recommend [`plan`](../plan/SKILL.md).
+**Forbidden during any phase:** create plan files, notes, ADRs, or product code. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Do not assume planning is next. If the task is unclear, recommend `grill-me`; if it needs a durable behavior contract, recommend `requirement-spec`; if it needs solution architecture, recommend `design`; if an executable plan is needed, recommend [`plan`](../plan/SKILL.md).
 
 ## Completion report
 
@@ -36,11 +36,11 @@ After phase 6, output this block in chat:
 ```markdown
 ## Work intake complete
 
-- **Task:** `<vault-relative path to task file>`
+- **Task:** `<project-relative path to task file>`
 - **Work ID:** `<WORK_ID>`
 - **Status:** Intake
-- **Task folder (plans live here):** `<vault-relative folder>` — many `plan-*.md` allowed later
-- **Future discussion:** `<vault-relative discussion folder>`
+- **Task folder (plans live here):** `<project-relative folder>` — many `plan-*.md` allowed later
+- **Future discussion:** `<project-relative discussion folder>`
 - **Blockers:** <none | path to `discussion/questions-intake-*.md`>
 - **Next:** Choose the smallest needed next stage: direct execution, `grill-me`, `requirement-spec`, `design`, research/investigation, or `plan` when an executable plan is needed.
 ```
@@ -50,7 +50,7 @@ After phase 6, output this block in chat:
 Normalize every work request into:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 └── {{task-generate-name}}.md
 ```
 
@@ -61,7 +61,7 @@ Use `{{task-generate-name}}.md` as the intake contract. It records source facts 
 This skill **creates** the task folder. Every later file belongs here:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 ├── task-<slug>.md
 └── discussion/     ← questions-intake-*.md lives here, not at repo root
 ```
@@ -100,9 +100,9 @@ Follow [Harness phases](#harness-phases). Details per phase:
 
 **Phase 4 — Roles** — record in task file (intake only; planning and execution happen later):
    - **Intake agent:** reads the source and writes `{{task-generate-name}}.md`, e.g. Claude Code reads Jira.
-   - **Planning owner:** user | Cursor | Claude Code | Codex | Other | TBD.
-   - **Execution owner:** user | Cursor | Claude Code | Codex | Other | TBD.
-   - **Discussion owner:** user | Claude Code | Cursor | Other | TBD.
+   - **Planning owner:** user | Claude Code | Other | TBD.
+   - **Execution owner:** user | Claude Code | Other | TBD.
+   - **Discussion owner:** user | Claude Code | Other | TBD.
 
 **Phase 2 — Clarify:** If the request lacks enough facts, ask 1–3 questions in chat **and** write `discussion/questions-intake-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md). The user fills each **`A:`** line. List the file under **Open questions** on the task. Write the task when the vault path is known. Do not invent answers.
 
@@ -110,32 +110,32 @@ Follow [Harness phases](#harness-phases). Details per phase:
 
 - **work-id:** Jira → issue key (e.g. `PROJ-123`); manual → `YYYYMMDD-short-slug`; other → native id if stable, else `YYYYMMDD-short-slug`. Do not put source names like `manual` or `jira` in folder names.
 - **Filenames:** generate `task-<slug>.md` and future `plan-<slug>.md` per [filename rules](#filename-generation).
-- **Folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/` — infer `<PROJECT_NAME>` from, in order: `--project`, `TASK_PROJECT`, git repo root name, current directory name.
+- **Folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/` — infer `<PROJECT_NAME>` from, in order: `--project`, `TASK_PROJECT`, git repo root name, current directory name.
 
-**Phase 5 — Write:** create folder and task file. If there are blocking questions, also write `discussion/questions-intake-<slug>.md`. Do not create plan, spec, design, Cursor plan, notes, or ADRs.
+**Phase 5 — Write:** create folder and task file. If there are blocking questions, also write `discussion/questions-intake-<slug>.md`. Do not create plan, spec, design, notes, or ADRs.
 
-## Obsidian Vault Writes
+## Project Path writes
 
-Write vault files under `$OBSIDIAN_BASE_VAULT_PATH` (filesystem).
+Run `scripts/resolve-project-path.sh`. It prints one absolute directory. If it exits non-zero, **STOP**. When `~/.config/markkj-skills/project-path` is missing and `OBSIDIAN_BASE_VAULT_PATH` points at an existing directory, the script creates `$OBSIDIAN_BASE_VAULT_PATH/Projects` and saves that path. An existing `project-path` file is left alone.
 
-1. **Vault root:** Read from `$OBSIDIAN_BASE_VAULT_PATH`. If unset or empty → **STOP** and report.
-2. **Absolute path:** `$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>` (vault-relative path has no leading slash).
+1. **Project Path:** Use the printed directory. If the script fails → **STOP** and report.
+2. **Absolute path:** `$PROJECT_PATH/<project-relative-path>` (project-relative path has no leading slash).
 3. **Create:** `mkdir -p` parent directories, then write the file.
 4. **Verify:** Read back the file or `test -f` on the absolute path; content must match what was written.
 5. **Updates:** Patch or overwrite existing `{{task-generate-name}}.md` at the same absolute path when status changes.
 
-Example vault-relative task path:
+Example project-relative task path:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 └── {{task-generate-name}}.md
 ```
 
-Do not create planning files, Cursor plans, notes, or ADRs during intake. A questions file under `discussion/` is allowed.
+Do not create planning files, notes, or ADRs during intake. A questions file under `discussion/` is allowed.
 
 ## `{{task-generate-name}}.md`
 
-`{{task-generate-name}}.md` stores the durable work record and status, not the todo list. Keep task facts current during execution; put executable todos only in plan files (a task may have many; use **Active plan**). Store task properties in Obsidian YAML frontmatter.
+`{{task-generate-name}}.md` stores the durable work record and status, not the todo list. Keep task facts current during execution; put executable todos only in plan files (a task may have many; use **Active plan**). Store task properties in YAML frontmatter.
 
 **Only the task file has work `status`.** Do not put `status` on spec, design, plan, grill-me, or review docs. Which artifact is current is the **Active spec / Active design / Active plan / Clarify** pointers plus the execution log.
 
@@ -155,14 +155,14 @@ owner: <person or agent>
 
 ## Agent Roles
 
-- **Intake:** Claude Code | Cursor | Codex | Other
-- **Planning owner:** User | Claude Code | Cursor | Codex | Other | TBD
-- **Execution owner:** User | Claude Code | Cursor | Codex | Other | TBD
-- **Discussion owner:** User | Claude Code | Cursor | Other | TBD
+- **Intake:** Claude Code | Other
+- **Planning owner:** User | Claude Code | Other | TBD
+- **Execution owner:** User | Claude Code | Other | TBD
+- **Discussion owner:** User | Claude Code | Other | TBD
 
 ## Planning and Discussion Paths
 
-- **Task folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/`
+- **Task folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/`
 - **Specs:**
   - *(none yet — optional; created by `requirement-spec`)*
 - **Active spec:** *(none)*
@@ -176,7 +176,7 @@ owner: <person or agent>
   - *(none yet — optional; created by `grill-me`)*
 - **Open questions:**
   - *(none yet — optional; `discussion/questions-<stage>-<slug>.md`)*
-- **Discussion folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
+- **Discussion folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/`
 
 ## Goal
 
@@ -208,8 +208,8 @@ Example after two plans exist:
 
 - **Task folder:** `Projects/client-app/add-export-button/`
 - **Plans:**
-  - `plan-add-export-button.md` → Cursor `~/.cursor/plans/add-export_a1b2.plan.md`
-  - `plan-add-export-button-2.md` → Cursor `~/.cursor/plans/add-export_c3d4.plan.md`
+  - `plan-add-export-button.md`
+  - `plan-add-export-button-2.md`
 - **Active plan:** `plan-add-export-button-2.md`
 - **Discussion folder:** `Projects/client-app/add-export-button/discussion/`
 ```
@@ -218,23 +218,22 @@ Example after two plans exist:
 
 This skill creates the durable task record and records where later artifacts may live. It does **not** assume every task needs planning. After intake, route the task to the smallest appropriate next stage: direct execution, `grill-me`, `requirement-spec`, `design`, research/investigation, or `plan`.
 
-- **Task folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/`
+- **Task folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/`
 - **Specs:** `requirement-spec-<short-slug>.md`, `requirement-spec-<short-slug>-2.md`, ...
 - **Designs:** `design-<short-slug>.md`, `design-<short-slug>-2.md`, ...
 - **Plans:** `plan-<short-slug>.md`, `plan-<short-slug>-2.md`, ...
 - **Clarify:** `discussion/grill-me-<slug>.md` (optional; no `status` field)
 - **Open questions:** `discussion/questions-<stage>-<slug>.md` — user fills each **A:** line; template: [`templates/open-questions.md`](../../templates/open-questions.md)
-- **Discussion folder:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/`
-- **Cursor plan path(s):** each Cursor-linked plan gets its own `~/.cursor/plans/<slug>_<short-id>.plan.md` symlink → that vault origin
+- **Discussion folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/`
 
 ## Intake Rules
 
 - Before writing `{{task-generate-name}}.md`, restate the current goal, assumptions, and unknowns.
 - Treat `{{task-generate-name}}.md` as the task brief/status ledger and path index.
 - Do not put checkboxes or implementation todos in `{{task-generate-name}}.md`; acceptance criteria there are descriptive criteria, not progress tracking.
-- Do not create spec, design, plan, Cursor plan, note, ADR, or product-code artifacts during intake. Intake captures and routes only. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Later skills remain explicit opt-in.
+- Do not create spec, design, plan, note, ADR, or product-code artifacts during intake. Intake captures and routes only. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Later skills remain explicit opt-in.
 - Update `{{task-generate-name}}.md` whenever status changes, a blocker appears, task facts change, or completion evidence should be logged.
-- Keep Obsidian docs concise: facts, decisions, status, path pointers, and verification evidence.
+- Keep Task docs concise: facts, decisions, status, path pointers, and verification evidence.
 
 ## Context Budget
 

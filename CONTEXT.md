@@ -9,7 +9,7 @@ The durable source of truth remains the task/spec/design/plan artifacts. `contex
 For work that benefits from multi-stage handoff, use:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/context.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/context.md
 ```
 
 That is the **task folder** (same directory as `task-*.md`). Do not put `context.md` at the git repo root.

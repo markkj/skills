@@ -18,7 +18,7 @@ Ask: **Did the work actually satisfy what we said should be true?**
 Write the report **only** here:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/discussion/verification-<slug>.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/verification-<slug>.md
 ```
 
 That `discussion/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.

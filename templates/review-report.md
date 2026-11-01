@@ -11,8 +11,8 @@ Do not edit **What** / **Why** / **Where**. Those are for the reviewer.
 
 - **Kind:** spec-review | design-review | plan-review | code-review | verify
 - **Looks at:** `<path to spec/design/plan/diff>`
-- **Task:** `Projects/<PROJECT_NAME>/<WORK_ID>/task-<slug>.md`
-- **Write this file at:** `Projects/<PROJECT_NAME>/<WORK_ID>/discussion/<kind>-<slug>.md` (same folder as the task, never repo root)
+- **Task:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/task-<slug>.md`
+- **Write this file at:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/<kind>-<slug>.md` (same folder as the task, never repo root)
 - **Date:** YYYY-MM-DD
 
 ## Verdict

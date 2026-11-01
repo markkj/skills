@@ -19,7 +19,7 @@ A design defines **how the spec should be satisfied**. It is not the executable 
 Write **only** into the folder that already has `task-*.md`:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 ├── task-<slug>.md
 ├── design-<slug>.md
 └── discussion/questions-design-<slug>.md
@@ -46,8 +46,8 @@ Never write `discussion/` at the git repo root or vault root. No task file → S
 ---
 artifact: design
 date: YYYY-MM-DD
-task: <vault-relative task path>
-spec: <vault-relative spec path | none>
+task: <project-relative task path>
+spec: <project-relative spec path | none>
 ---
 
 # Design: <Title>

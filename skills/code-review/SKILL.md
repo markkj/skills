@@ -19,7 +19,7 @@ Review **the implementation**, using earlier artifacts as the contract.
 Write the report **only** here:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/discussion/code-review-<slug>.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/code-review-<slug>.md
 ```
 
 That `discussion/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.

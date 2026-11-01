@@ -3,18 +3,18 @@ name: coding-plan
 description: >-
   Coding plan workflow — required quality attributes (reliability, scalability,
   maintainability), implementation outline diagrams (components + call flow),
-  feature-first Cursor Plan todos as small e2e feedback loops, git worktree off
+  feature-first plan todos as small e2e feedback loops, git worktree off
   main/master on branch mark/<WORK_ID>_<TASK_SLUG> (slug alone when there is no
   WORK_ID), test-first execution,
   match project structure and test style. Use when the user explicitly asks for
-  a coding plan, mentions coding-plan, wants diagram-backed Cursor Plan todos
+  a coding plan, mentions coding-plan, wants diagram-backed plan todos
   for implementation, plan hands off a clear code job, or any skill is about to
   change product code.
 ---
 
 # Coding Plan
 
-Understand the task and the active spec or design before planning. This skill adds **coding-plan-specific** rules for diagram-backed Cursor plans and test-first execution. When [`workflow-high`](../workflow-high/SKILL.md) sent you here, its test-case review gate happens before production code.
+Understand the task and the active spec or design before planning. This skill adds **coding-plan-specific** rules for diagram-backed plans and test-first execution. When [`workflow-high`](../workflow-high/SKILL.md) sent you here, its test-case review gate happens before production code.
 
 **Do not auto-apply** for a requirement spec, a design, or a plan that is not code. Load this skill before any product code: the user named `coding-plan`, [`plan`](../plan/SKILL.md) handed off a clear code job, or another skill is about to edit the repo.
 
@@ -25,13 +25,13 @@ Understand the task and the active spec or design before planning. This skill ad
 Write the plan origin and any questions **only** into the folder that already has `task-*.md`:
 
 ```text
-Projects/<PROJECT_NAME>/<WORK_ID>/
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 ├── task-<slug>.md
 ├── plan-<slug>.md
 └── discussion/questions-plan-<slug>.md
 ```
 
-Never write `discussion/` at the git repo root or vault root. `~/.cursor/plans/*.plan.md` is a symlink to that origin. No task folder → ask; do not invent a discussion path under the git repo.
+Never write `discussion/` at the git repo root or the Project Path root. No task folder → ask; do not invent a discussion path under the git repo.
 
 **Core rule: already know what to do.** This skill turns a **clear** task/spec/design into diagrams and todos. It does not invent requirements or architecture. Same gate as [`plan`](../plan/SKILL.md).
 
@@ -56,8 +56,8 @@ Never write `discussion/` at the git repo root or vault root. `~/.cursor/plans/*
 | **2 — Quality attributes** | Fill [quality attributes table](#quality-attributes-block-required-in-plan-output)                                                                                                                                                                                                                                  | All three rows filled or N/A with reason                                                                       | Blank row → STOP; no diagram yet                                                                                                                |
 | **3 — Feature map**        | Name user-visible behaviors; group features                                                                                                                                                                                                                                                                         | Behaviors trace to acceptance criteria                                                                         | Cannot trace to criteria → back to readiness                                                                                                    |
 | **4 — Diagram**            | Mermaid component + call flow per feature group                                                                                                                                                                                                                                                                     | User confirms diagram                                                                                          | User objects or diagram incomplete → revise; STOP before todos                                                                                  |
-| **5 — Todos**              | One Cursor Plan todo per small e2e iteration; each has `verify:`. **Last todo is always** Manual test & verify (not a code slice) | Slice count + 1 last verify todo; last title contains `Manual test & verify` | Layer-only todos, or last todo is another slice → fix before implement |
-| **6 — Cursor Plan**        | Write free vault origin `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) via `$OBSIDIAN_BASE_VAULT_PATH`; symlink free `~/.cursor/plans/<slug>_<short-id>.plan.md` → origin                                                                                                                                        | Vault file exists with YAML todos; `readlink`/`realpath` match; no overwrite                                   | `$OBSIDIAN_BASE_VAULT_PATH` unset or no vault folder known → ask; STOP before implement                                                         |
+| **5 — Todos**              | One plan todo per small e2e iteration; each has `verify:`. **Last todo is always** Manual test & verify (not a code slice) | Slice count + 1 last verify todo; last title contains `Manual test & verify` | Layer-only todos, or last todo is another slice → fix before implement |
+| **6 — Plan file**          | Write a free `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) in the task folder via `scripts/resolve-project-path.sh` | Plan file exists with YAML todos; no overwrite | `scripts/resolve-project-path.sh` unset or no task folder known → ask; STOP before implement |
 | **7 — Worktree**           | Resolve `WORK_NAME` (`<WORK_ID>_<TASK_SLUG>`, or slug alone with no `WORK_ID`); for each repo the work touches, add a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>` from local `main`/`master` on branch `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-7) | Worktree path exists per repo; `git branch --show-current` = `mark/<WORK_NAME>`; no upstream on the new branch | No `TASK_SLUG`, dirty base repo, branch/worktree name taken, upstream points at `main`/`master`, or not a git repo → ask; STOP before implement |
 
 **Forbidden before phase 7 complete:** production code for new behavior (except trivial one-liners user agreed to skip). All implementation happens **inside the worktree**, never on `main`/`master`. Do not invent spec/design decisions to pass readiness.
@@ -75,33 +75,28 @@ Do not draw diagrams or write todos until this phase passes.
 
 ### Plan file layout (phase 6)
 
-**Origin (write content here):**
+Write the plan here:
 
 ```text
-$OBSIDIAN_BASE_VAULT_PATH/Projects/<PROJECT_NAME>/<WORK_ID>/plan-<slug>.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/plan-<slug>.md
 ```
 
-Vault-relative path (for task ledger and symlinks):
-
-```text
-Projects/<PROJECT_NAME>/<WORK_ID>/plan-<slug>.md
-```
-
-Prefer the task folder from an existing task record ([`plan`](../plan/SKILL.md) / [`work-intake-automation`](../work-intake-automation/SKILL.md)). `plan` sends a clear code job here to write the one plan file. If none exists, ask for the vault project/work folder before writing. Read vault root from `$OBSIDIAN_BASE_VAULT_PATH`; if unset → **STOP** and report.
+Prefer the task folder from an existing task record ([`plan`](../plan/SKILL.md) / [`work-intake-automation`](../work-intake-automation/SKILL.md)). `plan` sends a clear code job here to write the one plan file. If none exists, ask for the Project Path project and work folder before writing. Run `scripts/resolve-project-path.sh` for Project Path; if unset → **STOP** and report.
 
 **One task → many plans.** Write a **new** plan file; never overwrite. If `plan-<slug>.md` exists, use `plan-<slug>-2.md`, then `-3`, … until free. **Append** to the task’s **Plans** list and set **Active plan** to the new file. If several plans exist and the user did not say which to execute, ask once — default is **Active plan**.
 
-Use Cursor Plan YAML frontmatter (`name`, `overview`, `todos`, `isProject`) in the vault origin so Cursor can read it through the symlink.
+Start the file with YAML frontmatter that holds the todo list, so progress lives in one place:
 
-**Cursor path (symlink only):**
-
-```text
-~/.cursor/plans/<slug>_<short-id>.plan.md  →  <absolute vault origin>
+```yaml
+---
+name: <Short plan name>
+overview: <One-sentence outcome and approach.>
+todos:
+  - id: <stable-kebab-case-id>
+    content: <Outcome-oriented todo> - verify: <check>
+    status: pending
+---
 ```
-
-If that Cursor path exists, mint a new `<short-id>` — do not replace the existing symlink/file.
-
-Do not maintain two copies. Write the vault origin to `$OBSIDIAN_BASE_VAULT_PATH/<vault-relative-path>` first, then `ln -s` the Cursor path to the **absolute** vault origin. Verify with `readlink` + `realpath`.
 
 ### Worktree setup (phase 7)
 
@@ -111,7 +106,7 @@ Implement in a **dedicated git worktree** branched off the base branch, so `main
 
 **Identifier: `WORK_NAME` = `<WORK_ID>_<TASK_SLUG>`.** The folder and the branch share this one name, so the traceable id and a readable label travel together.
 
-- **`WORK_ID`** — from the task record, the same folder name as `Projects/<PROJECT_NAME>/<WORK_ID>/` in [`work-intake-automation`](../work-intake-automation/SKILL.md). Jira work → the issue key (`PROJ-123`); manual work → `YYYYMMDD-short-slug`.
+- **`WORK_ID`** — from the task record, the same folder name as `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/` in [`work-intake-automation`](../work-intake-automation/SKILL.md). Jira work → the issue key (`PROJ-123`); manual work → `YYYYMMDD-short-slug`.
 - **`TASK_SLUG`** — the kebab-case slug from the task/plan filename (`plan-<slug>.md` → `<slug>`). Ad-hoc work with no plan file → derive it from the work title and confirm with the user.
 
 **`WORK_ID` is optional.** Plenty of work arrives with no Jira key and no task record. Never invent one, and never block on it:
@@ -199,7 +194,7 @@ git -C "$WORKTREE" push -u origin "mark/$WORK_NAME"
 
 **Reference:** Kleppmann, _Designing Data-Intensive Applications_ — reliability, scalability, and maintainability as the three core quality attributes for data-intensive systems. Apply them to every non-trivial coding plan.
 
-**Do not skip.** Before diagrams and Cursor todos, state how the planned work affects each attribute. If an attribute is **not** materially affected, say **N/A** and why in one line — do not leave it blank.
+**Do not skip.** Before diagrams and todos, state how the planned work affects each attribute. If an attribute is **not** materially affected, say **N/A** and why in one line — do not leave it blank.
 
 ### Reliability
 
@@ -221,7 +216,7 @@ git -C "$WORKTREE" push -u origin "mark/$WORK_NAME"
 
 ### Quality attributes block (required in plan output)
 
-Include this table in the plan (chat and Cursor Plan body) before the implementation outline diagram:
+Include this table in the plan (chat and plan body) before the implementation outline diagram:
 
 | Attribute       | Impact on this work | Plan choices |
 | --------------- | ------------------- | ------------ |
@@ -285,11 +280,11 @@ controller → service → repository / domain → db
 
 Ask:
 
-> Split into **feature groups** with **one Cursor Plan todo per small e2e feedback-loop iteration**? Or **one todo** for the full feature?
+> Split into **feature groups** with **one plan todo per small e2e feedback-loop iteration**? Or **one todo** for the full feature?
 
 | Choice   | Plan                                                                             |
 | -------- | -------------------------------------------------------------------------------- |
-| Split    | Feature groups in chat; **each small e2e iteration = separate Cursor Plan todo** |
+| Split    | Feature groups in chat; **each small e2e iteration = separate plan todo** |
 | One todo | Single todo; verify at API/IT boundary                                           |
 | Unsure   | Recommend small iterations for 3+ layers or multiple endpoints                   |
 
@@ -335,16 +330,16 @@ sequenceDiagram
 **Rules:**
 
 - Required for non-trivial features; one diagram per feature group (or one diagram with sections).
-- Small e2e iterations and Cursor todos must map to the diagram.
+- Small e2e iterations and plan todos must map to the diagram.
 - Do not add functions or calls not on the diagram without updating it and asking.
 
-### 4. Feature groups and Cursor todos
+### 4. Feature groups and plan todos
 
 | Level               | Meaning                                                        | Where                         |
 | ------------------- | -------------------------------------------------------------- | ----------------------------- |
-| Task                | Overall goal                                                   | Cursor Plan title             |
+| Task                | Overall goal                                                   | Plan title                    |
 | Feature group       | One API/capability                                             | Chat outline only             |
-| Small e2e iteration | One thin behavior feedback loop that may touch multiple layers | **One Cursor Plan todo each** |
+| Small e2e iteration | One thin behavior feedback loop that may touch multiple layers | **One plan todo each**        |
 
 **Critical:** 5 small e2e iterations in outline → **5 slice todos + 1 last `Manual test & verify`**. Do not nest multiple iterations in one todo. Do not skip the last todo.
 
@@ -370,7 +365,7 @@ Split todos by **one behavior milestone that can go green**. A todo should touch
 | One externally visible rule: validation, duplicate email, auth, etc. | Imports, wiring-only, “add file”, rename                |
 | One end-to-end capability milestone                                  | Single field, mapper line, private helper unless huge   |
 
-**Rule:** Everything needed for **one named behavior milestone** lives in **one todo**. Types, helpers, wiring, and stubs that exist only for that milestone belong **inside** that todo — not their own Cursor Plan items.
+**Rule:** Everything needed for **one named behavior milestone** lives in **one todo**. Types, helpers, wiring, and stubs that exist only for that milestone belong **inside** that todo — not their own plan items.
 
 Only split controller, service, repository, or DB into separate todos when they represent different behavior milestones or the repo explicitly requires separate PR-sized steps.
 
@@ -402,7 +397,7 @@ Default to the **smallest vertical slice** that proves useful behavior, unless t
 
 **Plan title:** `User APIs — register + get info`
 
-**Register** — each row is one Cursor Plan todo:
+**Register** — each row is one plan todo:
 
 | Todo                                                                 | Verify                                             |
 | -------------------------------------------------------------------- | -------------------------------------------------- |
@@ -427,7 +422,7 @@ Default to the **smallest vertical slice** that proves useful behavior, unless t
 | ------------------------ | --------------------------------------------------------------- |
 | `Manual test & verify`   | Real register + get-user path works; acceptance criteria hold |
 
-### 7. Cursor Plan checklist
+### 7. Plan checklist
 
 Follow [Plan harness](#plan-harness-before-code) phases 0–7. Quick list:
 
@@ -437,8 +432,8 @@ Follow [Plan harness](#plan-harness-before-code) phases 0–7. Quick list:
 4. Feature groups by user-visible behavior
 5. **Diagram** (component + call flow) — user confirms
 6. Feature groups aligned with diagram and quality attributes
-7. **One Cursor todo per small e2e feedback-loop iteration** with `verify:`, then **one last `Manual test & verify`**
-8. Write vault origin `plan-<slug>.md`; symlink `~/.cursor/plans/*.plan.md` → origin
+7. **One plan todo per small e2e feedback-loop iteration** with `verify:`, then **one last `Manual test & verify`**
+8. Write `plan-<slug>.md` in the task folder
 9. **Worktree** from `main`/`master` on `mark/<WORK_NAME>` — [worktree setup](#worktree-setup-phase-7)
 10. Implement only what the diagram shows — [execution harness](#execution-harness-per-todo) per todo, inside the worktree
 
@@ -450,7 +445,7 @@ Ask only **narrow** planning questions: verify command, todo order, worktree pat
 
 ## Execution harness (per todo)
 
-For each Cursor Plan todo, in order:
+For each plan todo, in order:
 
 | Step             | Do                                                                                                | Verify                                                                                                                       | STOP if                                                                                                 |
 | ---------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -490,11 +485,11 @@ Skip formal plan and diagram; verify if cheap.
 
 ---
 
-**Working well if:** plan harness phases 0–7 done (readiness passed), quality attributes table filled, diagram confirmed, last Cursor todo is `Manual test & verify`, work happens in a `mark/<WORK_NAME>` worktree off `main`/`master`, code matches call flow, each small e2e iteration is its own Cursor todo with verify, execution harness completed per todo.
+**Working well if:** plan harness phases 0–7 done (readiness passed), quality attributes table filled, diagram confirmed, last plan todo is `Manual test & verify`, work happens in a `mark/<WORK_NAME>` worktree off `main`/`master`, code matches call flow, each small e2e iteration is its own plan todo with verify, execution harness completed per todo.
 
 ## Context Budget
 
-**Required first:** task, `context.md`, active spec/design, the chosen Obsidian plan, and repo-local agent instructions.
+**Required first:** task, `context.md`, active spec/design, the chosen plan, and repo-local agent instructions.
 
 **Progressive repo loading:** locate task-mentioned symbols/files first → direct callers/callees → 1-2 neighboring implementations/tests → broaden only when a plan assumption cannot be resolved.
 
