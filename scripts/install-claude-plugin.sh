@@ -3,7 +3,7 @@
 #
 #   ./scripts/install-claude-plugin.sh                 on in every session
 #   ./scripts/install-claude-plugin.sh --per-session   off by default; start a
-#                                                      markkj session with claude-mk
+#                                                      markkj session with claude-kj
 set -eu
 
 REPO=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
@@ -53,8 +53,8 @@ else
   esac
 fi
 
-BEGIN="# >>> markkj-skills claude-mk >>>"
-END="# <<< markkj-skills claude-mk <<<"
+BEGIN="# >>> markkj-skills claude-kj >>>"
+END="# <<< markkj-skills claude-kj <<<"
 touch "$RC"
 TMP_RC="$RC.markkj.$$"
 awk -v begin="$BEGIN" -v end="$END" '
@@ -64,10 +64,10 @@ awk -v begin="$BEGIN" -v end="$END" '
 ' "$RC" > "$TMP_RC"
 {
   echo "$BEGIN"
-  echo "alias claude-mk='claude --settings '\"'\"'{\"enabledPlugins\":{\"$PLUGIN\":true}}'\"'\"''"
+  echo "alias claude-kj='claude --settings '\"'\"'{\"enabledPlugins\":{\"$PLUGIN\":true}}'\"'\"''"
   echo "$END"
 } >> "$TMP_RC"
 mv "$TMP_RC" "$RC"
 
-echo "markkj-skills is off by default. Run claude-mk for a markkj session."
+echo "markkj-skills is off by default. Run claude-kj for a markkj session."
 echo "Open a new shell or run: source $RC"

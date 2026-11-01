@@ -28,7 +28,7 @@ Clone the repo, then run the installer from it.
 source ~/.zshrc   # or open a new shell
 ```
 
-The plugin stays off until you start a session with `claude-mk`. A session cannot turn it on after it starts, so pick `claude-mk` when you open the session.
+The plugin stays off until you start a session with `claude-kj`. A session cannot turn it on after it starts, so pick `claude-kj` when you open the session.
 
 ### What the installer does
 
@@ -38,16 +38,16 @@ The plugin stays off until you start a session with `claude-mk`. A session canno
 | 2. Install the plugin | `claude plugin install markkj-skills@markkj-skills` | ✓ | ✓ |
 | 3. Remove old skill copies | deletes folders in `~/.claude/skills` that hold the `.markkj-skills-installed` marker | ✓ | ✓ |
 | 4. Turn the plugin off by default | `claude plugin disable markkj-skills@markkj-skills` | | ✓ |
-| 5. Add the `claude-mk` alias | writes one block to `~/.zshrc` (or `~/.bashrc`) | | ✓ |
+| 5. Add the `claude-kj` alias | writes one block to `~/.zshrc` (or `~/.bashrc`) | | ✓ |
 
 Step 3 is there because the old `link-skills.sh` copied skills into `~/.claude/skills`. Those copies loaded beside the plugin, so every skill showed up twice, even with the plugin off. Folders without the marker, such as skills from other packs, are left alone.
 
 The alias in step 5 sits between two marker lines:
 
 ```sh
-# >>> markkj-skills claude-mk >>>
-alias claude-mk='claude --settings '"'"'{"enabledPlugins":{"markkj-skills@markkj-skills":true}}'"'"''
-# <<< markkj-skills claude-mk <<<
+# >>> markkj-skills claude-kj >>>
+alias claude-kj='claude --settings '"'"'{"enabledPlugins":{"markkj-skills@markkj-skills":true}}'"'"''
+# <<< markkj-skills claude-kj <<<
 ```
 
 `--settings` turns the plugin on for that one session only. Your saved settings keep it off.
@@ -57,7 +57,7 @@ After a per-session install:
 | You type | You get |
 |----------|---------|
 | `claude` | A plain session with no markkj skills, hooks or band |
-| `claude-mk` | The skills, the band, tracking and the report |
+| `claude-kj` | The skills, the band, tracking and the report |
 
 Run the installer again at any time. It updates the marketplace instead of adding it twice, and replaces the alias block instead of adding another one.
 
@@ -72,7 +72,7 @@ claude plugin uninstall markkj-skills@markkj-skills
 claude plugin marketplace remove markkj-skills
 ```
 
-Then delete the lines between `# >>> markkj-skills claude-mk >>>` and `# <<< markkj-skills claude-mk <<<` in your shell rc file.
+Then delete the lines between `# >>> markkj-skills claude-kj >>>` and `# <<< markkj-skills claude-kj <<<` in your shell rc file.
 
 ## Use
 

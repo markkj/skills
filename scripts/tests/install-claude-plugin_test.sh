@@ -1,6 +1,6 @@
 #!/bin/sh
 # The installer adds the marketplace and installs the plugin. With
-# --per-session it also turns the plugin off and writes one claude-mk alias,
+# --per-session it also turns the plugin off and writes one claude-kj alias,
 # and a second run replaces the alias instead of adding another.
 set -eu
 
@@ -39,15 +39,15 @@ grep -q "plugin install markkj-skills@markkj-skills" "$CLAUDE_LOG" || fail "plug
 [ -e "$CLAUDE_SKILLS_DIR/plan" ] && fail "old copied skill not removed"
 [ -f "$CLAUDE_SKILLS_DIR/impeccable/SKILL.md" ] || fail "removed a skill this pack does not own"
 grep -q "plugin disable" "$CLAUDE_LOG" && fail "plain install must not disable the plugin"
-grep -q "claude-mk" "$MARKKJ_SHELL_RC" && fail "plain install must not add the alias"
+grep -q "claude-kj" "$MARKKJ_SHELL_RC" && fail "plain install must not add the alias"
 
 : > "$CLAUDE_LOG"
 STUB_MARKETPLACES="  ❯ markkj-skills" sh "$ROOT/scripts/install-claude-plugin.sh" --per-session > /dev/null
 STUB_MARKETPLACES="  ❯ markkj-skills" sh "$ROOT/scripts/install-claude-plugin.sh" --per-session > /dev/null
 grep -q "plugin marketplace update markkj-skills" "$CLAUDE_LOG" || fail "known marketplace not updated"
 grep -q "plugin disable markkj-skills@markkj-skills" "$CLAUDE_LOG" || fail "plugin not turned off by default"
-count=$(grep -c "^alias claude-mk=" "$MARKKJ_SHELL_RC")
-[ "$count" = "1" ] || fail "expected one claude-mk alias, got $count"
+count=$(grep -c "^alias claude-kj=" "$MARKKJ_SHELL_RC")
+[ "$count" = "1" ] || fail "expected one claude-kj alias, got $count"
 grep -q '^# mine$' "$MARKKJ_SHELL_RC" || fail "existing rc lines lost"
 grep -q 'enabledPlugins' "$MARKKJ_SHELL_RC" || fail "alias does not turn the plugin on"
 
