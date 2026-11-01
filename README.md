@@ -4,6 +4,9 @@ A Claude Code plugin for artifact-driven work. Each skill does one job: capture 
 
 The plugin also tracks each task: a band above the prompt shows the task and current step, and a report shows tokens and estimated cost per task and per step.
 
+> [!WARNING]
+> Most of this repo was built by vibe coding: written quickly with an AI agent and checked mainly by its own tests, not by careful human review. Use it at your own risk. Read the hooks and scripts before you install them. The installer changes your Claude Code plugin settings, edits your shell rc file, and deletes old skill copies in `~/.claude/skills`. The cost numbers are estimates, not a bill.
+
 ## Requirements
 
 - Claude Code
