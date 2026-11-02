@@ -58,6 +58,33 @@ git -C "$TMP/elsewhere" init -q -b mark/WORK-8
 stop s4 "$TMP/elsewhere"
 grep -q '"task_id":"WORK-8"' "$TMP/cfg/usage.jsonl" || fail "mark/ branch not used as task"
 
+# The session cwd stays in the original checkout. A tool call that touched a
+# task folder names the task; a folder with no task-*.md does not count.
+mkdir -p "$TMP/plain" "$TMP/proj/beta/NOTASK"
+cat > "$TMP/touch.jsonl" <<JSON
+{"type":"user","uuid":"t1","message":{"role":"user","content":"start it"}}
+{"type":"assistant","message":{"id":"w1","content":[{"type":"tool_use","name":"Write","input":{"file_path":"$TMP/proj/beta/WORK-2/plan-two.md"}}],"usage":{"input_tokens":1,"output_tokens":1}}}
+{"type":"assistant","message":{"id":"w2","content":[{"type":"tool_use","name":"Read","input":{"file_path":"$TMP/proj/beta/NOTASK/notes.md"}}],"usage":{"input_tokens":1,"output_tokens":1}}}
+JSON
+node "$RECORD" <<EOF
+{"hook_event_name":"Stop","session_id":"s11","cwd":"$TMP/plain","transcript_path":"$TMP/touch.jsonl"}
+EOF
+last=$(tail -n 1 "$TMP/cfg/usage.jsonl")
+printf '%s' "$last" | grep -q '"task_id":"WORK-2"' || fail "task folder in transcript not used: $last"
+printf '%s' "$last" | grep -q "task-two.md" || fail "task path not set from transcript: $last"
+
+# A worktree path in a Bash command names the task too, as written by
+# coding-plan (~ or \$HOME form). A shell variable is not a name.
+# The last path touched wins, even over an earlier task folder.
+cat >> "$TMP/touch.jsonl" <<JSON
+{"type":"assistant","message":{"id":"w3","content":[{"type":"tool_use","name":"Bash","input":{"command":"cd ~/workspace/working-place/WORK-7/repo && sh test.sh; ls \\"\$HOME/workspace/working-place/\$WORK_NAME\\""}}],"usage":{"input_tokens":1,"output_tokens":1}}}
+JSON
+HOME="$TMP/home" MARKKJ_WORKTREE_ROOT="$TMP/home/workspace/working-place" node "$RECORD" <<EOF
+{"hook_event_name":"Stop","session_id":"s12","cwd":"$TMP/plain","transcript_path":"$TMP/touch.jsonl"}
+EOF
+last=$(tail -n 1 "$TMP/cfg/usage.jsonl")
+printf '%s' "$last" | grep -q '"task_id":"WORK-7"' || fail "worktree path in command not used: $last"
+
 # Claude usage is the sum of every API call since the last prompt.
 # Rows that repeat one message id count once; tool results are not prompts.
 cat > "$TMP/claude.jsonl" <<'JSON'
@@ -170,6 +197,8 @@ before=$(grep -c . "$TMP/cfg/usage.jsonl")
 CLAUDE_PLUGIN_OPTION_track_turns=false stop s6 "$TMP"
 after=$(grep -c . "$TMP/cfg/usage.jsonl")
 [ "$before" = "$after" ] || fail "tracking off still wrote a row"
+# sh keeps a prefix assignment after a function call.
+unset CLAUDE_PLUGIN_OPTION_track_turns MARKKJ_WORKTREE_ROOT
 
 printf '%s\n' ponytail > "$TMP/cfg/wraps/code-review.txt"
 out=$(node "$ROOT/hooks/wrap-prompt.js" <<'EOF'
@@ -178,5 +207,36 @@ EOF
 )
 printf '%s\n' "$out" | grep -q ponytail || fail "wrap list missing from prompt hook: $out"
 printf '%s\n' "$out" | grep -q code-review || fail "skill name missing from prompt hook"
+
+# Light work has no task folder or worktree. Until the session has a task,
+# the prompt hook asks Claude for a "Task:" line; once it has one, it stops asking.
+rm "$TMP/cfg/wraps/code-review.txt"
+out=$(node "$ROOT/hooks/wrap-prompt.js" <<'EOF'
+{"hook_event_name":"UserPromptSubmit","session_id":"fresh","prompt":"fix the typo"}
+EOF
+)
+printf '%s\n' "$out" | grep -q 'Task: ' || fail "no task-name ask for a session without a task: $out"
+out=$(node "$ROOT/hooks/wrap-prompt.js" <<'EOF'
+{"hook_event_name":"UserPromptSubmit","session_id":"s11","prompt":"go on"}
+EOF
+)
+printf '%s\n' "$out" | grep -q 'Task: ' && fail "asked for a task name when the session has one: $out"
+
+# The latest "Task:" line Claude wrote names a light task.
+cat > "$TMP/light.jsonl" <<'JSON'
+{"type":"user","uuid":"l1","message":{"role":"user","content":"fix the typo"}}
+{"type":"assistant","message":{"id":"l2","content":[{"type":"text","text":"Task: Fix README typo\n\nDone."}],"usage":{"input_tokens":1,"output_tokens":1}}}
+JSON
+node "$RECORD" <<EOF
+{"hook_event_name":"Stop","session_id":"fresh","cwd":"$TMP/plain","transcript_path":"$TMP/light.jsonl"}
+EOF
+tail -n 1 "$TMP/cfg/usage.jsonl" | grep -q '"task_id":"Fix README typo"' || fail "Task: line not used: $(tail -n 1 "$TMP/cfg/usage.jsonl")"
+
+# A task folder or worktree still beats a "Task:" line.
+cat "$TMP/light.jsonl" >> "$TMP/touch.jsonl"
+HOME="$TMP/home" MARKKJ_WORKTREE_ROOT="$TMP/home/workspace/working-place" node "$RECORD" <<EOF
+{"hook_event_name":"Stop","session_id":"s12","cwd":"$TMP/plain","transcript_path":"$TMP/touch.jsonl"}
+EOF
+tail -n 1 "$TMP/cfg/usage.jsonl" | grep -q '"task_id":"WORK-7"' || fail "Task: line beat the worktree: $(tail -n 1 "$TMP/cfg/usage.jsonl")"
 
 echo "ok"

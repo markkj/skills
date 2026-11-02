@@ -22,6 +22,33 @@ function readStdin() {
   });
 }
 
+function trackingOff() {
+  const value = process.env.CLAUDE_PLUGIN_OPTION_track_turns ?? "";
+  return ["false", "0", "off", "no"].includes(String(value).trim().toLowerCase());
+}
+
+// record-turn.js writes the ledger; its last row for a session says whether
+// the session has a task yet.
+function sessionHasTask(session) {
+  if (!session) return true;
+  let lines = [];
+  try {
+    lines = fs.readFileSync(path.join(configDir(), "usage.jsonl"), "utf8").split("\n");
+  } catch {
+    return false;
+  }
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (!lines[i].includes(session)) continue;
+    try {
+      const row = JSON.parse(lines[i]);
+      if (row.session === session) return Boolean(row.task_id);
+    } catch {
+      continue;
+    }
+  }
+  return false;
+}
+
 async function main() {
   const raw = (await readStdin()).trim();
   let event = {};
@@ -49,14 +76,24 @@ async function main() {
       .filter((line) => line && !line.startsWith("#"));
     if (lines.length) pairs.push(`${skill} → ${lines.join(", ")}`);
   }
-  if (!pairs.length) {
+  const parts = [];
+  if (pairs.length) {
+    parts.push(
+      "Skill wraps: " +
+        pairs.join("; ") +
+        ". When you load that skill, also load each installed skill in the list. A missing skill is a skip."
+    );
+  }
+  if (!trackingOff() && !sessionHasTask(event.session_id)) {
+    parts.push(
+      "This session has no task name yet. Start your reply with one line `Task: <3-6 word summary of the user's task>`. Write it once; write a new one only if the task changes."
+    );
+  }
+  if (!parts.length) {
     process.stdout.write("{}\n");
     return;
   }
-  const text =
-    "Skill wraps: " +
-    pairs.join("; ") +
-    ". When you load that skill, also load each installed skill in the list. A missing skill is a skip.";
+  const text = parts.join("\n\n");
   const hook = event.hook_event_name || "";
   if (hook === "beforeSubmitPrompt" || hook === "stop") {
     process.stdout.write(JSON.stringify({ additional_context: text }) + "\n");

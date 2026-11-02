@@ -31,7 +31,9 @@ $PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 └── discussion/questions-plan-<slug>.md
 ```
 
-Never write `discussion/` at the git repo root or the Project Path root. No task folder → ask; do not invent a discussion path under the git repo.
+Never write `discussion/` at the git repo root or the Project Path root. Do not invent a discussion path under the git repo.
+
+**Light work needs no task folder.** When the job is small and clear and no task record exists, do not ask for one. Start your reply with one line `Task: <3-6 word summary>`; the usage hook reads it as the session's task. Keep the plan in chat, and name the worktree after the slug alone (`WORK_NAME` = `<TASK_SLUG>`). Ask for a task folder only when the work needs a durable record: a spec, a design, or open questions.
 
 **Core rule: already know what to do.** This skill turns a **clear** task/spec/design into diagrams and todos. It does not invent requirements or architecture. Same gate as [`plan`](../plan/SKILL.md).
 
@@ -57,7 +59,7 @@ Never write `discussion/` at the git repo root or the Project Path root. No task
 | **3 — Feature map**        | Name user-visible behaviors; group features                                                                                                                                                                                                                                                                         | Behaviors trace to acceptance criteria                                                                         | Cannot trace to criteria → back to readiness                                                                                                    |
 | **4 — Diagram**            | Mermaid component + call flow per feature group                                                                                                                                                                                                                                                                     | User confirms diagram                                                                                          | User objects or diagram incomplete → revise; STOP before todos                                                                                  |
 | **5 — Todos**              | One plan todo per small e2e iteration; each has `verify:`. **Last todo is always** Manual test & verify (not a code slice) | Slice count + 1 last verify todo; last title contains `Manual test & verify` | Layer-only todos, or last todo is another slice → fix before implement |
-| **6 — Plan file**          | Write a free `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) in the task folder via `scripts/resolve-project-path.sh` | Plan file exists with YAML todos; no overwrite | `scripts/resolve-project-path.sh` unset or no task folder known → ask; STOP before implement |
+| **6 — Plan file**          | Write a free `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) in the task folder via `scripts/resolve-project-path.sh` | Plan file exists with YAML todos; no overwrite. Light work with no task folder: plan in chat instead | `scripts/resolve-project-path.sh` unset, or work needs a durable record and no task folder known → ask; STOP before implement |
 | **7 — Worktree**           | Resolve `WORK_NAME` (`<WORK_ID>_<TASK_SLUG>`, or slug alone with no `WORK_ID`); for each repo the work touches, add a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>` from local `main`/`master` on branch `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-7) | Worktree path exists per repo; `git branch --show-current` = `mark/<WORK_NAME>`; no upstream on the new branch | No `TASK_SLUG`, dirty base repo, branch/worktree name taken, upstream points at `main`/`master`, or not a git repo → ask; STOP before implement |
 
 **Forbidden before phase 7 complete:** production code for new behavior (except trivial one-liners user agreed to skip). All implementation happens **inside the worktree**, never on `main`/`master`. Do not invent spec/design decisions to pass readiness.
@@ -81,7 +83,7 @@ Write the plan here:
 $PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/plan-<slug>.md
 ```
 
-Prefer the task folder from an existing task record ([`plan`](../plan/SKILL.md) / [`work-intake-automation`](../work-intake-automation/SKILL.md)). `plan` sends a clear code job here to write the one plan file. If none exists, ask for the Project Path project and work folder before writing. Run `scripts/resolve-project-path.sh` for Project Path; if unset → **STOP** and report.
+Prefer the task folder from an existing task record ([`plan`](../plan/SKILL.md) / [`work-intake-automation`](../work-intake-automation/SKILL.md)). `plan` sends a clear code job here to write the one plan file. If none exists and the work is light, keep the plan in chat ([light work](#same-folder-as-the-task)); otherwise ask for the Project Path project and work folder before writing. Run `scripts/resolve-project-path.sh` for Project Path; if unset → **STOP** and report.
 
 **One task → many plans.** Write a **new** plan file; never overwrite. If `plan-<slug>.md` exists, use `plan-<slug>-2.md`, then `-3`, … until free. **Append** to the task’s **Plans** list and set **Active plan** to the new file. If several plans exist and the user did not say which to execute, ask once — default is **Active plan**.
 
