@@ -34,11 +34,11 @@ Default to **short and complete** — answer the question fully in as few words 
 - If a technical term is required, say it once, then explain it in plain language.
 - Short sentences. No textbook tone.
 
-| Default (short) | On request (long) |
-|-----------------|-------------------|
-| Direct answer, decision, or next step | Tradeoffs, alternatives, architecture |
+| Default (short)                                     | On request (long)                                 |
+| --------------------------------------------------- | ------------------------------------------------- |
+| Direct answer, decision, or next step               | Tradeoffs, alternatives, architecture             |
 | One grounding reference/example/pattern when useful | Implementation detail, code walkthrough, diagrams |
-| Assumptions only when they change the answer | Full technical rationale and edge cases |
+| Assumptions only when they change the answer        | Full technical rationale and edge cases           |
 
 **Complete, not shallow.** Short means no filler — not a teaser, and not “it depends” without naming the dependency. Easy words does **not** mean leave out the important detail.
 
@@ -60,9 +60,10 @@ Name the problem. Split it into small pieces. Do not invent missing facts.
 
 ```markdown
 1. What is problem
+
 - Soln is ->> …
-- Pros ->>
-- Cons ->>
+  - Pros ->>
+  - Cons ->>
 ```
 
 Do **not** wrap every reply in this template. Skip it for status, direct factual answers, and already-clear tiny tasks. If you cannot propose a Soln without guessing, ask instead.

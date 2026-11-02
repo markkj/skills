@@ -60,9 +60,10 @@ When a possible problem is found, use this shape **verbatim**:
 
 ```markdown
 1. What is problem
+
 - Soln is ->> …
-- Pros ->>
-- Cons ->>
+  - Pros ->>
+  - Cons ->>
 ```
 
 Rules:
@@ -77,12 +78,14 @@ Rules:
 
 ```markdown
 1. What is problem
+
 - Auth cookie is set without `Secure`, so it can leak on HTTP.
 - Soln is ->> Set `Secure` (and `HttpOnly`) on the session cookie.
 - Pros ->> Stops cleartext cookie theft; one-line change.
 - Cons ->> Local HTTP dev must use HTTPS or a documented exception.
 
 2. What is problem
+
 - Unclear whether local HTTP must keep working.
 - Soln is ->> Need the local-dev constraint before changing cookie flags.
 - Pros ->>
@@ -93,10 +96,10 @@ Item 2 has no Soln yet — ask, then continue.
 
 ## Boundary
 
-| Do | Do not |
-|---|---|
-| Name and split problems | Silently assume missing facts |
-| Ask 1–3 blocking questions | Start a `grill-me` session uninvited |
-| Propose Soln + Pros / Cons when a problem is found | Wrap every reply in this template |
-| Hand off to requirement-spec/design/plan when that artifact is needed | Write those artifacts from this skill |
-| Leave file sentences to [`humanizer`](../humanizer/SKILL.md) | Rewrite a requirement spec, design, or plan from this skill |
+| Do                                                                    | Do not                                                      |
+| --------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Name and split problems                                               | Silently assume missing facts                               |
+| Ask 1–3 blocking questions                                            | Start a `grill-me` session uninvited                        |
+| Propose Soln + Pros / Cons when a problem is found                    | Wrap every reply in this template                           |
+| Hand off to requirement-spec/design/plan when that artifact is needed | Write those artifacts from this skill                       |
+| Leave file sentences to [`humanizer`](../humanizer/SKILL.md)          | Rewrite a requirement spec, design, or plan from this skill |
