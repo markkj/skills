@@ -63,9 +63,7 @@ function findTask(start, root) {
 // and hold no task-*.md, so the work name stands in for the task.
 function workTask(start) {
   const none = { task_id: "", task_path: "" };
-  const hub = path.resolve(
-    process.env.MARKKJ_WORKTREE_ROOT || path.join(os.homedir(), "workspace", "working-place")
-  );
+  const hub = hubDir();
   const rel = path.relative(hub, path.resolve(start));
   if (rel && !rel.startsWith("..") && !path.isAbsolute(rel)) {
     return { task_id: rel.split(path.sep)[0], task_path: "" };
@@ -73,6 +71,99 @@ function workTask(start) {
   const git = spawnSync("git", ["-C", start, "branch", "--show-current"], { encoding: "utf8", timeout: 3000 });
   const branch = git.status === 0 ? git.stdout.trim() : "";
   return branch.startsWith("mark/") ? { task_id: branch.slice(5), task_path: "" } : none;
+}
+
+function folderTask(root, project, workId) {
+  const dir = path.join(root, project, workId);
+  let names = [];
+  try {
+    names = fs.readdirSync(dir);
+  } catch {
+    return null;
+  }
+  const task = names.find((name) => name.startsWith("task-") && name.endsWith(".md"));
+  return task ? { task_id: workId, task_path: path.join(dir, task) } : null;
+}
+
+function hubDir() {
+  return path.resolve(process.env.MARKKJ_WORKTREE_ROOT || path.join(os.homedir(), "workspace", "working-place"));
+}
+
+// A shell variable like $WORK_NAME is not a name.
+function leadingName(text) {
+  const match = text.match(/^[A-Za-z0-9._-]+/);
+  return match && !/^\.+$/.test(match[0]) ? match[0] : "";
+}
+
+function eachIndex(text, prefix, visit) {
+  for (let at = text.indexOf(prefix); at !== -1; at = text.indexOf(prefix, at + 1)) {
+    visit(at, text.slice(at + prefix.length));
+  }
+}
+
+// Each match is { at, task }: where in the text it starts, and the task it names.
+function tasksIn(text, root) {
+  const found = [];
+  if (root) {
+    eachIndex(text, path.resolve(root) + path.sep, (at, rest) => {
+      const [project = ""] = rest.split(path.sep);
+      const workId = leadingName(rest.slice(project.length + 1));
+      const task = project && workId ? folderTask(root, project, workId) : null;
+      if (task) found.push({ at, task });
+    });
+  }
+  const hub = hubDir();
+  const home = os.homedir();
+  const prefixes = [hub];
+  if (hub.startsWith(home + path.sep)) {
+    const tail = hub.slice(home.length);
+    prefixes.push(`~${tail}`, `$HOME${tail}`, `\${HOME}${tail}`);
+  }
+  for (const prefix of prefixes) {
+    eachIndex(text, prefix + path.sep, (at, rest) => {
+      const name = leadingName(rest);
+      if (name) found.push({ at, task: { task_id: name, task_path: "" } });
+    });
+  }
+  return found.sort((a, b) => a.at - b.at);
+}
+
+// The session cwd stays in the checkout the user started from, while the task
+// folder and the worktree live elsewhere. The last one a tool call touched wins.
+function taskFromRows(rows, root) {
+  let last = null;
+  for (const row of rows) {
+    const message = row && row.message;
+    if (!message || !Array.isArray(message.content)) continue;
+    for (const part of message.content) {
+      if (!part || part.type !== "tool_use" || !part.input) continue;
+      for (const key of ["file_path", "path", "notebook_path", "command"]) {
+        const text = part.input[key];
+        if (typeof text !== "string") continue;
+        const found = tasksIn(text, root);
+        if (found.length) last = found[found.length - 1].task;
+      }
+    }
+  }
+  return last;
+}
+
+// Light work has no task folder or worktree; wrap-prompt.js asks Claude to
+// name it in a "Task:" line instead. The latest line wins.
+function summaryFromRows(rows) {
+  let name = "";
+  for (const row of rows) {
+    const message = row && row.message;
+    if (!row || row.type !== "assistant" || !message || !Array.isArray(message.content)) continue;
+    for (const part of message.content) {
+      if (!part || part.type !== "text" || typeof part.text !== "string") continue;
+      for (const match of part.text.matchAll(/^\s*\**Task:\**\s*(.+)$/gm)) {
+        const value = match[1].replace(/[`*]/g, "").trim().slice(0, 60);
+        if (value) name = value;
+      }
+    }
+  }
+  return name ? { task_id: name, task_path: "" } : null;
 }
 
 function emptyUsage() {
@@ -340,10 +431,12 @@ async function main() {
   const report = path.join(dir, "report.html");
   const root = projectPath(dir);
   const cwd = event.cwd || process.cwd();
-  const task = findTask(cwd, root);
   const rows = readRows(event.transcript_path);
   // A subagent writes its own transcript, which the parent's turn never counts.
   const agentRows = event.hook_event_name === "SubagentStop" ? readRows(event.agent_transcript_path) : null;
+  const seen = [...rows, ...(agentRows || [])];
+  let task = taskFromRows(seen, root) || findTask(cwd, root);
+  if (!task.task_id) task = summaryFromRows(rows) || task;
   // Claude Code also stops internal helper agents that leave no transcript.
   if (agentRows && !agentRows.some((row) => row && row.message && row.message.usage)) return;
   const ownRows = agentRows || rows;
