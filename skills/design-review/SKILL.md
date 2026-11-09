@@ -3,8 +3,9 @@ name: design-review
 description: >-
   Adversarially review an existing design against its task/spec for correctness,
   unnecessary complexity, failure modes, compatibility, operability,
-  observability, scaling, migration, and missing tradeoffs. Explicit opt-in only.
-disable-model-invocation: true
+  observability, scaling, migration, and missing tradeoffs. Use when the user
+  names design-review, a new design needs a check before planning, or a
+  workflow reaches this stage.
 ---
 
 # Design Review

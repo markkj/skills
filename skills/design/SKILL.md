@@ -4,8 +4,8 @@ description: >-
   Create a durable technical or workflow design from a clear task/spec. Defines
   how the desired behavior should work: components, interactions, data/API
   changes, failure handling, tradeoffs, compatibility, observability, rollout,
-  and diagrams. Use only when explicitly requested.
-disable-model-invocation: true
+  and diagrams. Use when the user names design, how to build the work is still
+  open after the spec, or a workflow reaches this stage.
 ---
 
 # Design

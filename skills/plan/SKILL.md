@@ -2,12 +2,11 @@
 name: plan
 description: >-
   Turns an existing task record — plus active spec/design when present — into a new executable plan file, {{plan-generate-name}}.md, in the task folder. Chooses coding-plan only when the task clearly asks to write or change code. Use when the user names plan, asks to plan from a saved task record, or a workflow route reaches this stage.
-disable-model-invocation: true
 ---
 
 # Plan
 
-**Do not auto-apply.** Load this skill when the user names `plan`, asks to plan from a saved task record, or a workflow route reaches this stage.
+Load this skill when the user names `plan`, asks to plan from a saved task record, a workflow route reaches this stage, or the work needs a plan before it can start.
 
 **Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
 
@@ -70,7 +69,7 @@ After phase 6, output this block in chat:
 - [`coding-plan`](../coding-plan/SKILL.md): the plan body for a clear code job — diagrams, test-first todos, and a git worktree. Not a second plan file.
 - Execution happens later; do not change product code while planning.
 
-If `{{task-generate-name}}.md` does not exist, tell the user to name [`work-intake-automation`](../work-intake-automation/SKILL.md) first — do not auto-apply intake.
+If `{{task-generate-name}}.md` does not exist, run [`work-intake-automation`](../work-intake-automation/SKILL.md) first to create it.
 
 ## Filename Generation
 

@@ -1,6 +1,6 @@
 # Plan
 
-**Opt-in only.** The agent loads this skill when the user names `plan`, asks to plan from an existing task record, or a workflow route reaches this stage.
+The agent loads this skill when the user names `plan`, asks to plan from an existing task record, a workflow route reaches this stage, or the work needs a plan before it can start.
 
 **Harness:** Phases 0–6 in `SKILL.md`: preconditions → load → clarify → artifact choice → write → ledger (append to Plans) → completion report. Do not skip phases.
 

@@ -4,8 +4,8 @@ description: >-
   Review an implementation plan before execution. Checks that plan steps trace
   to the spec/design, are ordered safely, use small end-to-end feedback loops,
   include tests and verification, and cover migrations/rollback/observability.
-  Explicit opt-in only.
-disable-model-invocation: true
+  Use when the user names plan-review, a new plan needs a check before code
+  starts, or a workflow reaches this stage.
 ---
 
 # Plan Review

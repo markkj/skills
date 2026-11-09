@@ -3,8 +3,8 @@ name: spec-review
 description: >-
   Review an existing specification for correctness, completeness, ambiguity,
   testability, scope, contradictions, constraints, and missing failure cases.
-  Use only when explicitly requested.
-disable-model-invocation: true
+  Use when the user names spec-review, a new spec needs a check before design
+  or plan, or a workflow reaches this stage.
 ---
 
 # Spec Review

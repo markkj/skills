@@ -3,14 +3,14 @@ name: grill-me
 description: >-
   Requirement and intent interrogation — challenge ambiguity, assumptions,
   constraints, scope, success criteria, and edge cases before creating a spec,
-  design, or plan. Use only when the user explicitly says grill me, names
-  grill-me, or asks to pressure-test/clarify a task. Does not design or plan.
-disable-model-invocation: true
+  design, or plan. Use when the user says grill me, names grill-me, or asks to
+  pressure-test/clarify a task, or when the goal, scope, or success criteria
+  are too unclear to write a spec or plan. Does not design or plan.
 ---
 
 # Grill Me
 
-**Opt-in only.** This skill replaces the old `socratic` workflow skill for work clarification.
+This skill replaces the old `socratic` workflow skill for work clarification.
 
 Default light ask-when-unsure (1–3 questions, no silent assumptions) lives in [`problem-decompose`](../problem-decompose/SKILL.md). This skill is the **work-clarity gate** for a full interrogation session.
 

@@ -4,7 +4,6 @@ description: >-
   Framework entry for this pack. Tells the user to pick /workflow-loop-fast or
   /workflow-high. Use when the user types /workflow or names workflow without
   a command. Does not run the work itself.
-disable-model-invocation: true
 ---
 
 # workflow

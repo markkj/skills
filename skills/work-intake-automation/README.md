@@ -1,6 +1,6 @@
 # Work Intake Automation
 
-**Opt-in only.** The agent loads this skill when the user explicitly names `work-intake-automation` or asks for work intake.
+The agent loads this skill when the user names `work-intake-automation`, asks for work intake, or new work has no task record and a later skill needs one.
 
 **Harness:** Phases 0–6 in `SKILL.md` — preconditions → restate → clarify → paths → roles → write (vault via `scripts/resolve-project-path.sh`) → completion report. STOP if env var unset or write unverified.
 
@@ -55,8 +55,7 @@ Projects/client-app/<WORK_ID>/
 ## Routing / Handoff Pattern
 
 - `{{task-generate-name}}.md` stores source facts, status, acceptance criteria, constraints, agent roles, and the future paths for planning/discussion docs.
-- The user explicitly names `plan` to create `{{plan-generate-name}}.md` when ready.
-- The user explicitly names `plan` to create `discussion/` notes or ADRs when needed.
+- `plan` creates `{{plan-generate-name}}.md`, and `discussion/` notes or ADRs when needed. It starts when the user names it or the work needs a plan.
 
 Example flows:
 

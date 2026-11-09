@@ -8,7 +8,6 @@ description: >-
   input and output before any production code. When how it should work is
   still open, start design. Use when the user types /workflow-high or names
   workflow-high.
-disable-model-invocation: true
 ---
 
 # workflow-high
