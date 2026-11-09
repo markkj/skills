@@ -165,7 +165,7 @@ git -C "$WORKTREE" rev-parse --abbrev-ref '@{upstream}' 2>&1    # expect "no ups
 
 `git worktree add` refuses a non-empty target, so create only `$WORK_DIR` — never `$WORKTREE` itself.
 
-**Rules:**
+#### Rules
 
 1. Branch from the **local** `main` (or `master`) branch — not `origin/main`, and never from the current feature branch unless the user asks. The local ref is used as-is, so it may be behind the remote; if freshness matters, say so and ask before pulling.
 2. **Multi-repo work:** repeat the command per repo. Each repo gets its own `<repo-name>` folder under the same work folder and the **same** branch name `mark/<WORK_NAME>`.
@@ -185,7 +185,7 @@ Set the upstream explicitly on the **first** push, and only to the matching remo
 git -C "$WORKTREE" push -u origin "mark/$WORK_NAME"
 ```
 
-**Push rules:**
+#### Push rules
 
 1. Never run a bare `git push` in the worktree before the upstream is set by the command above.
 2. After the first push, `git rev-parse --abbrev-ref '@{upstream}'` must print `origin/mark/<WORK_NAME>`. Anything naming `main` or `master` → **STOP**, do not push again, and report.
@@ -294,14 +294,14 @@ Ask:
 
 Before todos and code, show diagrams for user confirmation.
 
-**Include:**
+#### Include
 
 1. **Component diagram** — layers/boxes and dependencies
 2. **Call flow** — sequence of calls, main functions, errors
 
 Use **Mermaid**. Use real names from the repo when known.
 
-**Example (register user):**
+#### Example (register user)
 
 Component:
 
@@ -329,7 +329,7 @@ sequenceDiagram
   Ctrl-->>C: 201
 ```
 
-**Rules:**
+#### Rules
 
 - Required for non-trivial features; one diagram per feature group (or one diagram with sections).
 - Small e2e iterations and plan todos must map to the diagram.
@@ -371,7 +371,7 @@ Split todos by **one behavior milestone that can go green**. A todo should touch
 
 Only split controller, service, repository, or DB into separate todos when they represent different behavior milestones or the repo explicitly requires separate PR-sized steps.
 
-**Example (register user API):**
+#### Example (register user API)
 
 - **Good (one todo):** `[Register] Slice 1: controller -> service -> repo stub returns 201` — create the controller API, service, repo interface/stub, request/response types, and tests needed to make the first API path pass.
 - **Good (next todo):** `[Register] Slice 2: save user to DB` — update controller/service/repo only as needed to persist through the real DB and verify with repo/IT coverage.
@@ -418,7 +418,7 @@ Default to the **smallest vertical slice** that proves useful behavior, unless t
 | `[GetUser] Slice 3: return 404 when missing`                    | Feature/API not-found tests green              |
 | `[GetUser] Slice 4: full get-user flow`                         | IT if project uses it                          |
 
-**Last todo (whole plan, required):**
+#### Last todo (whole plan, required)
 
 | Todo                     | Verify                                                          |
 | ------------------------ | --------------------------------------------------------------- |

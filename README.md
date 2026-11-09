@@ -18,13 +18,13 @@ The plugin also tracks each task: a band above the prompt shows the task and cur
 
 Clone the repo, then run the installer from it.
 
-**On in every session:**
+### On in every session
 
 ```sh
 ./scripts/install-claude-plugin.sh
 ```
 
-**Per session (recommended):**
+### Per session (recommended)
 
 ```sh
 ./scripts/install-claude-plugin.sh --per-session
@@ -33,7 +33,7 @@ source ~/.zshrc   # or open a new shell
 
 The plugin stays off until you start a session with `claude-kj`. A session cannot turn it on after it starts, so pick `claude-kj` when you open the session.
 
-**Everything in one go:**
+### Everything in one go
 
 ```sh
 ./scripts/setup.sh --per-session   # leave out --per-session to keep it on in every session
