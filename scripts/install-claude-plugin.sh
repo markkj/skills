@@ -25,6 +25,8 @@ else
   "$CLAUDE" plugin marketplace add "$REPO/"
 fi
 "$CLAUDE" plugin install "$PLUGIN"
+# install skips a plugin that is already there, so update pulls in new skills.
+"$CLAUDE" plugin update "$PLUGIN"
 
 # Copies made by the old link-skills.sh load beside the plugin's own skills
 # (each skill listed twice, and loaded even with the plugin off). Only folders
