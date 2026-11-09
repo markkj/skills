@@ -36,6 +36,7 @@ echo "# other" > "$CLAUDE_SKILLS_DIR/impeccable/SKILL.md"
 sh "$ROOT/scripts/install-claude-plugin.sh" > /dev/null
 grep -q "plugin marketplace add $ROOT/" "$CLAUDE_LOG" || fail "marketplace not added: $(cat "$CLAUDE_LOG")"
 grep -q "plugin install markkj-skills@markkj-skills" "$CLAUDE_LOG" || fail "plugin not installed"
+grep -q "plugin update markkj-skills@markkj-skills" "$CLAUDE_LOG" || fail "plugin not updated"
 [ -e "$CLAUDE_SKILLS_DIR/plan" ] && fail "old copied skill not removed"
 [ -f "$CLAUDE_SKILLS_DIR/impeccable/SKILL.md" ] || fail "removed a skill this pack does not own"
 grep -q "plugin disable" "$CLAUDE_LOG" && fail "plain install must not disable the plugin"

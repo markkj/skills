@@ -33,12 +33,20 @@ source ~/.zshrc   # or open a new shell
 
 The plugin stays off until you start a session with `claude-kj`. A session cannot turn it on after it starts, so pick `claude-kj` when you open the session.
 
+**Everything in one go:**
+
+```sh
+./scripts/setup.sh --per-session   # leave out --per-session to keep it on in every session
+```
+
+`setup.sh` runs the plugin installer, then `install-center.sh` to link `CLAUDE.md`. Run it again after `git pull` to pick up new skills, then restart Claude Code.
+
 ### What the installer does
 
 | Step | Command it runs | Plain install | `--per-session` |
 |------|-----------------|:-------------:|:---------------:|
 | 1. Add this repo as a plugin source | `claude plugin marketplace add ./`, or `marketplace update` when already added | ✓ | ✓ |
-| 2. Install the plugin | `claude plugin install markkj-skills@markkj-skills` | ✓ | ✓ |
+| 2. Install or update the plugin | `claude plugin install markkj-skills@markkj-skills`, then `claude plugin update` | ✓ | ✓ |
 | 3. Remove old skill copies | deletes folders in `~/.claude/skills` that hold the `.markkj-skills-installed` marker | ✓ | ✓ |
 | 4. Turn the plugin off by default | `claude plugin disable markkj-skills@markkj-skills` | | ✓ |
 | 5. Add the `claude-kj` alias | writes one block to `~/.zshrc` (or `~/.bashrc`) | | ✓ |
@@ -403,6 +411,7 @@ hooks/
 skills/<name>/SKILL.md # one folder per skill
 templates/             # shared templates the skills use
 scripts/
+  setup.sh             # one command: plugin install/update + center link
   install-claude-plugin.sh
   install-center.sh    # optional: link CLAUDE.md
   resolve-project-path.sh
