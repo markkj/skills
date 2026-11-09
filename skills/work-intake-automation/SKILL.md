@@ -63,8 +63,12 @@ This skill **creates** the task folder. Every later file belongs here:
 ```text
 $PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 ├── task-<slug>.md
-└── discussion/     ← questions-intake-*.md lives here, not at repo root
+├── discussion/     ← questions-intake-*.md, notes, ADRs (needs user input)
+├── reports/        ← reviews, verification, metric reports (results)
+└── docs/           ← setup, runbooks, how-to (lasting reference)
 ```
+
+None of these folders go at the repo root. Intake writes only `discussion/questions-intake-*.md`. Later skills create `reports/` and `docs/` when they need them.
 
 When the user is ready to plan, they must explicitly request [`plan`](../plan/SKILL.md) — do not auto-switch.
 
@@ -177,6 +181,8 @@ owner: <person or agent>
 - **Open questions:**
   - *(none yet — optional; `discussion/questions-<stage>-<slug>.md`)*
 - **Discussion folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/`
+- **Reports folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/reports/` (reviews, verification, metric reports)
+- **Docs folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/docs/` (setup, runbooks, how-to)
 
 ## Goal
 
@@ -212,6 +218,8 @@ Example after two plans exist:
   - `plan-add-export-button-2.md`
 - **Active plan:** `plan-add-export-button-2.md`
 - **Discussion folder:** `Projects/client-app/add-export-button/discussion/`
+- **Reports folder:** `Projects/client-app/add-export-button/reports/`
+- **Docs folder:** `Projects/client-app/add-export-button/docs/`
 ```
 
 ## Future Artifact Paths
@@ -225,6 +233,8 @@ This skill creates the durable task record and records where later artifacts may
 - **Clarify:** `discussion/grill-me-<slug>.md` (optional; no `status` field)
 - **Open questions:** `discussion/questions-<stage>-<slug>.md` — user fills each **A:** line; template: [`templates/open-questions.md`](../../templates/open-questions.md)
 - **Discussion folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/`
+- **Reports folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/reports/` (reviews, verification, metric reports)
+- **Docs folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/docs/` (setup, runbooks, how-to)
 
 ## Intake Rules
 

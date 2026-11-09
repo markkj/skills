@@ -226,6 +226,11 @@ Use `discussion/` for material that supports the plan but is not the work queue:
 - `discussion/notes.md` for research notes or copied source context.
 - `discussion/adr-0001-<decision>.md` when there are real tradeoffs.
 
+Two other folders sit next to `discussion/`. Do not put these files in `discussion/`:
+
+- `reports/` holds results, such as reviews, verification, and metric reports.
+- `docs/` holds lasting reference, such as setup steps, runbooks, and how-to guides.
+
 ADR template:
 
 ```markdown
