@@ -137,7 +137,10 @@ $PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 
 Follow [Harness phases](#harness-phases). The steps below are phase details — not a separate optional list.
 
-**Phase 1 — Load** fields:
+### Phase 1 — Load
+
+Fields:
+
    - goal and acceptance criteria from task/spec
    - constraints and assumptions
    - **Active spec** when present
@@ -145,13 +148,19 @@ Follow [Harness phases](#harness-phases). The steps below are phase details — 
    - unknowns/blockers
    - existing **Plans** list, **Active plan**, discussion path
 
-**Phase 2 — Planning readiness:** A plan is not the place to resolve foundational ambiguity. If acceptance criteria/scope are unclear, recommend `grill-me` or `requirement-spec`. If architecture/solution decisions are required but unresolved, recommend `design`. Only ask narrow planning-specific questions (execution owner, artifact format, sequencing constraints). If **Plans** is non-empty, confirm the user wants an **additional** plan (default) rather than editing an old one in place.
+### Phase 2 — Planning readiness
 
-**Phase 3 — Artifact choice:**
+A plan is not the place to resolve foundational ambiguity. If acceptance criteria/scope are unclear, recommend `grill-me` or `requirement-spec`. If architecture/solution decisions are required but unresolved, recommend `design`. Only ask narrow planning-specific questions (execution owner, artifact format, sequencing constraints). If **Plans** is non-empty, confirm the user wants an **additional** plan (default) rather than editing an old one in place.
+
+### Phase 3 — Artifact choice
+
    - **Plan file:** write a **new** `plan-*.md` in the task folder ([template below](#plan-generate-namemd-template)).
    - **Discussion doc:** write `discussion/<topic>.md` or `discussion/adr-0001-<decision>.md` only for decisions, research, or context that would make a plan file noisy.
 
-**Phase 5 — Ledger** updates to `{{task-generate-name}}.md` only:
+### Phase 5 — Ledger
+
+Update `{{task-generate-name}}.md` only:
+
    - `status: Planned`
    - **Append** the new vault path under **Plans**
    - Set **Active plan** to the new plan

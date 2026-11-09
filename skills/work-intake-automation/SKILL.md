@@ -96,26 +96,36 @@ Task: Projects/client-app/add-export-button/task-add-export-button.md
 
 Follow [Harness phases](#harness-phases). Details per phase:
 
-**Phase 0 — Source** — identify:
+### Phase 0 — Source
+
+Identify:
+
    - **Jira:** issue key, title, link, description, comments, acceptance criteria, labels, assignee, priority.
    - **Typed request:** user goal, context, constraints, acceptance criteria, examples, deadline.
    - **Other source:** capture source name, link/path if available, and raw notes.
 
-**Phase 4 — Roles** — record in task file (intake only; planning and execution happen later):
+### Phase 4 — Roles
+
+Record in task file (intake only; planning and execution happen later):
+
    - **Intake agent:** reads the source and writes `{{task-generate-name}}.md`, e.g. Claude Code reads Jira.
    - **Planning owner:** user | Claude Code | Other | TBD.
    - **Execution owner:** user | Claude Code | Other | TBD.
    - **Discussion owner:** user | Claude Code | Other | TBD.
 
-**Phase 2 — Clarify:** If the request lacks enough facts, ask 1–3 questions in chat **and** write `discussion/questions-intake-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md). The user fills each **`A:`** line. List the file under **Open questions** on the task. Write the task when the vault path is known. Do not invent answers.
+### Phase 2 — Clarify
 
-**Phase 3 — Paths:**
+If the request lacks enough facts, ask 1–3 questions in chat **and** write `discussion/questions-intake-<slug>.md` using [`templates/open-questions.md`](../../templates/open-questions.md). The user fills each **`A:`** line. List the file under **Open questions** on the task. Write the task when the vault path is known. Do not invent answers.
+
+### Phase 3 — Paths
 
 - **work-id:** Jira → issue key (e.g. `PROJ-123`); manual → `YYYYMMDD-short-slug`; other → native id if stable, else `YYYYMMDD-short-slug`. Do not put source names like `manual` or `jira` in folder names.
 - **Filenames:** generate `task-<slug>.md` and future `plan-<slug>.md` per [filename rules](#filename-generation).
 - **Folder:** `$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/` — infer `<PROJECT_NAME>` from, in order: `--project`, `TASK_PROJECT`, git repo root name, current directory name.
 
-**Phase 5 — Write:** create folder and task file. If there are blocking questions, also write `discussion/questions-intake-<slug>.md`. Do not create plan, spec, design, notes, or ADRs.
+### Phase 5 — Write
+
+create folder and task file. If there are blocking questions, also write `discussion/questions-intake-<slug>.md`. Do not create plan, spec, design, notes, or ADRs.
 
 ## Project Path writes
 

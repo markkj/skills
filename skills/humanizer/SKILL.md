@@ -35,12 +35,23 @@ Change this section when the style should change. The rest of the skill follows 
 
 Rewrite the sentences around that structure.
 
+## Markdown headings
+
+When you write a markdown file, mark a section title with a heading (`#`, `##`, `###`), not a bold line.
+
+- Bad: `**Rules:**` alone on its own line, with a list under it.
+- Good: `### Rules`, then the list.
+- Pick the level from where the section sits: one level below its parent heading.
+- Bold is fine for an inline label that starts a sentence (`**Rule:** Keep it short.`) and for field labels the template requires (`**What:**`, `**Your call:**`).
+- In chat, a short bold label is still fine. This rule is for files.
+
 ## How to write
 
 1. Fill the owning skill's template.
 2. Rewrite the sentences to match **Voice**.
-3. Check every name, number, date, and claim. It must still come from the source. Cut a sentence that only adds mood.
-4. Write the final text in the place it belongs. Keep the chat free of a draft and a critique.
+3. Make every section title a heading (see **Markdown headings**).
+4. Check every name, number, date, and claim. It must still come from the source. Cut a sentence that only adds mood.
+5. Write the final text in the place it belongs. Keep the chat free of a draft and a critique.
 
 ## Tells
 
@@ -56,10 +67,10 @@ Remove these when they show up:
 
 ## Example
 
-**Before**
+### Before
 
 > This specification serves as a pivotal milestone toward a seamless authentication experience. It's not just a login form — it's a testament to user trust. Let's dive in.
 
-**After**
+### After
 
 > The user signs in with email and a password. A wrong password shows "That password does not match" and leaves the email filled in.
