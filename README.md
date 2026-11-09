@@ -292,11 +292,21 @@ $PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/          # same folder as task-*.md
 ├── requirement-spec-<slug>.md     # requirement-spec: optional; one or more over time
 ├── design-<slug>.md               # design: optional; one or more over time
 ├── plan-<slug>.md                 # plan, or coding-plan when the job is code
-└── discussion/                    # questions + reviews — never repo root
-    ├── spec-review-<slug>.md
-    ├── design-review-<slug>.md
-    └── verification-<slug>.md
+├── discussion/                    # needs your input: questions, notes, ADRs
+│   └── questions-<stage>-<slug>.md
+├── reports/                       # results: reviews, verification, metric reports
+│   ├── spec-review-<slug>.md
+│   ├── design-review-<slug>.md
+│   └── verification-<slug>.md
+└── docs/                          # lasting reference: setup, runbooks, how-to
+    └── setup-<slug>.md
 ```
+
+All three folders sit next to `task-*.md`, never at the repo root. Pick the folder by what the file is for:
+
+- `discussion/` holds something still open, like a question you answer on an **A:** line, a note, or a decision record.
+- `reports/` holds a result from a review, a check, or a measurement. Nobody edits it after it is written.
+- `docs/` holds something people come back to, like setup steps or a runbook.
 
 Product code goes through `coding-plan`, which creates the git worktree here:
 

@@ -18,14 +18,14 @@ Ask: **Did the work actually satisfy what we said should be true?**
 Write the report **only** here:
 
 ```text
-$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/verification-<slug>.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/reports/verification-<slug>.md
 ```
 
-That `discussion/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
+That `reports/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
 
 Load the task and the relevant spec/design/active plan. Inspect implementation/test evidence when the work is coding-related.
 
-Write a **short** report using [`templates/review-report.md`](../../templates/review-report.md) in chat and in `discussion/verification-<slug>.md`.
+Write a **short** report using [`templates/review-report.md`](../../templates/review-report.md) in chat and in `reports/verification-<slug>.md`.
 
 - Put each FAIL / NOT VERIFIED criterion as a **Must fix** item (**Where** = the evidence).
 - Keep a tiny matrix only if it helps; do not paste a huge table as the whole report.
@@ -46,4 +46,4 @@ Append a one-line verdict to the task **Execution Log**.
 
 **Avoid loading:** unrelated code, full development history, old discussions not needed to prove a criterion.
 
-**Context update:** replace the `Verification Signals` section with concise evidence/results and preserve only remaining gaps. Detailed matrices may live in `discussion/verification-*.md`. See [`../../CONTEXT.md`](../../CONTEXT.md).
+**Context update:** replace the `Verification Signals` section with concise evidence/results and preserve only remaining gaps. Detailed matrices may live in `reports/verification-*.md`. See [`../../CONTEXT.md`](../../CONTEXT.md).

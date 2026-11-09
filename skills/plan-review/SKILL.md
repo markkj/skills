@@ -19,10 +19,10 @@ Ask: **Can this design/spec be implemented safely from this plan?**
 Write the report **only** here:
 
 ```text
-$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/discussion/plan-review-<slug>.md
+$PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/reports/plan-review-<slug>.md
 ```
 
-That `discussion/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
+That `reports/` folder is next to `task-*.md`, not at the git repo root. No task file → STOP; name [`work-intake-automation`](../work-intake-automation/SKILL.md) first.
 
 Load the task, active/chosen plan, and spec/design when present.
 
@@ -37,7 +37,7 @@ Check:
 - repo/worktree assumptions are correct
 - no implementation-critical decision is left vague
 
-Return a **short** report using [`templates/review-report.md`](../../templates/review-report.md) — same shape in chat and in `discussion/plan-review-<slug>.md`.
+Return a **short** report using [`templates/review-report.md`](../../templates/review-report.md) — same shape in chat and in `reports/plan-review-<slug>.md`.
 
 The user only fills **Your call:** (`fix` / `skip` / `need more info`). Do not dump this checklist into the report. Cap: 5 Must fix, 5 Should fix, 3 Nice to have.
 
