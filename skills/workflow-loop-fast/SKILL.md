@@ -8,7 +8,6 @@ description: >-
   only for a clear code job. A sub-agent runs a stage only when that stage is
   a different job from this loop. Use when the user types /workflow-loop-fast,
   names workflow-loop-fast, or asks the agent to run the workflow loop.
-disable-model-invocation: true
 ---
 
 # workflow-loop-fast

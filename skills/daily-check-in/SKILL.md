@@ -4,7 +4,6 @@ description: >-
   Builds today's work list from every project and writes a daily log.
   Use only when the user names daily-check-in, asks for a daily check-in,
   a daily log, or what to do today from project tasks.
-disable-model-invocation: true
 ---
 
 # Daily Check-in

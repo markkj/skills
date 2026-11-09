@@ -4,8 +4,8 @@ description: >-
   Review the actual code diff against the task, spec, design, and plan. Focuses
   on correctness, requirement compliance, maintainability, failure handling,
   concurrency, performance, compatibility, observability, and test quality.
-  Explicit opt-in only.
-disable-model-invocation: true
+  Use when the user names code-review, finished code needs a review, or a
+  workflow reaches this stage.
 ---
 
 # Code Review

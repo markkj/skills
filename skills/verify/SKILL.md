@@ -3,8 +3,8 @@ name: verify
 description: >-
   Verify completed work against the task/spec/design/plan, not merely whether
   tests pass. Produces requirement-by-requirement evidence and identifies gaps.
-  Explicit opt-in only.
-disable-model-invocation: true
+  Use when the user names verify, finished work must be checked against its
+  criteria, or a workflow reaches this stage.
 ---
 
 # Verify

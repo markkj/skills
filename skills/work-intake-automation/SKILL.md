@@ -1,13 +1,12 @@
 ---
 name: work-intake-automation
 description: >-
-  Automates AI-assisted work intake from Jira issues, typed user requests, pasted specs, or other task sources into a Project Path {{task-generate-name}}.md with pointers for where the user can later store {{plan-generate-name}}.md and discussion docs. Use only when the user explicitly names work-intake-automation, asks for work intake, Jira-to-task capture, or task handoff before planning.
-disable-model-invocation: true
+  Automates AI-assisted work intake from Jira issues, typed user requests, pasted specs, or other task sources into a Project Path {{task-generate-name}}.md with pointers for where the user can later store {{plan-generate-name}}.md and discussion docs. Use when the user names work-intake-automation, asks for work intake, Jira-to-task capture, or task handoff before planning, or when new work has no task record yet and a later skill needs one.
 ---
 
 # Work Intake Automation
 
-**Do not auto-apply.** Load this skill only when the user explicitly names `work-intake-automation`, asks for work intake, Jira-to-task capture, or task tracking before planning.
+Load this skill when the user names `work-intake-automation`, asks for work intake, Jira-to-task capture, or task tracking before planning, or when new work has no task record and a later skill needs one.
 
 **Prose:** Sentences in the markdown follow [`humanizer`](../humanizer/SKILL.md). Keep this skill's headings, YAML, links, and checkboxes.
 
@@ -70,7 +69,7 @@ $PROJECT_PATH/<PROJECT_NAME>/<WORK_ID>/
 
 None of these folders go at the repo root. Intake writes only `discussion/questions-intake-*.md`. Later skills create `reports/` and `docs/` when they need them.
 
-When the user is ready to plan, they must explicitly request [`plan`](../plan/SKILL.md) — do not auto-switch.
+Intake stops after the task is written. Start [`plan`](../plan/SKILL.md) or another stage next only when the user asks, or when the work needs it.
 
 ## Filename Generation
 
@@ -241,7 +240,7 @@ This skill creates the durable task record and records where later artifacts may
 - Before writing `{{task-generate-name}}.md`, restate the current goal, assumptions, and unknowns.
 - Treat `{{task-generate-name}}.md` as the task brief/status ledger and path index.
 - Do not put checkboxes or implementation todos in `{{task-generate-name}}.md`; acceptance criteria there are descriptive criteria, not progress tracking.
-- Do not create spec, design, plan, note, ADR, or product-code artifacts during intake. Intake captures and routes only. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Later skills remain explicit opt-in.
+- Do not create spec, design, plan, note, ADR, or product-code artifacts during intake. Intake captures and routes only. A `discussion/questions-intake-*.md` file is allowed when there are blocking questions. Start a later skill only when the user asks or the work needs it.
 - Update `{{task-generate-name}}.md` whenever status changes, a blocker appears, task facts change, or completion evidence should be logged.
 - Keep Task docs concise: facts, decisions, status, path pointers, and verification evidence.
 

@@ -4,9 +4,9 @@ description: >-
   Write a durable requirement spec for a task: goals, non-goals, expected
   behavior, acceptance criteria, constraints, edge cases, and open questions.
   Uses the existing task folder and never performs solution design or
-  coding. Use only when the user explicitly names requirement-spec or asks for
-  a requirement spec.
-disable-model-invocation: true
+  coding. Use when the user names requirement-spec or asks for a requirement
+  spec, or when work has no spec and needs agreed behavior and acceptance
+  criteria before design or plan.
 ---
 
 # Requirement spec
