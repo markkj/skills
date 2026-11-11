@@ -37,6 +37,32 @@ Check:
 - repo/worktree assumptions are correct
 - no implementation-critical decision is left vague
 
+## Verify every finding
+
+Do not guess. A finding goes in the report only after you checked it against the source.
+
+For each possible finding:
+
+1. **Read the plan step itself**, plus the spec or design item it should cover.
+2. **Check the repo.** When a step names a file, function, command, or test, open it. Make sure it exists and does what the plan assumes.
+3. **Search the whole plan.** A missing test or migration may sit in a later step.
+4. **Try to prove yourself wrong.** If another step or the repo already covers it, drop the finding.
+
+Then sort the result:
+
+- **Confirmed** → you can name the step and the requirement, file, or order that is wrong or missing. It goes in a fix list.
+- **Not confirmed** → you could not see the code or doc that decides it. Put it in **Questions for you**. Say what you checked.
+- **Disproved** → leave it out.
+
+Fill **Checked:** on each finding with the steps, spec or design items, and repo files you read, e.g. `plan todo 3, 5; design §2; db/migrate/`.
+
+### Rules
+
+- Never write "might", "could", or "probably" in a **Must fix** or **Should fix** item. If you are not sure, it is a question.
+- Never quote or describe a document or file you did not open.
+
+## Report
+
 Return a **short** report using [`templates/review-report.md`](../../templates/review-report.md) — same shape in chat and in `reports/plan-review-<slug>.md`.
 
 The user only fills **Your call:** (`fix` / `skip` / `need more info`). Do not dump this checklist into the report. Cap: 5 Must fix, 5 Should fix, 3 Nice to have.

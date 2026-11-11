@@ -35,6 +35,32 @@ Check:
 - hidden solution decisions masquerading as requirements
 - unresolved questions that block the next stage
 
+## Verify every finding
+
+Do not guess. A finding goes in the report only after you checked it against the source.
+
+For each possible finding:
+
+1. **Read the spec section itself**, not only its title or summary.
+2. **Check the source.** Open the task, ticket, or source requirement the section comes from. Make sure the gap or conflict is real there too.
+3. **Search the whole spec.** A missing case may be covered in another section, a non-goal, or a linked doc.
+4. **Try to prove yourself wrong.** If another section or linked doc already answers it, drop the finding.
+
+Then sort the result:
+
+- **Confirmed** → you can quote the line that is wrong, missing, or in conflict. It goes in a fix list.
+- **Not confirmed** → the answer depends on intent or a doc you cannot see. Put it in **Questions for you**. Say what you checked.
+- **Disproved** → leave it out.
+
+Fill **Checked:** on each finding with the sections and source docs you read, e.g. `spec §3, §5; task-login.md acceptance criteria`.
+
+### Rules
+
+- Never write "might", "could", or "probably" in a **Must fix** or **Should fix** item. If you are not sure, it is a question.
+- Never quote or describe a document or file you did not open.
+
+## Report
+
 Return a **short** report using [`templates/review-report.md`](../../templates/review-report.md) — same shape in chat and in `reports/spec-review-<slug>.md`.
 
 The user only fills **Your call:** (`fix` / `skip` / `need more info`). Do not dump this checklist into the report. Cap: 5 Must fix, 5 Should fix, 3 Nice to have.

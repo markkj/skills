@@ -25,6 +25,32 @@ That `reports/` folder is next to `task-*.md`, not at the git repo root. No task
 
 Load the task and the relevant spec/design/active plan. Inspect implementation/test evidence when the work is coding-related.
 
+## Verify every finding
+
+Do not guess. A criterion is PASS or FAIL only with evidence you saw yourself.
+
+For each acceptance criterion:
+
+1. **Find the code that meets it.** Open it. Trace its callers and the functions it calls far enough to see the behavior.
+2. **Find the proof.** A test that covers it, command output, or a runtime check. Run it when you can. Read what the test really asserts.
+3. **Try to prove it fails.** Look for an input or path the test misses.
+
+Then sort the result:
+
+- **PASS** → you saw evidence for it.
+- **FAIL** → you can name the input or state that breaks it and where. It goes in **Must fix**.
+- **NOT VERIFIED** → you could not see or run what would prove it. It goes in **Must fix** with what is missing, or in **Questions for you** if only the user can answer.
+
+Fill **Checked:** on each finding with the code, tests, and output you looked at, e.g. `auth.ts:52; auth.test.ts "expired token"; npm test output`.
+
+### Rules
+
+- Never write "might", "could", or "probably" in a **Must fix** or **Should fix** item. If you are not sure, it is a question.
+- Never claim a test passes or fails without its output.
+- Never quote or describe a document or file you did not open.
+
+## Report
+
 Write a **short** report using [`templates/review-report.md`](../../templates/review-report.md) in chat and in `reports/verification-<slug>.md`.
 
 - Put each FAIL / NOT VERIFIED criterion as a **Must fix** item (**Where** = the evidence).

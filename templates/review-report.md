@@ -7,7 +7,9 @@
 3. Optional: write a short note under **Your note:**.
 4. Tell the agent this file is filled.
 
-Do not edit **What** / **Why** / **Where**. Those are for the reviewer.
+Do not edit **What** / **Why** / **Where** / **Checked**. Those are for the reviewer.
+
+Every finding was checked against the source before it went in. Anything the reviewer could not confirm is in **Questions for you**, not in the fix lists.
 
 - **Kind:** spec-review | design-review | plan-review | code-review | verify
 - **Looks at:** `<path to spec/design/plan/diff>`
@@ -33,6 +35,7 @@ Blockers. Do not go to the next stage until these are `fix` or you explicitly `s
 **What:** <one sentence>
 **Why it matters:** <one short line>
 **Where:** `<file or section>`
+**Checked:** <what the reviewer read to confirm this: callers, callees, and tests for code; linked sections and source docs for a spec, design, or plan>
 **Your call:**
 **Your note:**
 
