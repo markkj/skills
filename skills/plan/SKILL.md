@@ -205,7 +205,8 @@ Use this for the task folder plan.
 
 ## Todos
 
-- [ ] <Executable outcome> - verify: <test, command, review, or acceptance check>
+- [ ] **<Executable outcome>**
+  - verify: <test, command, review, or acceptance check>
 
 ## Verification
 
