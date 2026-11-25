@@ -59,7 +59,7 @@ Never write `discussion/` at the git repo root or the Project Path root. Do not 
 | **3 — Feature map**        | Name user-visible behaviors; group features                                                                                                                                                                                                                                                                         | Behaviors trace to acceptance criteria                                                                         | Cannot trace to criteria → back to readiness                                                                                                    |
 | **4 — Diagram**            | Mermaid component + call flow per feature group                                                                                                                                                                                                                                                                     | User confirms diagram                                                                                          | User objects or diagram incomplete → revise; STOP before todos                                                                                  |
 | **5 — Todos**              | One plan todo per small e2e iteration; each has `verify:`. **Last todo is always** Manual test & verify (not a code slice) | Slice count + 1 last verify todo; last title contains `Manual test & verify` | Layer-only todos, or last todo is another slice → fix before implement |
-| **6 — Plan file**          | Write a free `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) in the task folder via `scripts/resolve-project-path.sh` | Plan file exists with YAML todos; no overwrite. Light work with no task folder: plan in chat instead | `scripts/resolve-project-path.sh` unset, or work needs a durable record and no task folder known → ask; STOP before implement |
+| **6 — Plan file**          | Write a free `plan-<slug>.md` (or `plan-<slug>-N.md` if taken) in the task folder via `scripts/resolve-project-path.sh` | Plan file exists with a checkbox todo list; no overwrite. Light work with no task folder: plan in chat instead | `scripts/resolve-project-path.sh` unset, or work needs a durable record and no task folder known → ask; STOP before implement |
 | **7 — Worktree**           | Resolve `WORK_NAME` (`<WORK_ID>_<TASK_SLUG>`, or slug alone with no `WORK_ID`); for each repo the work touches, add a git worktree at `~/workspace/working-place/<WORK_NAME>/<repo-name>` from local `main`/`master` on branch `mark/<WORK_NAME>` with `--no-track` — see [worktree setup](#worktree-setup-phase-7) | Worktree path exists per repo; `git branch --show-current` = `mark/<WORK_NAME>`; no upstream on the new branch | No `TASK_SLUG`, dirty base repo, branch/worktree name taken, upstream points at `main`/`master`, or not a git repo → ask; STOP before implement |
 
 **Forbidden before phase 7 complete:** production code for new behavior (except trivial one-liners user agreed to skip). All implementation happens **inside the worktree**, never on `main`/`master`. Do not invent spec/design decisions to pass readiness.
@@ -87,17 +87,21 @@ Prefer the task folder from an existing task record ([`plan`](../plan/SKILL.md) 
 
 **One task → many plans.** Write a **new** plan file; never overwrite. If `plan-<slug>.md` exists, use `plan-<slug>-2.md`, then `-3`, … until free. **Append** to the task’s **Plans** list and set **Active plan** to the new file. If several plans exist and the user did not say which to execute, ask once — default is **Active plan**.
 
-Start the file with YAML frontmatter that holds the todo list, so progress lives in one place:
+Keep the todo list as a markdown checkbox list in the plan body, so progress lives in one place and Obsidian shows clickable boxes. Do not put todos in YAML frontmatter. Put `verify:` on its own line under each todo. Mark a todo done by changing `- [ ]` to `- [x]`.
 
-```yaml
----
-name: <Short plan name>
-overview: <One-sentence outcome and approach.>
-todos:
-  - id: <stable-kebab-case-id>
-    content: <Outcome-oriented todo> - verify: <check>
-    status: pending
----
+```markdown
+# Plan: <Short plan name>
+
+> <One-sentence outcome and approach.>
+
+## Todos
+
+- [ ] **<[Feature] Slice 1: outcome-oriented todo>**
+  - verify: <check>
+- [ ] **<[Feature] Slice 2: outcome-oriented todo>**
+  - verify: <check>
+- [ ] **Manual test & verify**
+  - verify: <real user path and each acceptance criterion>
 ```
 
 ### Worktree setup (phase 7)
